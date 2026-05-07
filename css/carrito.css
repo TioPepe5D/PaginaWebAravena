@@ -620,7 +620,7 @@ body > .footer { margin-top: auto; }
    ============================================= */
 .btn-flotante-transferencia {
   position: fixed;
-  bottom: 100px;        /* deja espacio para el círculo verde de abajo */
+  bottom: 28px;
   right: 24px;
   z-index: 998;
   display: inline-flex;
@@ -702,7 +702,7 @@ body > .footer { margin-top: auto; }
 /* En móvil: compacto (solo título) para no tapar el carrito */
 @media (max-width: 600px) {
   .btn-flotante-transferencia {
-    bottom: 92px;
+    bottom: 20px;
     right: 16px;
     padding: 10px 14px 10px 10px;
     gap: 8px;
