@@ -30,22 +30,19 @@ async function enviarNotifWhatsApp({ pedidoId, total, items, email }) {
 }
 
 module.exports = async (req, res) => {
-  // MercadoPago valida la URL con GET al registrar el webhook
-  if (req.method === "GET") {
-    return res.status(200).send("OK");
-  }
-
+  // MP valida y simula con GET/HEAD/OPTIONS — siempre 200 para esos casos
   if (req.method !== "POST") {
-    return res.status(405).send("Method Not Allowed");
+    return res.status(200).send("OK");
   }
 
   try {
     const body = req.body || {};
-    console.log("[Webhook MP] Notificación:", JSON.stringify(body));
+    console.log("[Webhook MP] Método:", req.method, "| Notificación:", JSON.stringify(body));
 
     // Solo procesar eventos de pago
     const tipo = body.type || body.topic;
     if (tipo !== "payment") {
+      console.log("[Webhook MP] Tipo no manejado:", tipo);
       return res.status(200).send("OK");
     }
 
