@@ -235,7 +235,12 @@ function aplicarFiltros() {
   const estado = document.getElementById('filtro-estado').value;
 
   pedidosFiltrados = todosLosPedidos.filter(p => {
-    if (estado !== 'todos' && p.estado !== estado) return false;
+    // "Todos" excluye pendientes — solo se ven al filtrar explícitamente
+    if (estado === 'todos') {
+      if (p.estado === 'pendiente') return false;
+    } else if (p.estado !== estado) {
+      return false;
+    }
 
     if (busqueda) {
       const id = String(p.id).toLowerCase();
