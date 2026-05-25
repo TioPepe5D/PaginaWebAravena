@@ -1,16 +1,41 @@
+// Fuente de productos activa — se reemplaza con datos de Supabase si están disponibles
+let productosActivos = typeof productos !== 'undefined' ? [...productos] : [];
+
+async function cargarCatalogoDesdeSupa() {
+  if (typeof db === 'undefined' || !db) return;
+  try {
+    const { data, error } = await db
+      .from('catalogo')
+      .select('*')
+      .eq('activo', true)
+      .order('created_at', { ascending: false });
+
+    if (!error && data && data.length > 0) {
+      productosActivos = data.map(r => ({
+        id: r.id,
+        nombre: r.nombre || 'Sin nombre',
+        precio: r.precio || 0,
+        imagen: r.imagen_url,
+        categoria: r.categoria || 'general',
+        descripcion: r.descripcion || r.nombre || '',
+        drive_file_id: r.drive_file_id,
+      }));
+    }
+    // Si la tabla está vacía, usa el catálogo estático (products.js)
+  } catch (e) { /* silencioso — usa estático */ }
+}
+
 function renderizarProductos() {
   const grid     = document.getElementById("productos-grid");
   const busqueda = (document.getElementById("filtro-nombre")?.value || "").toLowerCase();
   const orden    = document.getElementById("filtro-precio")?.value || "";
 
-  let filtrados = [...productos];
+  let filtrados = [...productosActivos];
 
-  // ── Búsqueda por nombre ──
   if (busqueda) {
     filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
   }
 
-  // ── Orden por precio ──
   if (orden === "asc")  filtrados = filtrados.sort((a, b) => a.precio - b.precio);
   if (orden === "desc") filtrados = filtrados.sort((a, b) => b.precio - a.precio);
 
@@ -22,15 +47,14 @@ function renderizarProductos() {
   grid.innerHTML = filtrados.map((producto, i) => {
     const enCarrito = (typeof carrito !== "undefined") ? carrito.find(p => p.id === producto.id) : null;
     const cantidad  = enCarrito ? enCarrito.cantidad : 0;
-    // Solo escalonar la animación de las primeras 8 tarjetas (las demás aparecen sin delay)
     const delay = i < 8 ? i * 60 : 0;
-    // Cargar las primeras 6 imágenes con prioridad alta (LCP), el resto lazy
     const lazyAttr = i < 6 ? '' : 'loading="lazy" decoding="async"';
     const fetchPriority = i < 3 ? 'fetchpriority="high"' : '';
+    const imgSrc = (window.imagenesOverride && window.imagenesOverride[producto.id]) || producto.imagen;
     return `
     <div class="producto-card animar${cantidad > 0 ? ' en-carrito' : ''}" style="transition-delay: ${delay}ms" data-id="${producto.id}">
       <div class="producto-card-img-wrap">
-        <img src="${(window.imagenesOverride && window.imagenesOverride[producto.id]) || producto.imagen}" alt="${producto.nombre}" ${lazyAttr} ${fetchPriority}>
+        <img src="${imgSrc}" alt="${producto.nombre}" ${lazyAttr} ${fetchPriority}>
         ${cantidad > 0 ? `<span class="badge-en-carrito">${cantidad}</span>` : ''}
         ${typeof iconCorazon === 'function' ? iconCorazon(producto.id) : ''}
       </div>
@@ -61,7 +85,6 @@ function renderizarProductos() {
   `;
   }).join("");
 
-  // Abrir panel de detalle al hacer clic en la tarjeta
   grid.querySelectorAll(".producto-card").forEach(card => {
     card.addEventListener("click", () => {
       const id = parseInt(card.dataset.id);
@@ -75,7 +98,7 @@ function renderizarProductos() {
 }
 
 function abrirDetalleProducto(id) {
-  const producto = productos.find(p => p.id === id);
+  const producto = productosActivos.find(p => p.id === id);
   if (!producto) return;
 
   const panel    = document.getElementById("producto-detalle-panel");
@@ -83,7 +106,6 @@ function abrirDetalleProducto(id) {
   const contenido = document.getElementById("producto-detalle-contenido");
 
   const precioTexto = producto.precio > 0 ? `$${producto.precio.toLocaleString("es-CL")} CLP` : 'Consultar precio';
-  // Construir URL absoluta de la imagen (por si es ruta relativa)
   const imagenUrl = producto.imagen.startsWith('http')
     ? producto.imagen
     : `https://joyasaravena.cl/${producto.imagen.replace(/^\//, '')}`;
@@ -117,8 +139,8 @@ function abrirDetalleProducto(id) {
           Agregar al carrito
         </button>
         ${typeof iconCorazon === 'function' ? `
-        <button class="btn-detalle-favorito${favoritosSet.has(String(producto.id)) ? ' favorito-activo' : ''}" data-fav-id="${producto.id}" onclick="toggleFavorito(${producto.id})" title="${favoritosSet.has(String(producto.id)) ? 'Quitar de favoritos' : 'Guardar en favoritos'}">
-          <svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="${favoritosSet.has(String(producto.id)) ? 'currentColor' : 'none'}">
+        <button class="btn-detalle-favorito${typeof favoritosSet !== 'undefined' && favoritosSet.has(String(producto.id)) ? ' favorito-activo' : ''}" data-fav-id="${producto.id}" onclick="toggleFavorito(${producto.id})">
+          <svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="${typeof favoritosSet !== 'undefined' && favoritosSet.has(String(producto.id)) ? 'currentColor' : 'none'}">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
         </button>` : ''}
@@ -174,11 +196,16 @@ function inicializarFiltros() {
   document.getElementById("filtro-precio")?.addEventListener("change", rerender);
 }
 
-function inicializarCatalogo() {
+async function inicializarCatalogo() {
+  // Mostrar catálogo estático primero (rápido)
   renderizarProductos();
   inicializarFiltros();
   inicializarAnimaciones();
 
   document.getElementById("producto-detalle-overlay").addEventListener("click", cerrarDetalleProducto);
   document.getElementById("producto-detalle-cerrar").addEventListener("click",  cerrarDetalleProducto);
+
+  // Luego cargar desde Supabase y re-renderizar si hay datos
+  await cargarCatalogoDesdeSupa();
+  if (productosActivos.length > 0) renderizarProductos();
 }

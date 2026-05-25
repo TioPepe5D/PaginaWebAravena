@@ -1,9 +1,7 @@
 const { MercadoPagoConfig, Preference } = require("mercadopago");
 const { createClient } = require("@supabase/supabase-js");
-const productos = require("../js/products.js");
 
-// Catálogo de precios en el servidor — el cliente no puede modificarlo
-const porId = new Map(productos.map(p => [String(p.id), p]));
+const SUPA_URL = 'https://qcaxddxxmrwfihnyepbo.supabase.co';
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
@@ -17,7 +15,7 @@ module.exports = async (req, res) => {
   }
 
   const supabase = createClient(
-    process.env.SUPABASE_URL,
+    SUPA_URL,
     process.env.SUPABASE_SERVICE_KEY
   );
 
@@ -29,6 +27,29 @@ module.exports = async (req, res) => {
       const { data } = await supabase.auth.getUser(token);
       if (data?.user) userId = data.user.id;
     } catch (_) {}
+  }
+
+  // Cargar catálogo desde Supabase para validar precios server-side
+  const ids = itemsInput.map(it => String(it.id));
+  const { data: catalogoRows, error: catalogoErr } = await supabase
+    .from('catalogo')
+    .select('id, nombre, precio, imagen_url, activo')
+    .in('id', ids)
+    .eq('activo', true);
+
+  // Fallback: leer products.js estático si Supabase no tiene el catálogo aún
+  let porId;
+  if (!catalogoErr && catalogoRows && catalogoRows.length > 0) {
+    porId = new Map(catalogoRows.map(p => [String(p.id), {
+      id: p.id, nombre: p.nombre, precio: p.precio, imagen: p.imagen_url
+    }]));
+  } else {
+    try {
+      const productosEstaticos = require("../js/products.js");
+      porId = new Map(productosEstaticos.map(p => [String(p.id), p]));
+    } catch (_) {
+      porId = new Map();
+    }
   }
 
   // ── Validar precios SERVER-SIDE contra el catálogo real ──
