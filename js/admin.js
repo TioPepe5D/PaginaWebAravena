@@ -1232,38 +1232,62 @@ async function sincronizarCatalogo() {
     const { data: { session } } = await db.auth.getSession();
     if (!session) { mostrarToast('Error', 'Sesión expirada', 'error'); return; }
 
-    let offset = 0;
-    let totalProcesados = 0;
-    let totalErrores = 0;
-    let total = 0;
+    // 1. Obtener lista de archivos de Drive (con thumbnails)
+    btn.innerHTML = `${spinnerHTML} Cargando lista…`;
+    const listRes = await fetch('/api/drive-list', {
+      headers: { 'Authorization': 'Bearer ' + session.access_token }
+    });
+    if (!listRes.ok) {
+      const e = await listRes.json();
+      mostrarToast('Error', e.error || 'No se pudo listar Drive', 'error');
+      return;
+    }
+    const { files } = await listRes.json();
+    const total = files.length;
 
-    while (true) {
-      btn.innerHTML = `${spinnerHTML} Analizando${total > 0 ? ` (${totalProcesados}/${total})` : ''}…`;
+    let procesados = 0, errores = 0;
 
-      const res = await fetch('/api/catalog-sync-all', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer ' + session.access_token,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ offset }),
-      });
-      const data = await res.json();
+    // 2. Procesar cada archivo: Gemini analyze + catalog save
+    for (const file of files) {
+      btn.innerHTML = `${spinnerHTML} Analizando (${procesados}/${total})…`;
 
-      if (!res.ok) {
-        mostrarToast('Error', data.error || 'Error al sincronizar', 'error');
-        return;
-      }
+      try {
+        // Usar thumbnail de mayor resolución para Gemini
+        const thumbnailUrl = file.thumbnail
+          ? file.thumbnail.replace(/=s\d+/, '=s800')
+          : null;
 
-      total = data.total || total;
-      totalProcesados += data.procesados || 0;
-      totalErrores += data.errores?.length || 0;
+        if (!thumbnailUrl) { errores++; continue; }
 
-      if (!data.siguiente) break;
-      offset = data.siguiente;
+        // Llamar a Gemini con la miniatura
+        const gemRes = await fetch('/api/gemini-analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ thumbnailUrl }),
+        });
+        if (!gemRes.ok) { errores++; continue; }
+        const { nombre, precio, categoria } = await gemRes.json();
+
+        // Guardar en ambas bases de datos
+        const saveRes = await fetch('/api/catalog-save', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + session.access_token,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            driveFileId: file.id,
+            nombre, precio, categoria,
+            imageUrl: thumbnailUrl,
+          }),
+        });
+        if (saveRes.ok) procesados++;
+        else errores++;
+
+      } catch (_) { errores++; }
     }
 
-    const msg = `${totalProcesados} foto${totalProcesados !== 1 ? 's' : ''} procesada${totalProcesados !== 1 ? 's' : ''}${totalErrores ? `, ${totalErrores} error(es)` : ''}`;
+    const msg = `${procesados} foto${procesados !== 1 ? 's' : ''} procesada${procesados !== 1 ? 's' : ''}${errores ? `, ${errores} error(es)` : ''}`;
     mostrarToast('Catálogo sincronizado', msg, 'success');
   } catch (e) {
     mostrarToast('Error', e.message, 'error');
