@@ -1,5 +1,6 @@
 const { google } = require('googleapis');
 const { createClient } = require('@supabase/supabase-js');
+const { analizarConGemini } = require('./_gemini');
 
 const SUPA_ARAVENA_URL = 'https://qcaxddxxmrwfihnyepbo.supabase.co';
 const SUPA_AMMIRA_URL  = 'https://jgtavepljzcwwagdihgx.supabase.co';
@@ -14,35 +15,6 @@ function getDriveAuth() {
   });
 }
 
-function detectarCategoria(nombre) {
-  const n = nombre.toUpperCase();
-  if (n.includes('COLLAR'))    return 'collares';
-  if (n.includes('PULSERA') || n.includes('TOBILLERA')) return 'pulseras';
-  if (n.includes('ARO') || n.includes('ARGOLLA') || n.includes('ARITO')) return 'aros';
-  if (n.includes('ANILLO'))    return 'anillos';
-  if (n.includes('CONJUNTO'))  return 'conjuntos';
-  if (n.includes('COLGANTE') || n.includes('CHARM')) return 'colgantes';
-  if (n.includes('EXHIBIDOR') || n.includes('MALETA') || n.includes('MANGA')) return 'exhibidores';
-  return 'general';
-}
-
-function extraerDatos(textoCompleto) {
-  const lineas = textoCompleto.split('\n').map(l => l.trim()).filter(Boolean);
-  let precio = 0;
-  let lineaPrecio = '';
-  for (const linea of lineas) {
-    const match = linea.match(/\$\s*([\d.,]+)/);
-    if (match) {
-      const raw = match[1].replace(/\./g, '').replace(/,/g, '');
-      precio = parseInt(raw, 10) || 0;
-      lineaPrecio = linea;
-      break;
-    }
-  }
-  const nombre = lineas.find(l => l !== lineaPrecio && l.length > 3) || '';
-  return { nombre: nombre.trim(), precio };
-}
-
 async function procesarArchivo(file) {
   const auth = getDriveAuth();
   const drive = google.drive({ version: 'v3', auth });
@@ -51,33 +23,17 @@ async function procesarArchivo(file) {
     { fileId: file.id, alt: 'media' },
     { responseType: 'arraybuffer' }
   );
-  const buffer = Buffer.from(resp.data);
+  const buffer   = Buffer.from(resp.data);
   const mimeType = resp.headers['content-type'] || 'image/jpeg';
-  const ext = mimeType.includes('png') ? 'png' : mimeType.includes('webp') ? 'webp' : 'jpg';
+  const ext      = mimeType.includes('png') ? 'png' : mimeType.includes('webp') ? 'webp' : 'jpg';
+  const base64   = buffer.toString('base64');
 
-  const accessToken = await auth.getAccessToken();
-  const visionResp = await fetch('https://vision.googleapis.com/v1/images:annotate', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${accessToken.token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      requests: [{
-        image: { content: buffer.toString('base64') },
-        features: [{ type: 'TEXT_DETECTION', maxResults: 1 }],
-      }],
-    }),
-  });
-  const visionData = await visionResp.json();
-  const textoCompleto = visionData?.responses?.[0]?.textAnnotations?.[0]?.description || '';
-  const { nombre, precio } = extraerDatos(textoCompleto);
-
-  return { buffer, mimeType, ext, nombre, precio };
+  const { nombre, precio, categoria } = await analizarConGemini(base64, mimeType);
+  return { buffer, mimeType, ext, nombre, precio, categoria };
 }
 
 async function subirYGuardar(file, supabase, imageData) {
-  const { buffer, mimeType, ext, nombre, precio } = imageData;
+  const { buffer, mimeType, ext, nombre, precio, categoria } = imageData;
   const fileName = `${file.id}.${ext}`;
 
   const { error: uploadError } = await supabase.storage
@@ -92,7 +48,7 @@ async function subirYGuardar(file, supabase, imageData) {
     nombre,
     precio,
     imagen_url: publicUrl,
-    categoria: detectarCategoria(nombre),
+    categoria,
     descripcion: nombre,
     activo: true,
     drive_modified_time: file.modifiedTime,
@@ -108,7 +64,6 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  // Verificar admin
   const token = (req.headers.authorization || '').replace('Bearer ', '').trim();
   if (!token) return res.status(401).json({ error: 'Sin autorización' });
 
@@ -125,10 +80,9 @@ module.exports = async (req, res) => {
   const supaAravena = createClient(SUPA_ARAVENA_URL, serviceKeyAravena);
   const supaAmmira  = serviceKeyAmmira ? createClient(SUPA_AMMIRA_URL, serviceKeyAmmira) : null;
 
-  const auth = getDriveAuth();
-  const drive = google.drive({ version: 'v3', auth });
+  const auth   = getDriveAuth();
+  const drive  = google.drive({ version: 'v3', auth });
   const folderId = process.env.DRIVE_FOLDER_ID;
-
   if (!folderId) return res.status(500).json({ error: 'DRIVE_FOLDER_ID no configurado' });
 
   try {
@@ -147,12 +101,11 @@ module.exports = async (req, res) => {
     const ahora = new Date().toISOString();
 
     for (const file of driveFiles) {
-      const existing = dbMap.get(file.id);
-      const esNuevo    = !existing;
+      const existing  = dbMap.get(file.id);
+      const esNuevo   = !existing;
       const modificado = existing && existing.drive_modified_time !== file.modifiedTime;
 
       if (!esNuevo && !modificado) {
-        // Reactivar si estaba desactivado
         if (existing && !existing.activo) {
           await supaAravena.from('catalogo')
             .update({ activo: true, updated_at: ahora }).eq('drive_file_id', file.id);
@@ -173,11 +126,7 @@ module.exports = async (req, res) => {
       }
     }
 
-    return res.status(200).json({
-      ok: true,
-      total: driveFiles.length,
-      ...resultados,
-    });
+    return res.status(200).json({ ok: true, total: driveFiles.length, ...resultados });
 
   } catch (e) {
     console.error('[catalog-sync-all]', e.message);
