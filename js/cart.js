@@ -31,9 +31,22 @@ function _avisoLimite(nombre) {
   setTimeout(() => t.remove(), 3500);
 }
 
+// Busca un producto en el catálogo activo (Supabase) con fallback al estático
+function _buscarProducto(id) {
+  const fuente = (typeof productosActivos !== "undefined" && productosActivos.length)
+    ? productosActivos
+    : (typeof productos !== "undefined" ? productos : []);
+  return fuente.find(p => String(p.id) === String(id));
+}
+
 function agregarAlCarrito(id) {
-  const producto = productos.find(p => p.id === id);
-  const existente = carrito.find(p => p.id === id);
+  const producto = _buscarProducto(id);
+  if (!producto) {
+    console.warn("[Carrito] Producto no encontrado:", id);
+    return;
+  }
+
+  const existente = carrito.find(p => String(p.id) === String(id));
 
   if (existente) {
     if (existente.cantidad >= MAX_POR_ITEM) {
