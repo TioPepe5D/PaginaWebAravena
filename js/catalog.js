@@ -205,7 +205,8 @@ async function inicializarCatalogo() {
   document.getElementById("producto-detalle-overlay").addEventListener("click", cerrarDetalleProducto);
   document.getElementById("producto-detalle-cerrar").addEventListener("click",  cerrarDetalleProducto);
 
-  // Luego cargar desde Supabase y re-renderizar si hay datos
-  await cargarCatalogoDesdeSupa();
-  if (productosActivos.length > 0) renderizarProductos();
+  // Catálogo MANUAL: se usa js/products.js (estático). La sincronización automática
+  // desde Supabase/Drive quedó desactivada. Para reactivarla, descomenta lo siguiente:
+  // await cargarCatalogoDesdeSupa();
+  // if (productosActivos.length > 0) renderizarProductos();
 }
