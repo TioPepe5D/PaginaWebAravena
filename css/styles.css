@@ -767,6 +767,16 @@ img { max-width: 100%; display: block; }
   opacity: 1;
 }
 
+/* En pantallas táctiles (celular/tablet) no existe el hover: el botón
+   "Agregar al carrito" se muestra siempre visible. Se activa por puntero
+   táctil O por ancho de pantalla (infalible en teléfonos). */
+@media (hover: none) and (pointer: coarse), (max-width: 768px) {
+  .producto-card-btn-wrap {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 /* Badge con cantidad en la imagen del producto */
 .producto-card-img-wrap { position: relative; }
 .badge-en-carrito {
