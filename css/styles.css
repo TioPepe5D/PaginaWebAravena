@@ -3,8 +3,8 @@
    ============================================= */
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Georgia&display=swap');
 
-/* Canvas de efectos escarcha/estrellas */
-#stars-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+/* Canvas de fondo: diamantes flotantes sutiles */
+#diamond-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
 
 
 
@@ -13,6 +13,13 @@
   --color-primario:        #1c9cf0;
   --color-primario-oscuro: #1581c9;
   --color-primario-claro:  #061622;
+
+  /* ── Celeste diamante (acento de joyería) ── */
+  --color-diamante:       #8fe3ff;
+  --color-diamante-suave: #bff0ff;
+  --color-diamante-rgb:   143, 227, 255;
+  /* Luz LED: resplandor usado en bordes tipo tira de luz */
+  --led-glow: 0 0 6px rgba(143,227,255,0.55), 0 0 16px rgba(143,227,255,0.35), 0 0 32px rgba(28,156,240,0.25);
 
   /* ── Texto ── */
   --color-texto:       #e7e9ea;
@@ -691,19 +698,44 @@ img { max-width: 100%; display: block; }
 
 /* Tarjeta de producto */
 .producto-card {
+  position: relative;
   background-color: var(--color-card);
-  border: 1px solid var(--color-borde);
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.14);
   border-radius: var(--radio);
   overflow: hidden;
-  transition: var(--transicion);
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
   cursor: pointer;
 }
 
+/* Contorno tipo tira de luz LED que se enciende al pasar el cursor / en carrito */
+.producto-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg,
+    rgba(var(--color-diamante-rgb), 0.9) 0%,
+    rgba(var(--color-diamante-rgb), 0.15) 35%,
+    transparent 55%,
+    rgba(28,156,240,0.5) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+
 .producto-card:hover {
-  border-color: rgba(30,157,241,0.5);
-  box-shadow: var(--sombra-glow), 0 8px 32px rgba(0,0,0,0.5);
+  border-color: rgba(var(--color-diamante-rgb), 0.4);
+  box-shadow: var(--led-glow), 0 10px 32px rgba(0,0,0,0.55);
   transform: translateY(-6px);
 }
+.producto-card:hover::after,
+.producto-card.en-carrito::after { opacity: 1; }
 
 .producto-card img {
   width: 100%;
@@ -880,8 +912,8 @@ img { max-width: 100%; display: block; }
 }
 
 .producto-card.en-carrito {
-  border: 1px solid var(--color-primario);
-  box-shadow: 0 0 20px rgba(30,157,241,0.25);
+  border-color: rgba(var(--color-diamante-rgb), 0.45);
+  box-shadow: var(--led-glow), 0 8px 24px rgba(0,0,0,0.5);
 }
 .cantidad-selector-card .cantidad-valor {
   animation: valorPop 0.25s ease;
