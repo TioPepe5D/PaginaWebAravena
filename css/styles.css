@@ -229,15 +229,16 @@ img { max-width: 100%; display: block; }
 }
 
 .logo-img {
-  height: 52px;
-  width: 52px;
+  height: 48px;
+  width: 48px;
   object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(30,157,241,0.6));
+  border-radius: 50%;
+  filter: drop-shadow(0 0 8px rgba(var(--color-diamante-rgb), 0.55));
   transition: var(--transicion);
 }
 
 .logo a:hover .logo-img {
-  filter: drop-shadow(0 0 20px rgba(30,157,241,0.9));
+  filter: drop-shadow(0 0 16px rgba(var(--color-diamante-rgb), 0.9));
   transform: scale(1.08);
 }
 
@@ -359,12 +360,12 @@ img { max-width: 100%; display: block; }
    ============================================= */
 .hero {
   position: relative;
-  min-height: 70vh;
+  min-height: 48vh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 60px 24px;
+  padding: 44px 24px;
   overflow: hidden;
 }
 
