@@ -74,10 +74,16 @@ function renderizarProductos() {
           Agregar al carrito
         </button>
         ` : `
-        <div class="cantidad-selector cantidad-selector-card" onclick="event.stopPropagation()">
-          <button onclick="event.stopPropagation(); cambiarCantidad(${producto.id}, -1)">−</button>
+        <div class="cantidad-selector-card" onclick="event.stopPropagation()">
+          <button class="qty-btn qty-menos${cantidad === 1 ? ' qty-eliminar' : ''}" aria-label="${cantidad === 1 ? 'Quitar del carrito' : 'Restar uno'}" onclick="event.stopPropagation(); cambiarCantidad(${producto.id}, -1)">
+            ${cantidad === 1
+              ? `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/></svg>`
+              : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>`}
+          </button>
           <span class="cantidad-valor">${cantidad}</span>
-          <button onclick="event.stopPropagation(); cambiarCantidad(${producto.id}, 1)">+</button>
+          <button class="qty-btn qty-mas" aria-label="Sumar uno" onclick="event.stopPropagation(); cambiarCantidad(${producto.id}, 1)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
         </div>
         `}
       </div>

@@ -915,41 +915,63 @@ img { max-width: 100%; display: block; }
   transform: translateY(-1px);
 }
 
-/* Selector de cantidad dentro de la tarjeta (aparece tras agregar al carrito) */
+/* Selector de cantidad dentro de la tarjeta (aparece tras agregar al carrito).
+   Diseño minimalista: superficie translúcida, botones circulares con íconos finos. */
 .cantidad-selector-card {
   width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid var(--color-primario);
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid rgba(255,255,255,0.10);
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
-  box-shadow: 0 0 12px rgba(30,157,241,0.3);
-  overflow: hidden;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
-.cantidad-selector-card button {
-  flex: 1;
-  background: transparent;
+.cantidad-selector-card .qty-btn {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   border: none;
-  color: #fff;
-  font-size: 1.2rem;
-  font-weight: 700;
-  height: 40px;
+  border-radius: 50%;
   cursor: pointer;
-  transition: background 0.2s ease;
+  color: var(--color-texto);
+  background: rgba(255,255,255,0.06);
+  transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
 }
-.cantidad-selector-card button:hover {
-  background: rgba(255,255,255,0.15);
+.cantidad-selector-card .qty-btn:hover { background: rgba(255,255,255,0.12); }
+.cantidad-selector-card .qty-btn:active { transform: scale(0.9); }
+/* Botón "+" acentuado con el color primario */
+.cantidad-selector-card .qty-mas {
+  color: #fff;
+  background: var(--color-primario);
+}
+.cantidad-selector-card .qty-mas:hover {
+  background: var(--color-primario-oscuro);
+}
+/* Cuando la cantidad es 1, el "−" pasa a papelera y toma un tono de alerta suave */
+.cantidad-selector-card .qty-eliminar {
+  color: #ff6b6b;
+  background: rgba(255,107,107,0.10);
+}
+.cantidad-selector-card .qty-eliminar:hover {
+  color: #fff;
+  background: #ef4444;
 }
 .cantidad-selector-card .cantidad-valor {
   flex: 1;
-  color: #fff;
-  background: transparent;
-  font-size: 0.95rem;
-  font-weight: 700;
-  border-left: 1px solid rgba(255,255,255,0.25);
-  border-right: 1px solid rgba(255,255,255,0.25);
-  padding: 8px 0;
+  text-align: center;
+  color: var(--color-texto);
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
 }
 
 /* =============================================
