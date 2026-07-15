@@ -1056,11 +1056,11 @@ img { max-width: 100%; display: block; }
   max-width: 500px;
   height: 100vh;
   background: var(--color-fondo-secundario);
-  border-left: 1px solid var(--color-borde);
+  border-left: 1px solid rgba(var(--color-diamante-rgb), 0.25);
   z-index: 1250;
   overflow-y: auto;
   transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
-  box-shadow: -8px 0 40px rgba(0,0,0,0.6);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.6), -1px 0 16px rgba(var(--color-diamante-rgb), 0.18);
   display: flex;
   flex-direction: column;
 }
@@ -1118,10 +1118,11 @@ img { max-width: 100%; display: block; }
 }
 
 .detalle-nombre {
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+  font-family: var(--fuente-display);
+  font-size: 2.1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  line-height: 1.15;
   margin: 0;
   color: var(--color-texto);
 }
@@ -1130,8 +1131,8 @@ img { max-width: 100%; display: block; }
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  color: var(--color-primario);
-  text-shadow: 0 0 20px rgba(30,157,241,0.3);
+  color: var(--color-diamante);
+  text-shadow: 0 0 20px rgba(var(--color-diamante-rgb), 0.5);
 }
 
 .detalle-descripcion {
@@ -1168,7 +1169,7 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 20px rgba(30,157,241,0.3);
 }
 .btn-detalle-agregar:hover {
-  box-shadow: 0 0 35px rgba(30,157,241,0.5);
+  box-shadow: var(--led-glow);
   transform: translateY(-1px);
 }
 
@@ -1228,12 +1229,12 @@ img { max-width: 100%; display: block; }
   max-width: 460px;
   height: 100vh;
   background-color: var(--color-fondo-secundario);
-  border-left: 1px solid var(--color-borde);
+  border-left: 1px solid rgba(var(--color-diamante-rgb), 0.25);
   z-index: 1200;
   display: flex;
   flex-direction: column;
   transition: right 0.4s cubic-bezier(0.4,0,0.2,1);
-  box-shadow: -8px 0 40px rgba(0,0,0,0.6);
+  box-shadow: -8px 0 40px rgba(0,0,0,0.6), -1px 0 16px rgba(var(--color-diamante-rgb), 0.18);
 }
 .carrito-panel.activo { right: 0; }
 
@@ -1242,12 +1243,13 @@ img { max-width: 100%; display: block; }
   justify-content: space-between;
   align-items: center;
   padding: 24px 28px;
-  border-bottom: 1px solid var(--color-borde);
+  border-bottom: 1px solid rgba(var(--color-diamante-rgb), 0.18);
 }
 .carrito-header h3 {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 1px;
+  font-family: var(--fuente-display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1368,7 +1370,7 @@ img { max-width: 100%; display: block; }
 
 .carrito-footer {
   padding: 20px 28px 28px;
-  border-top: 1px solid var(--color-borde);
+  border-top: 1px solid rgba(var(--color-diamante-rgb), 0.18);
   background: var(--color-card);
   display: flex;
   flex-direction: column;
@@ -1396,7 +1398,7 @@ img { max-width: 100%; display: block; }
 }
 .carrito-total-row { display: flex; justify-content: space-between; align-items: baseline; }
 .carrito-total-label { font-size: 0.9rem; color: var(--color-texto-suave); }
-.carrito-total { font-size: 1.4rem; font-weight: 700; color: var(--color-primario); text-shadow: 0 0 15px rgba(30,157,241,0.3); }
+.carrito-total { font-size: 1.4rem; font-weight: 700; color: var(--color-diamante); text-shadow: 0 0 15px rgba(var(--color-diamante-rgb), 0.5); }
 .carrito-total-info { font-size: 0.72rem; color: var(--color-texto-suave); line-height: 1.4; margin-bottom: 4px; }
 
 .btn-mp {
@@ -1419,7 +1421,7 @@ img { max-width: 100%; display: block; }
 .btn-mp:hover {
   background-color: var(--color-primario-oscuro);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(30,157,241,0.35);
+  box-shadow: var(--led-glow);
   color: #fff;
 }
 .btn-mp:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -1439,7 +1441,8 @@ img { max-width: 100%; display: block; }
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(30,157,241,0.4), transparent);
+  background: linear-gradient(90deg, transparent, var(--color-diamante), transparent);
+  box-shadow: 0 0 12px rgba(var(--color-diamante-rgb), 0.55);
 }
 
 /* Redes sociales footer */
@@ -1486,12 +1489,12 @@ img { max-width: 100%; display: block; }
 }
 
 .footer-logo {
-  font-family: var(--fuente-principal);
-  font-size: 1.1rem;
-  letter-spacing: 4px;
+  font-family: var(--fuente-display);
+  font-size: 1.6rem;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--color-texto);
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 12px;
 }
 
