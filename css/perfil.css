@@ -46,8 +46,10 @@ body {
 }
 
 .perfil-usuario-texto h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-family: var(--fuente-display);
+  font-size: 1.9rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
   color: var(--color-texto);
   margin: 0 0 4px;
 }
