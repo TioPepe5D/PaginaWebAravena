@@ -360,12 +360,12 @@ img { max-width: 100%; display: block; }
    ============================================= */
 .hero {
   position: relative;
-  min-height: 48vh;
+  min-height: 34vh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 44px 24px;
+  padding: 28px 24px;
   overflow: hidden;
 }
 
@@ -682,43 +682,41 @@ img { max-width: 100%; display: block; }
 }
 .categoria-chip {
   font-family: var(--fuente-secundaria);
-  font-size: 0.8rem;
+  font-size: 0.68rem;
   font-weight: 600;
-  letter-spacing: 0.5px;
-  color: var(--color-texto);
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(var(--color-diamante-rgb), 0.22);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+  background: transparent;
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.18);
   border-radius: 999px;
-  padding: 9px 18px;
+  padding: 8px 16px;
   cursor: pointer;
   white-space: nowrap;
   transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 .categoria-chip:hover {
-  border-color: rgba(var(--color-diamante-rgb), 0.6);
-  box-shadow: 0 0 8px rgba(var(--color-diamante-rgb), 0.35);
+  color: var(--color-texto);
+  border-color: rgba(var(--color-diamante-rgb), 0.5);
 }
 .categoria-chip.activa {
-  color: #06131f;
-  background: linear-gradient(135deg, var(--color-diamante), var(--color-primario));
-  border-color: var(--color-diamante);
-  box-shadow: var(--led-glow);
+  color: var(--color-diamante-suave);
+  background: rgba(var(--color-diamante-rgb), 0.10);
+  border-color: rgba(var(--color-diamante-rgb), 0.7);
+  box-shadow: 0 0 6px rgba(var(--color-diamante-rgb), 0.4), inset 0 0 8px rgba(var(--color-diamante-rgb), 0.12);
 }
-/* En móvil: cuadrícula ordenada de 2 columnas (todas visibles y alineadas) */
+/* En móvil: etiquetas pequeñas centradas (livianas, todas visibles) */
 @media (max-width: 640px) {
   .categorias-barra {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-    max-width: 420px;
+    gap: 8px;
+    max-width: 380px;
     margin-left: auto;
     margin-right: auto;
   }
   .categoria-chip {
-    width: 100%;
-    text-align: center;
-    font-size: 0.8rem;
-    padding: 11px 10px;
+    font-size: 0.64rem;
+    letter-spacing: 1px;
+    padding: 7px 13px;
   }
 }
 
