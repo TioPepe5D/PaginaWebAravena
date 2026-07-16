@@ -711,33 +711,63 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 8px rgba(var(--color-diamante-rgb), 0.8);
 }
 
-/* La barra: sin fondo propio para que NO se vea como un parche pegado
-   sobre el negro. El borde LED es lo que la define. */
+/* La barra: la luz LED recorre el contorno. El interior es negro puro (igual
+   que la página), así la luz gira pero la barra NO se ve como un parche. */
 .stats-bar {
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
   max-width: 760px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   border-radius: 16px;
-  background: transparent;
-  border: 1px solid rgba(var(--color-diamante-rgb), 0.28);
   will-change: transform;
-  transition: transform 0.35s cubic-bezier(0.2,0.8,0.3,1),
-              box-shadow 0.35s ease, border-color 0.35s ease;
-  box-shadow: 0 0 14px rgba(var(--color-diamante-rgb), 0.16),
-              inset 0 0 22px rgba(var(--color-diamante-rgb), 0.05);
+  transition: transform 0.35s cubic-bezier(0.2,0.8,0.3,1), box-shadow 0.35s ease;
+  box-shadow: 0 0 16px rgba(var(--color-diamante-rgb), 0.14);
 }
-/* La luz LED se enciende al pasar el cursor, en vez de girar sin parar
-   (el movimiento constante competía con los productos) */
 .stats-bar:hover {
-  border-color: rgba(var(--color-diamante-rgb), 0.65);
-  box-shadow: var(--led-glow), inset 0 0 26px rgba(var(--color-diamante-rgb), 0.08);
+  box-shadow: var(--led-glow);
+}
+
+/* Luz LED que recorre el borde */
+.stats-bar::before {
+  content: "";
+  position: absolute;
+  inset: -65%;
+  z-index: 0;
+  background: conic-gradient(from 0turn,
+    transparent 0%,
+    rgba(var(--color-diamante-rgb), 0.95) 7%,
+    rgba(28,156,240, 0.55) 13%,
+    transparent 24%,
+    transparent 52%,
+    rgba(var(--color-diamante-rgb), 0.85) 60%,
+    rgba(28,156,240, 0.45) 65%,
+    transparent 76%);
+  animation: ledRecorrido 7s linear infinite;
+}
+/* Tapa interior: deja ver solo 1.5px de la luz = el borde LED.
+   Va en negro puro (--color-fondo) para fundirse con la página. */
+.stats-bar::after {
+  content: "";
+  position: absolute;
+  inset: 1.5px;
+  z-index: 1;
+  border-radius: 14.5px;
+  background: var(--color-fondo);
+}
+@keyframes ledRecorrido {
+  to { transform: rotate(1turn); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stats-bar::before { animation: none; }
 }
 
 /* Cada cifra: celda dentro de la barra */
 .stat-item {
   position: relative;
+  z-index: 2;              /* por encima de la luz y la tapa interior */
   padding: 18px 8px;
   text-align: center;
 }
@@ -1788,6 +1818,7 @@ img { max-width: 100%; display: block; }
   .confianza-titulo { font-size: 1.15rem; letter-spacing: 1px; margin-bottom: 16px; }
   .confianza-titulo::after { width: 46px; margin-top: 8px; }
   .stats-bar { border-radius: 14px; }
+  .stats-bar::after { border-radius: 12.5px; }
   .stat-item { padding: 14px 4px; }
   .stat-numero { font-size: 1.5rem; margin-bottom: 4px; }
   /* Antes 0.5rem = 8px: ilegible en celular */
