@@ -303,7 +303,9 @@ async function inicializarCatalogo() {
   renderizarProductos();
   inicializarCategorias();
   inicializarFiltros();
-  inicializarAnimaciones();
+  // Nota: NO se llama a inicializarAnimaciones() aquí. main.js ya la llama
+  // justo después de esta función (con los productos ya en el DOM). Llamarla
+  // en ambos lados duplicaba listeners de scroll, parallax y contadores.
 
   document.getElementById("producto-detalle-overlay").addEventListener("click", cerrarDetalleProducto);
   document.getElementById("producto-detalle-cerrar").addEventListener("click",  cerrarDetalleProducto);
