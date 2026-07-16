@@ -45,6 +45,44 @@
 
 
 /* =============================================
+   EFECTO 3D EN LAS CIFRAS (inclinación según el cursor)
+   Solo en equipos con mouse: en táctil no hay hover.
+   ============================================= */
+(function () {
+  function init3D() {
+    const soloMouse = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const quieto    = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!soloMouse || quieto) return;
+
+    document.querySelectorAll('.stat-item').forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const r  = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width;   // 0 → 1
+        const py = (e.clientY - r.top)  / r.height;  // 0 → 1
+        const rotX = (0.5 - py) * 12;                // inclinar arriba/abajo
+        const rotY = (px - 0.5) * 14;                // inclinar izq/der
+        card.style.transform =
+          `rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) translateY(-4px)`;
+        // posición del reflejo de luz
+        card.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+        card.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';   // vuelve suave a su posición
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init3D);
+  } else {
+    init3D();
+  }
+})();
+
+
+/* =============================================
    FONDO DE DIAMANTES  (pocos, lentos y elegantes)
    Reemplaza el antiguo campo de estrellas + nieve.
    ============================================= */
