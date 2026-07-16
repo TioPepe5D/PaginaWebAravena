@@ -104,30 +104,48 @@ function initParallax() {
   }, { passive: true });
 }
 
-/* Animación de contadores en sección stats */
+/* Animación de contadores en sección stats (las cifras suben de 0 al total) */
 function initCounters() {
   const counters = document.querySelectorAll("[data-count]");
   if (!counters.length) return;
+
   const animar = (el) => {
     const destino = parseInt(el.dataset.count, 10) || 0;
-    const duracion = 1600;
+    const duracion = 1800;
     const inicio = performance.now();
     const tick = (ahora) => {
       const progreso = Math.min((ahora - inicio) / duracion, 1);
-      const eased = 1 - Math.pow(1 - progreso, 3);
+      const eased = 1 - Math.pow(1 - progreso, 3);   // arranca rápido y frena al final
       el.textContent = Math.floor(destino * eased).toLocaleString("es-CL");
       if (progreso < 1) requestAnimationFrame(tick);
       else el.textContent = destino.toLocaleString("es-CL");
     };
     requestAnimationFrame(tick);
   };
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        animar(entry.target);
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.5 });
-  counters.forEach((el) => observer.observe(el));
+
+  const arrancar = () => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          animar(entry.target);
+          observer.unobserve(entry.target);   // se cuenta una sola vez
+        }
+      });
+    }, { threshold: 0.5 });
+    counters.forEach((el) => observer.observe(el));
+  };
+
+  // La barra de cifras queda visible apenas carga la página, así que el conteo
+  // ocurría DETRÁS del loader y nadie lo veía. Se espera a que el loader se vaya.
+  const loader = document.getElementById("page-loader");
+  if (!loader) { arrancar(); return; }
+
+  const listo = () => !document.body.contains(loader) || loader.classList.contains("oculto");
+  if (listo()) { arrancar(); return; }
+
+  const esperar = setInterval(() => {
+    if (listo()) { clearInterval(esperar); arrancar(); }
+  }, 100);
+  // Respaldo: si algo falla con el loader, arrancar igual
+  setTimeout(() => { clearInterval(esperar); arrancar(); }, 2500);
 }
