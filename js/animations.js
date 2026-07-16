@@ -110,6 +110,11 @@ function initCounters() {
   if (!counters.length) return;
 
   const animar = (el) => {
+    // Blindaje: si dos inicializaciones animan la misma cifra, los valores
+    // pelean y el número sube, baja y vuelve a subir. Se cuenta una sola vez.
+    if (el.dataset.contado === "1") return;
+    el.dataset.contado = "1";
+
     const destino = parseInt(el.dataset.count, 10) || 0;
     const duracion = 1800;
     const inicio = performance.now();
@@ -123,7 +128,10 @@ function initCounters() {
     requestAnimationFrame(tick);
   };
 
+  let arrancado = false;
   const arrancar = () => {
+    if (arrancado) return;   // el respaldo no debe crear un segundo observer
+    arrancado = true;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
