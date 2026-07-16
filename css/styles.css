@@ -796,30 +796,33 @@ img { max-width: 100%; display: block; }
 
 .stat-numero {
   font-family: var(--fuente-display);
-  font-size: 2.2rem;
+  font-size: 2.3rem;
   font-weight: 700;
-  color: var(--color-diamante-suave);
+  /* Blanco diamante: lee como plata pulida, no como neón */
+  color: #f4fbff;
   line-height: 1;
-  margin-bottom: 5px;
-  /* Relieve 3D: luz arriba, sombra abajo, resplandor celeste */
+  margin-bottom: 6px;
+  /* Relieve 3D: luz arriba, sombra abajo, resplandor celeste alrededor */
   text-shadow:
-    0 1px 0 rgba(255,255,255,0.35),
-    0 2px 3px rgba(0,0,0,0.6),
-    0 0 20px rgba(var(--color-diamante-rgb), 0.55);
+    0 1px 0 rgba(255,255,255,0.45),
+    0 2px 4px rgba(0,0,0,0.7),
+    0 0 18px rgba(var(--color-diamante-rgb), 0.60);
 }
-/* El "+" va DELANTE del número: +10, +2.500 */
+/* El "+" va DELANTE y en celeste: acento de color contra el blanco */
 .stat-numero::before {
   content: "+";
   color: var(--color-diamante);
   margin-right: 2px;
+  text-shadow: 0 0 12px rgba(var(--color-diamante-rgb), 0.9);
 }
 .stat-label {
-  font-size: 0.58rem;
+  font-size: 0.66rem;
   text-transform: uppercase;
-  letter-spacing: 1.4px;
-  color: var(--color-texto-suave);
+  letter-spacing: 1.2px;
+  /* Más claro que --color-texto-suave: antes 4.17:1 (ilegible) */
+  color: #9fb0bd;
   font-weight: 600;
-  line-height: 1.3;
+  line-height: 1.35;
   margin: 0;
 }
 
@@ -1828,9 +1831,10 @@ img { max-width: 100%; display: block; }
   .stats-titulo::after { width: 46px; margin-top: 8px; }
   .stats-bar { border-radius: 14px; }
   .stats-bar::after { inset: 1.5px; border-radius: 12.5px; }
-  .stat-item { padding: 13px 5px; }
-  .stat-numero { font-size: 1.35rem; margin-bottom: 3px; }
-  .stat-label { font-size: 0.5rem; letter-spacing: 0.6px; }
+  .stat-item { padding: 14px 4px; }
+  .stat-numero { font-size: 1.5rem; margin-bottom: 4px; }
+  /* Antes 0.5rem = 8px: ilegible en celular */
+  .stat-label { font-size: 0.6rem; letter-spacing: 0.4px; }
   .footer-container { grid-template-columns: 1fr; gap: 28px; }
   .beneficios, .catalogo, .stats, .footer { padding-left: 20px; padding-right: 20px; }
 }
