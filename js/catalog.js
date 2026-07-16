@@ -1,6 +1,9 @@
 // Fuente de productos activa — se reemplaza con datos de Supabase si están disponibles
 let productosActivos = typeof productos !== 'undefined' ? [...productos] : [];
 
+// Categoría seleccionada en la barra de categorías ("todos" = sin filtro)
+let categoriaActiva = "todos";
+
 async function cargarCatalogoDesdeSupa() {
   if (typeof db === 'undefined' || !db) return;
   try {
@@ -31,6 +34,10 @@ function renderizarProductos() {
   const orden    = document.getElementById("filtro-precio")?.value || "";
 
   let filtrados = [...productosActivos];
+
+  if (categoriaActiva && categoriaActiva !== "todos") {
+    filtrados = filtrados.filter(p => p.categoria === categoriaActiva);
+  }
 
   if (busqueda) {
     filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
@@ -202,9 +209,42 @@ function inicializarFiltros() {
   document.getElementById("filtro-precio")?.addEventListener("change", rerender);
 }
 
+// Orden y etiquetas de las categorías del catálogo
+const CATEGORIAS_META = [
+  { key: "todos",       label: "Todos" },
+  { key: "collares",    label: "Collares" },
+  { key: "pulseras",    label: "Pulseras" },
+  { key: "aros",        label: "Aros" },
+  { key: "colgantes",   label: "Colgantes" },
+  { key: "conjuntos",   label: "Conjuntos" },
+  { key: "anillos",     label: "Anillos" },
+  { key: "exhibidores", label: "Exhibidores" },
+];
+
+function inicializarCategorias() {
+  const cont = document.getElementById("categorias-barra");
+  if (!cont) return;
+
+  const presentes = new Set(productosActivos.map(p => p.categoria));
+  const items = CATEGORIAS_META.filter(c => c.key === "todos" || presentes.has(c.key));
+
+  cont.innerHTML = items.map(c =>
+    `<button class="categoria-chip${c.key === categoriaActiva ? " activa" : ""}" data-cat="${c.key}">${c.label}</button>`
+  ).join("");
+
+  cont.querySelectorAll(".categoria-chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      categoriaActiva = btn.dataset.cat;
+      cont.querySelectorAll(".categoria-chip").forEach(b => b.classList.toggle("activa", b === btn));
+      renderizarProductos();
+    });
+  });
+}
+
 async function inicializarCatalogo() {
   // Mostrar catálogo estático primero (rápido)
   renderizarProductos();
+  inicializarCategorias();
   inicializarFiltros();
   inicializarAnimaciones();
 
