@@ -704,19 +704,17 @@ img { max-width: 100%; display: block; }
   border-color: var(--color-diamante);
   box-shadow: var(--led-glow);
 }
-/* En móvil: fila deslizable en una sola línea */
+/* En móvil: TODAS las categorías visibles (se acomodan en varias líneas) */
 @media (max-width: 640px) {
   .categorias-barra {
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding: 2px 4px 6px;
-    margin-left: -4px;
-    margin-right: -4px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
   }
-  .categorias-barra::-webkit-scrollbar { display: none; }
+  .categoria-chip {
+    font-size: 0.75rem;
+    padding: 8px 14px;
+  }
 }
 
 /* Filtro barra */
