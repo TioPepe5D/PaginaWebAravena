@@ -700,16 +700,6 @@ img { max-width: 100%; display: block; }
   color: var(--color-texto);
   margin: 0 0 20px;
 }
-.confianza-titulo::after {   /* filete LED bajo el título */
-  content: "";
-  display: block;
-  width: 60px;
-  height: 2px;
-  margin: 10px auto 0;
-  border-radius: 2px;
-  background: linear-gradient(90deg, transparent, var(--color-diamante), transparent);
-  box-shadow: 0 0 8px rgba(var(--color-diamante-rgb), 0.8);
-}
 
 /* La barra: la luz LED recorre el contorno. El interior es negro puro (igual
    que la página), así la luz gira pero la barra NO se ve como un parche. */
@@ -1816,7 +1806,6 @@ img { max-width: 100%; display: block; }
   /* Las 3 cifras se mantienen en una fila compacta (antes se apilaban y ocupaban mucho) */
   .confianza { padding: 30px 14px 28px; }
   .confianza-titulo { font-size: 1.15rem; letter-spacing: 1px; margin-bottom: 16px; }
-  .confianza-titulo::after { width: 46px; margin-top: 8px; }
   .stats-bar { border-radius: 14px; }
   .stats-bar::after { border-radius: 12.5px; }
   .stat-item { padding: 14px 4px; }
