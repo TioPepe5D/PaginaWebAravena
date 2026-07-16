@@ -54,22 +54,20 @@
     const quieto    = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!soloMouse || quieto) return;
 
-    document.querySelectorAll('.stat-item').forEach((card) => {
-      card.addEventListener('mousemove', (e) => {
-        const r  = card.getBoundingClientRect();
+    document.querySelectorAll('.stats-bar').forEach((barra) => {
+      barra.addEventListener('mousemove', (e) => {
+        const r  = barra.getBoundingClientRect();
         const px = (e.clientX - r.left) / r.width;   // 0 → 1
         const py = (e.clientY - r.top)  / r.height;  // 0 → 1
-        const rotX = (0.5 - py) * 12;                // inclinar arriba/abajo
-        const rotY = (px - 0.5) * 14;                // inclinar izq/der
-        card.style.transform =
-          `rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) translateY(-4px)`;
-        // posición del reflejo de luz
-        card.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
-        card.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+        // Ángulos suaves: la barra es ancha, mucha rotación se vería mal
+        const rotX = (0.5 - py) * 7;                 // inclinar arriba/abajo
+        const rotY = (px - 0.5) * 5;                 // inclinar izq/der
+        barra.style.transform =
+          `rotateX(${rotX.toFixed(2)}deg) rotateY(${rotY.toFixed(2)}deg) translateY(-3px)`;
       });
 
-      card.addEventListener('mouseleave', () => {
-        card.style.transform = '';   // vuelve suave a su posición
+      barra.addEventListener('mouseleave', () => {
+        barra.style.transform = '';   // vuelve suave a su posición
       });
     });
   }

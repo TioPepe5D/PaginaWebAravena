@@ -688,64 +688,123 @@ img { max-width: 100%; display: block; }
 /* =============================================
    ESTADÍSTICAS
    ============================================= */
+/* =============================================
+   CIFRAS DE CONFIANZA — barra compacta con borde LED animado
+   ============================================= */
 .stats {
-  padding: 40px 24px;
-  background: var(--color-fondo);
+  padding: 34px 20px;
   position: relative;
-  perspective: 900px;          /* profundidad para el efecto 3D */
+  perspective: 1000px;   /* profundidad real para la inclinación 3D */
+  /* Resplandor suave: se funde con la página en vez de ser un bloque negro */
+  background:
+    radial-gradient(ellipse 70% 100% at 50% 50%,
+      rgba(var(--color-diamante-rgb), 0.07), transparent 70%);
 }
-.stats-grid {
-  max-width: 880px;
+
+.stats-titulo {
+  font-family: var(--fuente-display);
+  font-size: 1.55rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-align: center;
+  color: var(--color-texto);
+  margin: 0 0 18px;
+}
+.stats-titulo::after {   /* filete LED bajo el título */
+  content: "";
+  display: block;
+  width: 60px;
+  height: 2px;
+  margin: 10px auto 0;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-diamante), transparent);
+  box-shadow: 0 0 8px rgba(var(--color-diamante-rgb), 0.8);
+}
+
+/* La barra: contenedor con luz girando en el contorno */
+.stats-bar {
+  position: relative;
+  isolation: isolate;
+  max-width: 780px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  text-align: center;
-}
-.stat-item {
-  position: relative;
-  padding: 20px 10px;
-  border: 1px solid rgba(var(--color-diamante-rgb), 0.16);
-  border-radius: 16px;
-  background: linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.015));
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  transform-style: preserve-3d;
+  border-radius: 18px;
+  overflow: hidden;
   will-change: transform;
-  transition: transform 0.3s cubic-bezier(0.2,0.8,0.3,1), box-shadow 0.3s ease, border-color 0.3s ease;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.07);
+  transition: transform 0.35s cubic-bezier(0.2,0.8,0.3,1), box-shadow 0.35s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 22px rgba(var(--color-diamante-rgb), 0.10);
 }
-.stat-item:hover {
-  border-color: rgba(var(--color-diamante-rgb), 0.5);
-  box-shadow: 0 16px 36px rgba(0,0,0,0.6), var(--led-glow), inset 0 1px 0 rgba(255,255,255,0.12);
+.stats-bar:hover {
+  box-shadow: 0 20px 46px rgba(0,0,0,0.65), var(--led-glow);
 }
-/* Reflejo de luz que sigue al cursor */
-.stat-item::after {
+
+/* Luz LED que recorre el borde */
+.stats-bar::before {
   content: "";
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(circle at var(--mx, 50%) var(--my, 0%),
-              rgba(var(--color-diamante-rgb), 0.20), transparent 60%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
+  inset: -65%;
+  z-index: 0;
+  background: conic-gradient(from 0turn,
+    transparent 0%,
+    rgba(var(--color-diamante-rgb), 0.95) 7%,
+    rgba(28,156,240, 0.55) 13%,
+    transparent 24%,
+    transparent 52%,
+    rgba(var(--color-diamante-rgb), 0.85) 60%,
+    rgba(28,156,240, 0.45) 65%,
+    transparent 76%);
+  animation: ledRecorrido 7s linear infinite;
 }
-.stat-item:hover::after { opacity: 1; }
+/* Tapa interior: deja ver solo 1.5px de la luz = el borde LED */
+.stats-bar::after {
+  content: "";
+  position: absolute;
+  inset: 1.5px;
+  z-index: 1;
+  border-radius: 16.5px;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)),
+    linear-gradient(160deg, #0a1017, #05080c);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+@keyframes ledRecorrido {
+  to { transform: rotate(1turn); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stats-bar::before { animation: none; }
+}
+
+/* Cada cifra: celda dentro de la barra */
+.stat-item {
+  position: relative;
+  z-index: 2;              /* por encima de la luz y la tapa */
+  padding: 18px 8px;
+  text-align: center;
+}
+/* Divisores de luz entre cifras */
+.stat-item + .stat-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, rgba(var(--color-diamante-rgb), 0.5), transparent);
+}
 
 .stat-numero {
   font-family: var(--fuente-display);
-  font-size: 2.6rem;
+  font-size: 2.2rem;
   font-weight: 700;
   color: var(--color-diamante-suave);
-  letter-spacing: 0;
   line-height: 1;
-  margin-bottom: 6px;
-  transform: translateZ(34px);   /* el número flota sobre la tarjeta */
-  /* Relieve 3D + resplandor */
+  margin-bottom: 5px;
+  /* Relieve 3D: luz arriba, sombra abajo, resplandor celeste */
   text-shadow:
-    0 1px 0 rgba(255,255,255,0.30),
-    0 2px 3px rgba(0,0,0,0.55),
+    0 1px 0 rgba(255,255,255,0.35),
+    0 2px 3px rgba(0,0,0,0.6),
     0 0 20px rgba(var(--color-diamante-rgb), 0.55);
 }
 /* El "+" va DELANTE del número: +10, +2.500 */
@@ -755,13 +814,13 @@ img { max-width: 100%; display: block; }
   margin-right: 2px;
 }
 .stat-label {
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.4px;
   color: var(--color-texto-suave);
   font-weight: 600;
   line-height: 1.3;
-  transform: translateZ(16px);
+  margin: 0;
 }
 
 /* Separador de sección */
@@ -1764,11 +1823,14 @@ img { max-width: 100%; display: block; }
   .logo a { font-size: 1rem; }
   .beneficios-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
   /* Las 3 cifras se mantienen en una fila compacta (antes se apilaban y ocupaban mucho) */
-  .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .stats { padding: 28px 14px; }
-  .stat-item { padding: 14px 6px; border-radius: 13px; }
-  .stat-numero { font-size: 1.5rem; margin-bottom: 4px; transform: translateZ(20px); }
-  .stat-label { font-size: 0.52rem; letter-spacing: 0.8px; }
+  .stats { padding: 24px 14px; }
+  .stats-titulo { font-size: 1.15rem; letter-spacing: 1px; margin-bottom: 14px; }
+  .stats-titulo::after { width: 46px; margin-top: 8px; }
+  .stats-bar { border-radius: 14px; }
+  .stats-bar::after { inset: 1.5px; border-radius: 12.5px; }
+  .stat-item { padding: 13px 5px; }
+  .stat-numero { font-size: 1.35rem; margin-bottom: 3px; }
+  .stat-label { font-size: 0.5rem; letter-spacing: 0.6px; }
   .footer-container { grid-template-columns: 1fr; gap: 28px; }
   .beneficios, .catalogo, .stats, .footer { padding-left: 20px; padding-right: 20px; }
 }
