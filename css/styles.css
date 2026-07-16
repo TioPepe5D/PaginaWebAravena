@@ -619,21 +619,15 @@ img { max-width: 100%; display: block; }
 }
 
 /* =============================================
-   SECCIÓN BENEFICIOS
+   BENEFICIOS — ahora viven dentro de .confianza
+   (antes era una sección aparte con banda gris propia)
    ============================================= */
-.beneficios {
-  background: var(--color-fondo-secundario);
-  border-top: 1px solid var(--color-borde);
-  border-bottom: 1px solid var(--color-borde);
-  padding: 80px 24px;
-}
-
 .beneficios-grid {
-  max-width: 1100px;
-  margin: 0 auto;
+  max-width: 1000px;
+  margin: 34px auto 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 32px;
+  gap: 26px;
 }
 
 .beneficio-item {
@@ -689,28 +683,24 @@ img { max-width: 100%; display: block; }
    ESTADÍSTICAS
    ============================================= */
 /* =============================================
-   CIFRAS DE CONFIANZA — barra compacta con borde LED animado
+   CONFIANZA — cifras + beneficios en un solo bloque
    ============================================= */
-.stats {
-  padding: 34px 20px;
+.confianza {
+  padding: 44px 20px 40px;
   position: relative;
   perspective: 1000px;   /* profundidad real para la inclinación 3D */
-  /* Resplandor suave: se funde con la página en vez de ser un bloque negro */
-  background:
-    radial-gradient(ellipse 70% 100% at 50% 50%,
-      rgba(var(--color-diamante-rgb), 0.07), transparent 70%);
 }
 
-.stats-titulo {
+.confianza-titulo {
   font-family: var(--fuente-display);
-  font-size: 1.55rem;
+  font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: 1.5px;
   text-align: center;
   color: var(--color-texto);
-  margin: 0 0 18px;
+  margin: 0 0 20px;
 }
-.stats-titulo::after {   /* filete LED bajo el título */
+.confianza-titulo::after {   /* filete LED bajo el título */
   content: "";
   display: block;
   width: 60px;
@@ -721,65 +711,33 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 8px rgba(var(--color-diamante-rgb), 0.8);
 }
 
-/* La barra: contenedor con luz girando en el contorno */
+/* La barra: sin fondo propio para que NO se vea como un parche pegado
+   sobre el negro. El borde LED es lo que la define. */
 .stats-bar {
   position: relative;
-  isolation: isolate;
-  max-width: 780px;
+  max-width: 760px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  border-radius: 18px;
-  overflow: hidden;
+  border-radius: 16px;
+  background: transparent;
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.28);
   will-change: transform;
-  transition: transform 0.35s cubic-bezier(0.2,0.8,0.3,1), box-shadow 0.35s ease;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.55), 0 0 22px rgba(var(--color-diamante-rgb), 0.10);
+  transition: transform 0.35s cubic-bezier(0.2,0.8,0.3,1),
+              box-shadow 0.35s ease, border-color 0.35s ease;
+  box-shadow: 0 0 14px rgba(var(--color-diamante-rgb), 0.16),
+              inset 0 0 22px rgba(var(--color-diamante-rgb), 0.05);
 }
+/* La luz LED se enciende al pasar el cursor, en vez de girar sin parar
+   (el movimiento constante competía con los productos) */
 .stats-bar:hover {
-  box-shadow: 0 20px 46px rgba(0,0,0,0.65), var(--led-glow);
-}
-
-/* Luz LED que recorre el borde */
-.stats-bar::before {
-  content: "";
-  position: absolute;
-  inset: -65%;
-  z-index: 0;
-  background: conic-gradient(from 0turn,
-    transparent 0%,
-    rgba(var(--color-diamante-rgb), 0.95) 7%,
-    rgba(28,156,240, 0.55) 13%,
-    transparent 24%,
-    transparent 52%,
-    rgba(var(--color-diamante-rgb), 0.85) 60%,
-    rgba(28,156,240, 0.45) 65%,
-    transparent 76%);
-  animation: ledRecorrido 7s linear infinite;
-}
-/* Tapa interior: deja ver solo 1.5px de la luz = el borde LED */
-.stats-bar::after {
-  content: "";
-  position: absolute;
-  inset: 1.5px;
-  z-index: 1;
-  border-radius: 16.5px;
-  background:
-    linear-gradient(160deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01)),
-    linear-gradient(160deg, #0a1017, #05080c);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-@keyframes ledRecorrido {
-  to { transform: rotate(1turn); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .stats-bar::before { animation: none; }
+  border-color: rgba(var(--color-diamante-rgb), 0.65);
+  box-shadow: var(--led-glow), inset 0 0 26px rgba(var(--color-diamante-rgb), 0.08);
 }
 
 /* Cada cifra: celda dentro de la barra */
 .stat-item {
   position: relative;
-  z-index: 2;              /* por encima de la luz y la tapa */
   padding: 18px 8px;
   text-align: center;
 }
@@ -1824,19 +1782,18 @@ img { max-width: 100%; display: block; }
   .nav ul { gap: 16px; }
   .nav ul li a { font-size: 0.7rem; }
   .logo a { font-size: 1rem; }
-  .beneficios-grid { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .beneficios-grid { grid-template-columns: repeat(2, 1fr); gap: 22px; margin-top: 26px; }
   /* Las 3 cifras se mantienen en una fila compacta (antes se apilaban y ocupaban mucho) */
-  .stats { padding: 24px 14px; }
-  .stats-titulo { font-size: 1.15rem; letter-spacing: 1px; margin-bottom: 14px; }
-  .stats-titulo::after { width: 46px; margin-top: 8px; }
+  .confianza { padding: 30px 14px 28px; }
+  .confianza-titulo { font-size: 1.15rem; letter-spacing: 1px; margin-bottom: 16px; }
+  .confianza-titulo::after { width: 46px; margin-top: 8px; }
   .stats-bar { border-radius: 14px; }
-  .stats-bar::after { inset: 1.5px; border-radius: 12.5px; }
   .stat-item { padding: 14px 4px; }
   .stat-numero { font-size: 1.5rem; margin-bottom: 4px; }
   /* Antes 0.5rem = 8px: ilegible en celular */
   .stat-label { font-size: 0.6rem; letter-spacing: 0.4px; }
   .footer-container { grid-template-columns: 1fr; gap: 28px; }
-  .beneficios, .catalogo, .stats, .footer { padding-left: 20px; padding-right: 20px; }
+  .catalogo, .confianza, .footer { padding-left: 20px; padding-right: 20px; }
 }
 
 @media (max-width: 480px) {
