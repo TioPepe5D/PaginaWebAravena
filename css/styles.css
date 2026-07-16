@@ -767,6 +767,47 @@ img { max-width: 100%; display: block; }
   border-radius: 2px;
 }
 
+/* Botón "Ver más" + contador de joyas */
+.ver-mas-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-top: 40px;
+}
+.ver-mas-info {
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+  margin: 0;
+}
+.btn-ver-mas {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 34px;
+  font-family: var(--fuente-secundaria);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-diamante-suave);
+  background: rgba(var(--color-diamante-rgb), 0.06);
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.45);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.btn-ver-mas:hover {
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
+  border-color: var(--color-diamante);
+  box-shadow: var(--led-glow);
+}
+.btn-ver-mas svg { transition: transform 0.25s ease; }
+.btn-ver-mas:hover svg { transform: translateY(2px); }
+
 /* Barra de categorías */
 .categorias-barra {
   display: flex;

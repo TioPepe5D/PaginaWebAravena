@@ -4,6 +4,16 @@ let productosActivos = typeof productos !== 'undefined' ? [...productos] : [];
 // Categoría seleccionada en la barra de categorías ("todos" = sin filtro)
 let categoriaActiva = "todos";
 
+// Paginación "Ver más": cuántas joyas se muestran por tanda
+const PRODUCTOS_POR_TANDA = 12;
+let productosVisibles = PRODUCTOS_POR_TANDA;
+let esVerMas = false;   // true solo durante el clic en "Ver más" (evita re-animar lo ya visible)
+
+// Vuelve a la primera tanda (al cambiar categoría, búsqueda u orden)
+function reiniciarPaginacion() {
+  productosVisibles = PRODUCTOS_POR_TANDA;
+}
+
 async function cargarCatalogoDesdeSupa() {
   if (typeof db === 'undefined' || !db) return;
   try {
@@ -48,18 +58,27 @@ function renderizarProductos() {
 
   if (filtrados.length === 0) {
     grid.innerHTML = "<p style='text-align:center;color:#888;padding:3rem 0'>No se encontraron productos con ese filtro.</p>";
+    actualizarVerMas(0, 0);
     return;
   }
 
-  grid.innerHTML = filtrados.map((producto, i) => {
+  // Solo se muestra la tanda actual; el resto se carga con "Ver más"
+  const total    = filtrados.length;
+  const mostrados = Math.min(productosVisibles, total);
+  // Índice donde empieza la tanda nueva (para animar solo lo recién agregado)
+  const inicioNuevo = esVerMas ? Math.max(0, mostrados - PRODUCTOS_POR_TANDA) : 0;
+
+  grid.innerHTML = filtrados.slice(0, mostrados).map((producto, i) => {
     const enCarrito = (typeof carrito !== "undefined") ? carrito.find(p => p.id === producto.id) : null;
     const cantidad  = enCarrito ? enCarrito.cantidad : 0;
-    const delay = i < 8 ? i * 60 : 0;
+    const yaVisible = i < inicioNuevo;                       // ya estaba en pantalla: no re-animar
+    const posNueva  = i - inicioNuevo;
+    const delay = (!yaVisible && posNueva < 8) ? posNueva * 60 : 0;
     const lazyAttr = i < 6 ? '' : 'loading="lazy" decoding="async"';
     const fetchPriority = i < 3 ? 'fetchpriority="high"' : '';
     const imgSrc = (window.imagenesOverride && window.imagenesOverride[producto.id]) || producto.imagen;
     return `
-    <div class="producto-card animar${cantidad > 0 ? ' en-carrito' : ''}" style="transition-delay: ${delay}ms" data-id="${producto.id}">
+    <div class="producto-card animar${yaVisible ? ' visible' : ''}${cantidad > 0 ? ' en-carrito' : ''}" style="transition-delay: ${delay}ms" data-id="${producto.id}">
       <div class="producto-card-img-wrap">
         <img src="${imgSrc}" alt="${producto.nombre}" ${lazyAttr} ${fetchPriority}>
         ${cantidad > 0 ? `<span class="badge-en-carrito">${cantidad}</span>` : ''}
@@ -108,6 +127,42 @@ function renderizarProductos() {
   setTimeout(() => {
     grid.querySelectorAll(".animar").forEach(el => el.classList.add("visible"));
   }, 50);
+
+  actualizarVerMas(mostrados, total);
+}
+
+// Pinta (o esconde) el botón "Ver más" con el contador de joyas
+function actualizarVerMas(mostrados, total) {
+  const wrap = document.getElementById("ver-mas-wrap");
+  if (!wrap) return;
+
+  if (total === 0 || mostrados >= total) {
+    // Ya se ven todas: sin botón. Se deja el contador si hay resultados.
+    wrap.innerHTML = total > 0
+      ? `<p class="ver-mas-info">Mostrando las ${total} joyas</p>`
+      : "";
+    return;
+  }
+
+  const restantes = total - mostrados;
+  const siguiente = Math.min(PRODUCTOS_POR_TANDA, restantes);
+  wrap.innerHTML = `
+    <p class="ver-mas-info">Mostrando ${mostrados} de ${total} joyas</p>
+    <button class="btn-ver-mas" onclick="verMas()">
+      Ver ${siguiente} más
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="6 9 12 15 18 9"/>
+      </svg>
+    </button>
+  `;
+}
+
+// Carga la siguiente tanda de joyas
+function verMas() {
+  esVerMas = true;
+  productosVisibles += PRODUCTOS_POR_TANDA;
+  renderizarProductos();
+  esVerMas = false;
 }
 
 function abrirDetalleProducto(id) {
@@ -204,7 +259,8 @@ function detalleAgregarAlCarrito(id) {
 }
 
 function inicializarFiltros() {
-  const rerender = () => renderizarProductos();
+  // Al filtrar/ordenar se vuelve a la primera tanda
+  const rerender = () => { reiniciarPaginacion(); renderizarProductos(); };
   document.getElementById("filtro-nombre")?.addEventListener("input",  rerender);
   document.getElementById("filtro-precio")?.addEventListener("change", rerender);
 }
@@ -236,6 +292,7 @@ function inicializarCategorias() {
     btn.addEventListener("click", () => {
       categoriaActiva = btn.dataset.cat;
       cont.querySelectorAll(".categoria-chip").forEach(b => b.classList.toggle("activa", b === btn));
+      reiniciarPaginacion();
       renderizarProductos();
     });
   });
