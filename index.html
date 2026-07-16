@@ -76,18 +76,22 @@
     <div class="page-loader-logo">Joyería Aravena</div>
   </div>
 
-  <div class="anuncio-bar">
-    <p>✦ &nbsp; Envíos a todo Chile &nbsp; · &nbsp; Plata 925 Certificada &nbsp; · &nbsp; Garantía de calidad &nbsp; ✦</p>
-  </div>
-
   <!-- HEADER -->
   <header class="header">
     <div class="header-container">
 
-<div class="logo">
+      <div class="logo">
         <a href="index.html" aria-label="Joyería Aravena">
           <img src="img/logo-aravena.png" alt="Joyería Aravena" class="logo-img">
         </a>
+      </div>
+
+      <!-- Buscador junto al logo -->
+      <div class="header-buscador">
+        <svg class="header-buscador-icono" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="filtro-nombre" placeholder="Buscar joyas..." autocomplete="off">
       </div>
 
       <div class="header-iconos">
@@ -102,11 +106,6 @@
         <button class="icono-btn" id="snake-btn" title="Jugar Snake 🐍" onclick="abrirSnake()">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2a4 4 0 0 1 4 4c0 1.5-.5 2.8-1.3 3.8L18 14a2 2 0 0 1 0 2.8l-1.4 1.4a2 2 0 0 1-2.8 0L10 14.4l-1.5 1.5A4 4 0 1 1 5 12.5l1.5-1.5-3.8-3.7A2 2 0 0 1 2.7 4.5l1.4-1.4a2 2 0 0 1 2.8 0L10 6.4C11 5.5 12 4.5 12 3V2z"/>
-          </svg>
-        </button>
-        <button class="icono-btn" id="buscar-btn" title="Buscar">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
           </svg>
         </button>
         <button class="icono-btn" id="cuenta-btn" title="Mi cuenta">
@@ -125,6 +124,33 @@
 
     </div>
   </header>
+
+  <!-- CINTA DE NOTICIAS (info en movimiento) -->
+  <div class="ticker" aria-label="Información de la tienda">
+    <div class="ticker-track">
+      <span class="ticker-item">Envíos a todo Chile</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">Plata 925 Certificada</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">Garantía de calidad</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">Precios mayoristas</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">Bodega en Providencia</span>
+      <span class="ticker-sep">✦</span>
+      <!-- Duplicado para el bucle continuo -->
+      <span class="ticker-item">Envíos a todo Chile</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">Plata 925 Certificada</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">Garantía de calidad</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">Precios mayoristas</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">Bodega en Providencia</span>
+      <span class="ticker-sep">✦</span>
+    </div>
+  </div>
 
   <!-- BUSCADOR (oculto por defecto) -->
   <div class="buscador-overlay" id="buscador-overlay">
@@ -197,9 +223,8 @@
     <!-- Categorías (se generan por JS) -->
     <div class="categorias-barra" id="categorias-barra"></div>
 
-    <!-- Filtro por nombre y orden por precio -->
+    <!-- Orden por precio (la búsqueda está en el header) -->
     <div class="filtro-barra" id="filtro-barra">
-      <input type="text" id="filtro-nombre" placeholder="🔍 Buscar por nombre...">
       <select id="filtro-precio">
         <option value="">Ordenar por precio</option>
         <option value="asc">Menor precio primero</option>
