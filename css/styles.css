@@ -360,12 +360,12 @@ img { max-width: 100%; display: block; }
    ============================================= */
 .hero {
   position: relative;
-  min-height: 34vh;
+  min-height: 24vh;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 28px 24px;
+  padding: 18px 24px;
   overflow: hidden;
 }
 
@@ -705,18 +705,22 @@ img { max-width: 100%; display: block; }
   border-color: rgba(var(--color-diamante-rgb), 0.7);
   box-shadow: 0 0 6px rgba(var(--color-diamante-rgb), 0.4), inset 0 0 8px rgba(var(--color-diamante-rgb), 0.12);
 }
-/* En móvil: etiquetas pequeñas centradas (livianas, todas visibles) */
+/* En móvil: cuadrícula de 2 columnas — filas simétricas, nada suelto */
 @media (max-width: 640px) {
   .categorias-barra {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-    max-width: 380px;
+    max-width: 340px;
     margin-left: auto;
     margin-right: auto;
   }
   .categoria-chip {
+    width: 100%;
+    text-align: center;
     font-size: 0.64rem;
     letter-spacing: 1px;
-    padding: 7px 13px;
+    padding: 9px 8px;
   }
 }
 
