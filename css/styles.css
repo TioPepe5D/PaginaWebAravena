@@ -704,16 +704,21 @@ img { max-width: 100%; display: block; }
   border-color: var(--color-diamante);
   box-shadow: var(--led-glow);
 }
-/* En móvil: TODAS las categorías visibles (se acomodan en varias líneas) */
+/* En móvil: cuadrícula ordenada de 2 columnas (todas visibles y alineadas) */
 @media (max-width: 640px) {
   .categorias-barra {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
   }
   .categoria-chip {
-    font-size: 0.75rem;
-    padding: 8px 14px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.8rem;
+    padding: 11px 10px;
   }
 }
 
