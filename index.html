@@ -163,11 +163,8 @@
 
   <hr class="section-divider">
 
-  <!-- CONFIANZA: cifras + beneficios en un solo bloque.
-       Antes eran 2 secciones separadas que repetían el mismo mensaje. -->
+  <!-- CIFRAS DE CONFIANZA (sin título) -->
   <section class="confianza">
-    <h2 class="confianza-titulo animar">Nuestros Números, Tu Confianza</h2>
-
     <div class="stats-bar animar">
       <div class="stat-item">
         <div class="stat-numero" data-count="10">0</div>
@@ -182,46 +179,44 @@
         <p class="stat-label">Envíos semanales</p>
       </div>
     </div>
-
   </section>
 
-  <!-- UBICACIÓN: mapa compacto + espacio del video, bajo las cifras -->
-  <div class="ubicacion animar" id="ubicacion">
-    <div class="ubicacion-grid">
-
-      <div class="ubicacion-card">
-        <div class="ubicacion-mapa">
-          <iframe
-            title="Ubicación de Joyería Aravena en Google Maps"
-            src="https://maps.google.com/maps?q=Fidel%20Oteiza%201921%2C%20Providencia%2C%20Santiago%2C%20Chile&z=16&output=embed"
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-            allowfullscreen></iframe>
-        </div>
-        <a class="btn-ubicacion"
-           href="https://www.google.com/maps/search/?api=1&query=Fidel+Oteiza+1921%2C+Providencia%2C+Santiago%2C+Chile"
-           target="_blank" rel="noopener">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-          </svg>
-          Cómo llegar · Fidel Oteiza 1921, of. 1003
-        </a>
+  <!-- VIDEO: cómo llegar a la bodega -->
+  <section class="video-seccion">
+    <div class="video-card animar">
+      <div class="video-pendiente">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
+        </svg>
+        <span>🎥 Video: cómo llegar a la bodega</span>
+        <small>Muy pronto</small>
       </div>
-
-      <!-- Espacio del video: visible como tarjeta. Al recibir img/como-llegar.mp4
-           se reemplaza el interior por el <video>. -->
-      <div class="ubicacion-card">
-        <div class="ubicacion-video ubicacion-video-pendiente">
-          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
-          </svg>
-          <span>Video: cómo llegar a la oficina</span>
-          <small>Muy pronto</small>
-        </div>
-      </div>
-
     </div>
-  </div>
+  </section>
+
+  <!-- UBICACIÓN: título + mapa -->
+  <section class="ubicacion" id="ubicacion">
+    <h2 class="ubicacion-titulo animar">📍 ¿Quieres comprar presencial?</h2>
+    <p class="ubicacion-sub animar">Ven a nuestra <strong>Bodega Mayorista</strong> en Providencia — Fidel Oteiza 1921, Of. 1003 · 🚇 Metro Pedro de Valdivia</p>
+    <div class="ubicacion-card animar">
+      <div class="ubicacion-mapa">
+        <iframe
+          title="Ubicación de Joyería Aravena en Google Maps"
+          src="https://maps.google.com/maps?q=Fidel%20Oteiza%201921%2C%20Providencia%2C%20Santiago%2C%20Chile&z=16&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen></iframe>
+      </div>
+      <a class="btn-ubicacion"
+         href="https://www.google.com/maps/search/?api=1&query=Fidel+Oteiza+1921%2C+Providencia%2C+Santiago%2C+Chile"
+         target="_blank" rel="noopener">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+        Cómo llegar en Google Maps
+      </a>
+    </div>
+  </section>
 
   <!-- CATÁLOGO: sección de productos -->
   <section class="catalogo" id="catalogo">
