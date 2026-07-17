@@ -624,10 +624,10 @@ img { max-width: 100%; display: block; }
    ============================================= */
 .beneficios-grid {
   max-width: 1000px;
-  margin: 34px auto 0;
+  margin: 24px auto 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 26px;
+  gap: 18px;
 }
 
 .beneficio-item {
@@ -635,39 +635,43 @@ img { max-width: 100%; display: block; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .beneficio-icono {
-  width: 52px;
-  height: 52px;
-  background: rgba(30,157,241,0.1);
-  border: 1px solid rgba(30,157,241,0.3);
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  background: rgba(var(--color-diamante-rgb), 0.08);
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.3);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   transition: var(--transicion);
 }
 
 .beneficio-item:hover .beneficio-icono {
-  background: rgba(30,157,241,0.2);
-  box-shadow: 0 0 20px rgba(30,157,241,0.3);
+  background: rgba(var(--color-diamante-rgb), 0.18);
+  box-shadow: 0 0 14px rgba(var(--color-diamante-rgb), 0.4);
 }
 
 .beneficio-titulo {
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 700;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   text-transform: uppercase;
   color: var(--color-texto);
+  margin: 0;
 }
 
 .beneficio-desc {
-  font-size: 0.75rem;
-  color: var(--color-texto-suave);
-  line-height: 1.5;
+  font-size: 0.72rem;
+  /* Mismo tono legible que las etiquetas de las cifras (antes 4.17:1) */
+  color: #9fb0bd;
+  line-height: 1.4;
+  margin: 0;
 }
 
 /* =============================================
@@ -686,19 +690,34 @@ img { max-width: 100%; display: block; }
    CONFIANZA — cifras + beneficios en un solo bloque
    ============================================= */
 .confianza {
-  padding: 44px 20px 40px;
+  padding: 30px 20px 26px;
   position: relative;
   perspective: 1000px;   /* profundidad real para la inclinación 3D */
 }
 
+/* Título en forma de cinta: las puntas en V lo hacen leer como un sello */
 .confianza-titulo {
+  width: fit-content;
+  margin: 0 auto 18px;
+  padding: 9px 42px;
   font-family: var(--fuente-display);
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 600;
   letter-spacing: 1.5px;
   text-align: center;
-  color: var(--color-texto);
-  margin: 0 0 20px;
+  color: #f4fbff;
+  background: linear-gradient(90deg,
+    rgba(28,156,240, 0.22),
+    rgba(var(--color-diamante-rgb), 0.34),
+    rgba(28,156,240, 0.22));
+  /* Muescas en V a cada lado = forma de cinta */
+  clip-path: polygon(
+    0 0, 100% 0,
+    calc(100% - 15px) 50%, 100% 100%,
+    0 100%, 15px 50%
+  );
+  /* El resplandor va con drop-shadow porque clip-path recorta box-shadow */
+  filter: drop-shadow(0 0 9px rgba(var(--color-diamante-rgb), 0.45));
 }
 
 /* La barra: la luz LED recorre el contorno. El interior es negro puro (igual
@@ -758,7 +777,7 @@ img { max-width: 100%; display: block; }
 .stat-item {
   position: relative;
   z-index: 2;              /* por encima de la luz y la tapa interior */
-  padding: 18px 8px;
+  padding: 13px 8px;
   text-align: center;
 }
 /* Divisores de luz entre cifras */
@@ -774,7 +793,7 @@ img { max-width: 100%; display: block; }
 
 .stat-numero {
   font-family: var(--fuente-display);
-  font-size: 2.3rem;
+  font-size: 1.95rem;
   font-weight: 700;
   /* Blanco diamante: lee como plata pulida, no como neón */
   color: #f4fbff;
@@ -1802,10 +1821,28 @@ img { max-width: 100%; display: block; }
   .nav ul { gap: 16px; }
   .nav ul li a { font-size: 0.7rem; }
   .logo a { font-size: 1rem; }
-  .beneficios-grid { grid-template-columns: repeat(2, 1fr); gap: 22px; margin-top: 26px; }
+  /* En celular: filas horizontales (icono izquierda, texto derecha).
+     Antes eran tarjetas apiladas de 154px c/u = 324px en total. */
+  .beneficios-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 18px; }
+  .beneficio-item {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 12px;
+  }
+  .beneficio-icono { width: 36px; height: 36px; font-size: 1rem; }
+  .beneficio-titulo { font-size: 0.72rem; letter-spacing: 0.5px; }
+  .beneficio-desc { font-size: 0.68rem; }
   /* Las 3 cifras se mantienen en una fila compacta (antes se apilaban y ocupaban mucho) */
-  .confianza { padding: 30px 14px 28px; }
-  .confianza-titulo { font-size: 1.15rem; letter-spacing: 1px; margin-bottom: 16px; }
+  .confianza { padding: 22px 14px 20px; }
+  /* Cinta más angosta para que quepa bien en el celular */
+  .confianza-titulo {
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    padding: 7px 26px;
+    margin-bottom: 14px;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 11px) 50%, 100% 100%, 0 100%, 11px 50%);
+  }
   .stats-bar { border-radius: 14px; }
   .stats-bar::after { border-radius: 12.5px; }
   .stat-item { padding: 14px 4px; }
@@ -1820,7 +1857,9 @@ img { max-width: 100%; display: block; }
   /* Nav invisible pero preserva espacio para centrar logo */
   .nav { visibility: hidden; pointer-events: none; }
   .hero-content h1 { font-size: 1.6rem; letter-spacing: 2px; }
-  .beneficios-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  /* Se mantiene 1 columna (filas horizontales): esta regla forzaba 2 columnas
+     y pisaba el diseño compacto de arriba. */
+  .beneficios-grid { grid-template-columns: 1fr; gap: 10px; }
   .hero-logo { width: 120px; height: 120px; }
 
   /* Header móvil */
