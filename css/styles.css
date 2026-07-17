@@ -618,60 +618,118 @@ img { max-width: 100%; display: block; }
   }
 }
 
+
 /* =============================================
-   BENEFICIOS — ahora viven dentro de .confianza
-   (antes era una sección aparte con banda gris propia)
+   UBICACIÓN — mapa + video de cómo llegar
    ============================================= */
-.beneficios-grid {
-  max-width: 1000px;
-  margin: 24px auto 0;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-}
-
-.beneficio-item {
+.ubicacion {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 24px 70px;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
 }
-
-.beneficio-icono {
-  width: 40px;
-  height: 40px;
-  flex: 0 0 auto;
-  background: rgba(var(--color-diamante-rgb), 0.08);
-  border: 1px solid rgba(var(--color-diamante-rgb), 0.3);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  transition: var(--transicion);
-}
-
-.beneficio-item:hover .beneficio-icono {
-  background: rgba(var(--color-diamante-rgb), 0.18);
-  box-shadow: 0 0 14px rgba(var(--color-diamante-rgb), 0.4);
-}
-
-.beneficio-titulo {
-  font-size: 0.76rem;
-  font-weight: 700;
-  letter-spacing: 0.8px;
+.ubicacion-titulo {
+  font-family: var(--fuente-display);
+  font-size: 2.4rem;
+  font-weight: 600;
+  letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--color-texto);
+  margin: 0 0 8px;
+}
+.ubicacion-direccion {
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  color: #9fb0bd;
+  margin: 0 0 26px;
+}
+
+/* Si más adelante se agrega el video, pasa sola a 2 columnas */
+.ubicacion-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+.ubicacion-grid:has(.ubicacion-card + .ubicacion-card) {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.ubicacion-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Marco del mapa con borde de luz */
+.ubicacion-mapa,
+.ubicacion-video {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.28);
+  box-shadow: 0 0 16px rgba(var(--color-diamante-rgb), 0.14),
+              0 10px 30px rgba(0,0,0,0.5);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.ubicacion-mapa:hover,
+.ubicacion-video:hover {
+  border-color: rgba(var(--color-diamante-rgb), 0.6);
+  box-shadow: var(--led-glow), 0 14px 34px rgba(0,0,0,0.55);
+}
+.ubicacion-mapa iframe,
+.ubicacion-video video {
+  display: block;
+  width: 100%;
+  height: 340px;
+  border: 0;
+  background: var(--color-fondo-secundario);
+}
+/* El mapa de Google viene claro: se atenúa para no romper el tema oscuro */
+.ubicacion-mapa iframe {
+  filter: grayscale(0.35) invert(0.9) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+}
+.ubicacion-video-pie {
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #9fb0bd;
   margin: 0;
 }
 
-.beneficio-desc {
+.btn-ubicacion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  align-self: center;
+  padding: 12px 30px;
+  font-family: var(--fuente-secundaria);
   font-size: 0.72rem;
-  /* Mismo tono legible que las etiquetas de las cifras (antes 4.17:1) */
-  color: #9fb0bd;
-  line-height: 1.4;
-  margin: 0;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--color-diamante-suave);
+  background: rgba(var(--color-diamante-rgb), 0.06);
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.45);
+  border-radius: 999px;
+  transition: all 0.25s ease;
+}
+.btn-ubicacion:hover {
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
+  border-color: var(--color-diamante);
+  box-shadow: var(--led-glow);
+}
+
+@media (max-width: 768px) {
+  .ubicacion { padding: 10px 20px 50px; }
+  .ubicacion-titulo { font-size: 1.7rem; }
+  /* En celular siempre 1 columna, aunque exista el video */
+  .ubicacion-grid,
+  .ubicacion-grid:has(.ubicacion-card + .ubicacion-card) { grid-template-columns: 1fr; }
+  .ubicacion-mapa iframe,
+  .ubicacion-video video { height: 260px; }
 }
 
 /* =============================================
@@ -687,7 +745,7 @@ img { max-width: 100%; display: block; }
    ESTADÍSTICAS
    ============================================= */
 /* =============================================
-   CONFIANZA — cifras + beneficios en un solo bloque
+   CONFIANZA — título en cinta + barra de cifras
    ============================================= */
 .confianza {
   padding: 30px 20px 26px;
@@ -1821,18 +1879,6 @@ img { max-width: 100%; display: block; }
   .nav ul { gap: 16px; }
   .nav ul li a { font-size: 0.7rem; }
   .logo a { font-size: 1rem; }
-  /* En celular: filas horizontales (icono izquierda, texto derecha).
-     Antes eran tarjetas apiladas de 154px c/u = 324px en total. */
-  .beneficios-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 18px; }
-  .beneficio-item {
-    flex-direction: row;
-    align-items: center;
-    text-align: left;
-    gap: 12px;
-  }
-  .beneficio-icono { width: 36px; height: 36px; font-size: 1rem; }
-  .beneficio-titulo { font-size: 0.72rem; letter-spacing: 0.5px; }
-  .beneficio-desc { font-size: 0.68rem; }
   /* Las 3 cifras se mantienen en una fila compacta (antes se apilaban y ocupaban mucho) */
   .confianza { padding: 22px 14px 20px; }
   /* Cinta más angosta para que quepa bien en el celular */
@@ -1857,9 +1903,6 @@ img { max-width: 100%; display: block; }
   /* Nav invisible pero preserva espacio para centrar logo */
   .nav { visibility: hidden; pointer-events: none; }
   .hero-content h1 { font-size: 1.6rem; letter-spacing: 2px; }
-  /* Se mantiene 1 columna (filas horizontales): esta regla forzaba 2 columnas
-     y pisaba el diseño compacto de arriba. */
-  .beneficios-grid { grid-template-columns: 1fr; gap: 10px; }
   .hero-logo { width: 120px; height: 120px; }
 
   /* Header móvil */

@@ -130,19 +130,23 @@
     <div class="ticker-track">
       <span class="ticker-item">Envíos a todo Chile</span>
       <span class="ticker-sep">✦</span>
-      <span class="ticker-item">Bodega Mayorista · Fidel Oteiza 1921, of. 1003 — Providencia</span>
+      <span class="ticker-item">Bodega Mayorista</span>
       <span class="ticker-sep">✦</span>
-      <span class="ticker-item">Pedidos por WhatsApp +56 9 6649 7904</span>
+      <span class="ticker-item">Precios mayoristas</span>
       <span class="ticker-sep">✦</span>
-      <span class="ticker-item">Pagas con MercadoPago</span>
+      <span class="ticker-item">Paga con débito y crédito</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">Compras sobre $30.000 van con regalo</span>
       <span class="ticker-sep">✦</span>
       <span class="ticker-item">Envíos a todo Chile</span>
       <span class="ticker-sep">✦</span>
-      <span class="ticker-item">Bodega Mayorista · Fidel Oteiza 1921, of. 1003 — Providencia</span>
+      <span class="ticker-item">Bodega Mayorista</span>
       <span class="ticker-sep">✦</span>
-      <span class="ticker-item">Pedidos por WhatsApp +56 9 6649 7904</span>
+      <span class="ticker-item">Precios mayoristas</span>
       <span class="ticker-sep">✦</span>
-      <span class="ticker-item">Pagas con MercadoPago</span>
+      <span class="ticker-item">Paga con débito y crédito</span>
+      <span class="ticker-sep">✦</span>
+      <span class="ticker-item">Compras sobre $30.000 van con regalo</span>
       <span class="ticker-sep">✦</span>
     </div>
   </div>
@@ -184,28 +188,6 @@
       </div>
     </div>
 
-    <div class="beneficios-grid">
-      <div class="beneficio-item animar">
-        <div class="beneficio-icono">🚚</div>
-        <p class="beneficio-titulo">Envío a todo Chile</p>
-        <p class="beneficio-desc">Despacho rápido y seguro a cualquier región</p>
-      </div>
-      <div class="beneficio-item animar">
-        <div class="beneficio-icono">📍</div>
-        <p class="beneficio-titulo">Visítanos en Providencia</p>
-        <p class="beneficio-desc">Fidel Oteiza 1921, oficina 1003 — compra directo</p>
-      </div>
-      <div class="beneficio-item animar">
-        <div class="beneficio-icono">💼</div>
-        <p class="beneficio-titulo">Precios mayoristas</p>
-        <p class="beneficio-desc">Para revendedores, tiendas y emprendedores</p>
-      </div>
-      <div class="beneficio-item animar">
-        <div class="beneficio-icono">💬</div>
-        <p class="beneficio-titulo">Atención personalizada</p>
-        <p class="beneficio-desc">Escríbenos por WhatsApp y te asesoramos al instante</p>
-      </div>
-    </div>
   </section>
 
   <!-- CATÁLOGO: sección de productos -->
@@ -230,6 +212,50 @@
     <!-- Contador + botón "Ver más" (lo pinta JS) -->
     <div class="ver-mas-wrap" id="ver-mas-wrap"></div>
 
+  </section>
+
+  <!-- UBICACIÓN: mapa + video de cómo llegar -->
+  <section class="ubicacion" id="ubicacion">
+    <h2 class="ubicacion-titulo animar">Visítanos</h2>
+    <p class="ubicacion-direccion animar">Fidel Oteiza 1921, oficina 1003 — Providencia, Santiago</p>
+
+    <div class="ubicacion-grid">
+
+      <!-- Mapa interactivo -->
+      <div class="ubicacion-card animar">
+        <div class="ubicacion-mapa">
+          <iframe
+            title="Ubicación de Joyería Aravena en Google Maps"
+            src="https://maps.google.com/maps?q=Fidel%20Oteiza%201921%2C%20Providencia%2C%20Santiago%2C%20Chile&z=16&output=embed"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen></iframe>
+        </div>
+        <a class="btn-ubicacion"
+           href="https://www.google.com/maps/search/?api=1&query=Fidel+Oteiza+1921%2C+Providencia%2C+Santiago%2C+Chile"
+           target="_blank" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          Cómo llegar en Google Maps
+        </a>
+      </div>
+
+      <!-- VIDEO "CÓMO LLEGAR" — espacio listo.
+           Para activarlo: guarda el archivo en img/como-llegar.mp4 y
+           descomenta este bloque. La grilla pasa sola a 2 columnas.
+      <div class="ubicacion-card animar">
+        <div class="ubicacion-video">
+          <video controls preload="metadata" playsinline poster="img/logo-aravena.png">
+            <source src="img/como-llegar.mp4" type="video/mp4">
+            Tu navegador no puede reproducir el video.
+          </video>
+        </div>
+        <p class="ubicacion-video-pie">Video: cómo llegar a la oficina</p>
+      </div>
+      -->
+
+    </div>
   </section>
 
   <!-- FOOTER -->
