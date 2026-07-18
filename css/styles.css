@@ -650,37 +650,27 @@ img { max-width: 100%; display: block; }
   margin: 0 auto 30px;
 }
 
-/* Título y descripción del video */
-.video-titulo {
-  font-family: var(--fuente-display);
-  font-size: 1.8rem;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+.video-seccion {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 6px 20px 40px;
   text-align: center;
-  color: var(--color-texto);
-  margin: 0 0 8px;
-}
-.video-desc {
-  text-align: center;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: #9fb0bd;
-  max-width: 620px;
-  margin: 0 auto 22px;
 }
 
-.video-seccion {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 6px 20px 18px;
+/* Fila video + mapa. En celular: apilado (columna). */
+.conoce-fila {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  margin-top: 8px;
 }
 
 /* El video es vertical (9:16): marco angosto y centrado para no deformarlo */
 .video-card {
   position: relative;
   width: 100%;
-  max-width: 340px;
-  margin: 0 auto;
+  max-width: 300px;
   border-radius: 18px;
   overflow: hidden;
   border: 1px solid rgba(var(--color-diamante-rgb), 0.35);
@@ -697,6 +687,47 @@ img { max-width: 100%; display: block; }
   width: 100%;
   height: auto;
   background: #000;
+}
+
+/* Separador LED entre video y mapa (horizontal en celular) */
+.conoce-sep {
+  width: 60%;
+  max-width: 260px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--color-diamante), transparent);
+  box-shadow: 0 0 8px rgba(var(--color-diamante-rgb), 0.7);
+}
+
+/* En desktop: video a la izquierda, mapa a la derecha, separador vertical */
+@media (min-width: 860px) {
+  .conoce-fila {
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 26px;
+  }
+  .video-card {
+    flex: 0 0 auto;
+    width: auto;            /* el ancho lo da el video 9:16 (~245px) */
+    max-width: none;
+    height: 440px;          /* alto de la fila */
+  }
+  .video-card video { height: 100%; width: auto; }
+  .conoce-sep {
+    width: 2px;
+    max-width: none;
+    height: auto;
+    align-self: stretch;
+    background: linear-gradient(180deg, transparent, var(--color-diamante), transparent);
+  }
+  .ubicacion-card {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-start;
+  }
+  .ubicacion-mapa { flex: 1 1 auto; }
+  .ubicacion-mapa iframe { height: 440px; }
 }
 
 /* Marco de luz LED del mapa */
@@ -2090,11 +2121,11 @@ img { max-width: 100%; display: block; }
   .confianza { padding-left: 48px; padding-right: 48px; }
   .stats-bar { max-width: none; }
 
-  /* El mapa cruza toda la pantalla; el video (vertical) se agranda un poco */
-  .ubicacion { max-width: none; padding-left: 48px; padding-right: 48px; }
-  .ubicacion-sub { max-width: 760px; }
-  .ubicacion-mapa iframe { height: 420px; }
-  .video-card { max-width: 380px; }
+  /* Fila video+mapa de extremo a extremo */
+  .video-seccion { max-width: none; padding-left: 48px; padding-right: 48px; }
+  .ubicacion-sub { max-width: 820px; }
+  .video-card { height: 480px; }
+  .ubicacion-mapa iframe { height: 480px; }
 
   /* Catálogo de borde a borde, con más columnas según la pantalla */
   .catalogo { max-width: none; padding-left: 48px; padding-right: 48px; }

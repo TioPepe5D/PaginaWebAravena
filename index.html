@@ -184,39 +184,39 @@
     </div>
   </section>
 
-  <!-- VIDEO: Conoce Joyas Aravena -->
-  <section class="video-seccion">
-    <h3 class="video-titulo animar">Conoce Joyas Aravena</h3>
-    <p class="video-desc animar">En menos de 2 minutos te mostraremos nuestra tienda física, nuestros productos, los métodos de pago, cómo realizamos los envíos y por qué miles de clientes confían en nosotros.</p>
-    <div class="video-card animar">
-      <video controls preload="metadata" playsinline>
-        <source src="img/conoce-aravena.mp4" type="video/mp4">
-        Tu navegador no puede reproducir el video.
-      </video>
-    </div>
-  </section>
-
-  <!-- UBICACIÓN: título + mapa -->
-  <section class="ubicacion" id="ubicacion">
+  <!-- CONOCE: video (izq) + mapa (der) en desktop; apilado en celular -->
+  <section class="video-seccion" id="ubicacion">
     <h2 class="ubicacion-titulo animar">📍 ¿Quieres comprar presencial?</h2>
     <p class="ubicacion-sub animar">Ven a nuestra <strong>Bodega Mayorista</strong> en Providencia — Fidel Oteiza 1921, Of. 1003 · 🚇 Metro Pedro de Valdivia</p>
-    <div class="ubicacion-card animar">
-      <div class="ubicacion-mapa">
-        <iframe
-          title="Ubicación de Joyería Aravena en Google Maps"
-          src="https://maps.google.com/maps?q=Fidel%20Oteiza%201921%2C%20Providencia%2C%20Santiago%2C%20Chile&z=16&output=embed"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          allowfullscreen></iframe>
+
+    <div class="conoce-fila animar">
+      <div class="video-card">
+        <video controls preload="metadata" playsinline>
+          <source src="img/conoce-aravena.mp4" type="video/mp4">
+          Tu navegador no puede reproducir el video.
+        </video>
       </div>
-      <a class="btn-ubicacion"
-         href="https://www.google.com/maps/search/?api=1&query=Fidel+Oteiza+1921%2C+Providencia%2C+Santiago%2C+Chile"
-         target="_blank" rel="noopener">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-        </svg>
-        Cómo llegar en Google Maps
-      </a>
+
+      <div class="conoce-sep" aria-hidden="true"></div>
+
+      <div class="ubicacion-card">
+        <div class="ubicacion-mapa">
+          <iframe
+            title="Ubicación de Joyería Aravena en Google Maps"
+            src="https://maps.google.com/maps?q=Fidel%20Oteiza%201921%2C%20Providencia%2C%20Santiago%2C%20Chile&z=16&output=embed"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen></iframe>
+        </div>
+        <a class="btn-ubicacion"
+           href="https://www.google.com/maps/search/?api=1&query=Fidel+Oteiza+1921%2C+Providencia%2C+Santiago%2C+Chile"
+           target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          Cómo llegar · Fidel Oteiza 1921, Providencia
+        </a>
+      </div>
     </div>
   </section>
 
