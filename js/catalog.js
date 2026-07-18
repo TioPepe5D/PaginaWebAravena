@@ -1,96 +1,55 @@
-// Fuente de productos activa — se reemplaza con datos de Supabase si están disponibles
-let productosActivos = typeof productos !== 'undefined' ? [...productos] : [];
+// Fuente de productos activa — se baraja al cargar para que el orden sea aleatorio
+let productosActivos = typeof productos !== 'undefined' ? barajar([...productos]) : [];
 
-// Categoría seleccionada en la barra de categorías ("todos" = sin filtro)
-let categoriaActiva = "todos";
+// Página de categoría: categoria.html#collares (el hash sobrevive a las
+// redirecciones "clean URL" del servidor, que descartan ?c=)
+const CATEGORIA_PAGINA = /categoria/.test(location.pathname)
+  ? (location.hash.replace('#','') || new URLSearchParams(location.search).get('c') || '')
+  : '';
 
-// Paginación "Ver más": cuántas joyas se muestran por tanda
+// Paginación "Ver más" (grilla de búsqueda / página de categoría)
 const PRODUCTOS_POR_TANDA = 12;
 let productosVisibles = PRODUCTOS_POR_TANDA;
-let esVerMas = false;   // true solo durante el clic en "Ver más" (evita re-animar lo ya visible)
+let esVerMas = false;
 
-// Vuelve a la primera tanda (al cambiar categoría, búsqueda u orden)
+// Orden y etiquetas de las categorías del catálogo
+const CATEGORIAS_META = [
+  { key: "collares",    label: "Collares" },
+  { key: "pulseras",    label: "Pulseras" },
+  { key: "aros",        label: "Aros" },
+  { key: "colgantes",   label: "Colgantes" },
+  { key: "conjuntos",   label: "Conjuntos" },
+  { key: "anillos",     label: "Anillos" },
+  { key: "exhibidores", label: "Insumos" },
+];
+
+function etiquetaCategoria(key) {
+  return (CATEGORIAS_META.find(c => c.key === key) || {}).label || key;
+}
+
+// Barajado Fisher–Yates: orden aleatorio en cada visita
+function barajar(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 function reiniciarPaginacion() {
   productosVisibles = PRODUCTOS_POR_TANDA;
 }
 
-async function cargarCatalogoDesdeSupa() {
-  if (typeof db === 'undefined' || !db) return;
-  try {
-    const { data, error } = await db
-      .from('catalogo')
-      .select('*')
-      .eq('activo', true)
-      .order('created_at', { ascending: false });
-
-    if (!error && data && data.length > 0) {
-      productosActivos = data.map(r => ({
-        id: r.id,
-        nombre: r.nombre || 'Sin nombre',
-        precio: r.precio || 0,
-        imagen: r.imagen_url,
-        categoria: r.categoria || 'general',
-        descripcion: r.descripcion || r.nombre || '',
-        drive_file_id: r.drive_file_id,
-      }));
-    }
-    // Si la tabla está vacía, usa el catálogo estático (products.js)
-  } catch (e) { /* silencioso — usa estático */ }
+/* =============================================
+   TARJETA DE PRODUCTO (compartida por grilla y carruseles)
+   ============================================= */
+function badgeCarritoHTML(cantidad) {
+  return cantidad > 0 ? `<span class="badge-en-carrito">${cantidad}</span>` : '';
 }
 
-function renderizarProductos() {
-  const grid     = document.getElementById("productos-grid");
-  const busqueda = (document.getElementById("filtro-nombre")?.value || "").toLowerCase();
-  const orden    = document.getElementById("filtro-precio")?.value || "";
-
-  let filtrados = [...productosActivos];
-
-  if (categoriaActiva && categoriaActiva !== "todos") {
-    filtrados = filtrados.filter(p => p.categoria === categoriaActiva);
-  }
-
-  if (busqueda) {
-    filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
-  }
-
-  if (orden === "asc")  filtrados = filtrados.sort((a, b) => a.precio - b.precio);
-  if (orden === "desc") filtrados = filtrados.sort((a, b) => b.precio - a.precio);
-
-  if (filtrados.length === 0) {
-    grid.innerHTML = "<p style='text-align:center;color:#888;padding:3rem 0'>No se encontraron productos con ese filtro.</p>";
-    actualizarVerMas(0, 0);
-    return;
-  }
-
-  // Solo se muestra la tanda actual; el resto se carga con "Ver más"
-  const total    = filtrados.length;
-  const mostrados = Math.min(productosVisibles, total);
-  // Índice donde empieza la tanda nueva (para animar solo lo recién agregado)
-  const inicioNuevo = esVerMas ? Math.max(0, mostrados - PRODUCTOS_POR_TANDA) : 0;
-
-  grid.innerHTML = filtrados.slice(0, mostrados).map((producto, i) => {
-    const enCarrito = (typeof carrito !== "undefined") ? carrito.find(p => p.id === producto.id) : null;
-    const cantidad  = enCarrito ? enCarrito.cantidad : 0;
-    const yaVisible = i < inicioNuevo;                       // ya estaba en pantalla: no re-animar
-    const posNueva  = i - inicioNuevo;
-    const delay = (!yaVisible && posNueva < 8) ? posNueva * 60 : 0;
-    const lazyAttr = i < 6 ? '' : 'loading="lazy" decoding="async"';
-    const fetchPriority = i < 3 ? 'fetchpriority="high"' : '';
-    const imgSrc = (window.imagenesOverride && window.imagenesOverride[producto.id]) || producto.imagen;
+function btnWrapHTML(producto, cantidad) {
+  if (cantidad === 0) {
     return `
-    <div class="producto-card animar${yaVisible ? ' visible' : ''}${cantidad > 0 ? ' en-carrito' : ''}" style="transition-delay: ${delay}ms" data-id="${producto.id}">
-      <div class="producto-card-img-wrap">
-        <img src="${imgSrc}" alt="${producto.nombre}" ${lazyAttr} ${fetchPriority}>
-        ${cantidad > 0 ? `<span class="badge-en-carrito">${cantidad}</span>` : ''}
-        ${typeof iconCorazon === 'function' ? iconCorazon(producto.id) : ''}
-      </div>
-      <div class="producto-info">
-        <p class="producto-categoria">${producto.categoria}</p>
-        <h3 class="producto-nombre">${producto.nombre}</h3>
-        <p class="producto-precio">${producto.precio > 0 ? '$' + producto.precio.toLocaleString("es-CL") : '<span class="precio-consultar">Consultar precio</span>'}</p>
-      </div>
-      <div class="producto-card-btn-wrap">
-        ${cantidad === 0 ? `
         <button class="btn-agregar-card" onclick="event.stopPropagation(); agregarAlCarrito(${producto.id})">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
@@ -98,8 +57,9 @@ function renderizarProductos() {
             <path d="M16 10a4 4 0 0 1-8 0"/>
           </svg>
           Agregar al carrito
-        </button>
-        ` : `
+        </button>`;
+  }
+  return `
         <div class="cantidad-selector-card" onclick="event.stopPropagation()">
           <button class="qty-btn qty-menos${cantidad === 1 ? ' qty-eliminar' : ''}" aria-label="${cantidad === 1 ? 'Quitar del carrito' : 'Restar uno'}" onclick="event.stopPropagation(); cambiarCantidad(${producto.id}, -1)">
             ${cantidad === 1
@@ -110,54 +70,171 @@ function renderizarProductos() {
           <button class="qty-btn qty-mas" aria-label="Sumar uno" onclick="event.stopPropagation(); cambiarCantidad(${producto.id}, 1)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
-        </div>
-        `}
-      </div>
-    </div>
-  `;
-  }).join("");
-
-  grid.querySelectorAll(".producto-card").forEach(card => {
-    card.addEventListener("click", () => {
-      const id = parseInt(card.dataset.id);
-      abrirDetalleProducto(id);
-    });
-  });
-
-  setTimeout(() => {
-    grid.querySelectorAll(".animar").forEach(el => el.classList.add("visible"));
-  }, 50);
-
-  actualizarVerMas(mostrados, total);
+        </div>`;
 }
 
-// Pinta (o esconde) el botón "Ver más" con el contador de joyas
-function actualizarVerMas(mostrados, total) {
-  const wrap = document.getElementById("ver-mas-wrap");
-  if (!wrap) return;
+function tarjetaHTML(producto, opts = {}) {
+  const enCarrito = (typeof carrito !== "undefined") ? carrito.find(p => p.id === producto.id) : null;
+  const cantidad  = enCarrito ? enCarrito.cantidad : 0;
+  const imgSrc = (window.imagenesOverride && window.imagenesOverride[producto.id]) || producto.imagen;
+  const clases = ['producto-card'];
+  if (opts.animar) clases.push('animar');
+  if (opts.visible) clases.push('visible');
+  if (cantidad > 0) clases.push('en-carrito');
+  const delay = opts.delay ? ` style="transition-delay: ${opts.delay}ms"` : '';
+  const lazy = opts.lazy === false ? '' : 'loading="lazy" decoding="async"';
+  return `
+    <div class="${clases.join(' ')}"${delay} data-id="${producto.id}">
+      <div class="producto-card-img-wrap">
+        <img src="${imgSrc}" alt="${producto.nombre}" ${lazy}>
+        ${badgeCarritoHTML(cantidad)}
+        ${typeof iconCorazon === 'function' ? iconCorazon(producto.id) : ''}
+      </div>
+      <div class="producto-info">
+        <p class="producto-categoria">${etiquetaCategoria(producto.categoria)}</p>
+        <h3 class="producto-nombre">${producto.nombre}</h3>
+        <p class="producto-precio">${producto.precio > 0 ? '$' + producto.precio.toLocaleString("es-CL") : '<span class="precio-consultar">Consultar precio</span>'}</p>
+      </div>
+      <div class="producto-card-btn-wrap">${btnWrapHTML(producto, cantidad)}</div>
+    </div>`;
+}
 
-  if (total === 0 || mostrados >= total) {
-    // Ya se ven todas: sin botón. Se deja el contador si hay resultados.
-    wrap.innerHTML = total > 0
-      ? `<p class="ver-mas-info">Mostrando las ${total} joyas</p>`
-      : "";
+function activarClickTarjetas(cont) {
+  cont.querySelectorAll(".producto-card").forEach(card => {
+    if (card.dataset.click) return;
+    card.dataset.click = "1";
+    card.addEventListener("click", () => abrirDetalleProducto(parseInt(card.dataset.id)));
+  });
+}
+
+/* =============================================
+   FILAS POR CATEGORÍA — carruseles deslizantes
+   ============================================= */
+function renderizarFilas() {
+  const cont = document.getElementById("categorias-filas");
+  if (!cont) return;
+
+  cont.innerHTML = CATEGORIAS_META.map((cat, i) => {
+    const items = productosActivos.filter(p => p.categoria === cat.key);
+    if (!items.length) return '';
+    // Dirección alternada: Collares →, Pulseras ←, Aros →, ...
+    const dir = i % 2 === 0 ? 'marquee-izq' : 'marquee-der';
+    // El contenido se duplica para que el bucle no tenga cortes
+    const tarjetas = items.map(p => tarjetaHTML(p)).join('');
+    // Velocidad proporcional a la cantidad (≈6s por tarjeta)
+    const dur = Math.max(30, items.length * 6);
+    return `
+    <div class="cat-fila animar">
+      <div class="cat-fila-head">
+        <h3 class="cat-fila-titulo">${cat.label}</h3>
+        <a class="cat-fila-link" href="categoria.html#${cat.key}">
+          Ver todo
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+      <div class="marquee">
+        <div class="marquee-track ${dir}" style="animation-duration: ${dur}s">
+          ${tarjetas}${tarjetas}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  activarClickTarjetas(cont);
+  cont.dataset.listo = "1";
+  // Las filas aparecen con fade-up
+  setTimeout(() => cont.querySelectorAll(".animar").forEach(el => el.classList.add("visible")), 50);
+}
+
+// Actualiza en su sitio las tarjetas de los carruseles (sin reiniciar la animación)
+function refrescarTarjetasFilas() {
+  const cont = document.getElementById("categorias-filas");
+  if (!cont || !cont.dataset.listo) return;
+  cont.querySelectorAll(".producto-card").forEach(card => {
+    const id = parseInt(card.dataset.id);
+    const producto = productosActivos.find(p => p.id === id);
+    if (!producto) return;
+    const enCarrito = (typeof carrito !== "undefined") ? carrito.find(p => p.id === id) : null;
+    const cantidad = enCarrito ? enCarrito.cantidad : 0;
+    card.classList.toggle('en-carrito', cantidad > 0);
+    card.querySelector('.producto-card-btn-wrap').innerHTML = btnWrapHTML(producto, cantidad);
+    const badge = card.querySelector('.badge-en-carrito');
+    if (badge) badge.remove();
+    if (cantidad > 0) card.querySelector('.producto-card-img-wrap').insertAdjacentHTML('beforeend', badgeCarritoHTML(cantidad));
+  });
+}
+
+/* =============================================
+   GRILLA (resultados de búsqueda / página de categoría)
+   ============================================= */
+function renderizarProductos() {
+  const grid = document.getElementById("productos-grid");
+  if (!grid) return;
+  const busqueda = (document.getElementById("filtro-nombre")?.value || "").toLowerCase().trim();
+  const filas = document.getElementById("categorias-filas");
+  const verMasWrap = document.getElementById("ver-mas-wrap");
+
+  // En la portada sin búsqueda: carruseles por categoría
+  if (!CATEGORIA_PAGINA && !busqueda && filas) {
+    filas.hidden = false;
+    grid.hidden = true;
+    if (verMasWrap) verMasWrap.hidden = true;
+    if (!filas.dataset.listo) renderizarFilas();
+    else refrescarTarjetasFilas();
     return;
   }
 
-  const restantes = total - mostrados;
-  const siguiente = Math.min(PRODUCTOS_POR_TANDA, restantes);
+  // Grilla: búsqueda o página de categoría
+  if (filas) filas.hidden = true;
+  grid.hidden = false;
+  if (verMasWrap) verMasWrap.hidden = false;
+
+  let filtrados = [...productosActivos];
+  if (CATEGORIA_PAGINA) filtrados = filtrados.filter(p => p.categoria === CATEGORIA_PAGINA);
+  if (busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
+
+  if (filtrados.length === 0) {
+    grid.innerHTML = "<p style='text-align:center;color:#888;padding:3rem 0'>No se encontraron productos.</p>";
+    actualizarVerMas(0, 0);
+    return;
+  }
+
+  const total = filtrados.length;
+  const mostrados = Math.min(productosVisibles, total);
+  const inicioNuevo = esVerMas ? Math.max(0, mostrados - PRODUCTOS_POR_TANDA) : 0;
+
+  grid.innerHTML = filtrados.slice(0, mostrados).map((p, i) => {
+    const yaVisible = i < inicioNuevo;
+    const posNueva = i - inicioNuevo;
+    return tarjetaHTML(p, {
+      animar: true,
+      visible: yaVisible,
+      delay: (!yaVisible && posNueva < 8) ? posNueva * 60 : 0,
+      lazy: i >= 6,
+    });
+  }).join("");
+
+  activarClickTarjetas(grid);
+  setTimeout(() => grid.querySelectorAll(".animar").forEach(el => el.classList.add("visible")), 50);
+  actualizarVerMas(mostrados, total);
+}
+
+function actualizarVerMas(mostrados, total) {
+  const wrap = document.getElementById("ver-mas-wrap");
+  if (!wrap) return;
+  if (total === 0 || mostrados >= total) {
+    wrap.innerHTML = total > 0 ? `<p class="ver-mas-info">Mostrando las ${total} joyas</p>` : "";
+    return;
+  }
+  const siguiente = Math.min(PRODUCTOS_POR_TANDA, total - mostrados);
   wrap.innerHTML = `
     <p class="ver-mas-info">Mostrando ${mostrados} de ${total} joyas</p>
     <button class="btn-ver-mas" onclick="verMas()">
       Ver ${siguiente} más
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="6 9 12 15 18 9"/>
-      </svg>
-    </button>
-  `;
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>`;
 }
 
-// Carga la siguiente tanda de joyas
 function verMas() {
   esVerMas = true;
   productosVisibles += PRODUCTOS_POR_TANDA;
@@ -165,6 +242,9 @@ function verMas() {
   esVerMas = false;
 }
 
+/* =============================================
+   PANEL DE DETALLE
+   ============================================= */
 function abrirDetalleProducto(id) {
   const producto = productosActivos.find(p => p.id === id);
   if (!producto) return;
@@ -185,7 +265,7 @@ function abrirDetalleProducto(id) {
   contenido.innerHTML = `
     <img src="${producto.imagen}" alt="${producto.nombre}" class="detalle-imagen">
     <div class="detalle-info">
-      <p class="detalle-categoria">${producto.categoria}</p>
+      <p class="detalle-categoria">${etiquetaCategoria(producto.categoria)}</p>
       <h2 class="detalle-nombre">${producto.nombre}</h2>
       <p class="detalle-precio">${producto.precio > 0 ? '$' + producto.precio.toLocaleString("es-CL") + ' CLP' : '<span class="precio-consultar">Consultar precio</span>'}</p>
       <p class="detalle-descripcion">${producto.descripcion}</p>
@@ -259,59 +339,26 @@ function detalleAgregarAlCarrito(id) {
 }
 
 function inicializarFiltros() {
-  // Al filtrar/ordenar se vuelve a la primera tanda
-  const rerender = () => { reiniciarPaginacion(); renderizarProductos(); };
-  document.getElementById("filtro-nombre")?.addEventListener("input",  rerender);
-  document.getElementById("filtro-precio")?.addEventListener("change", rerender);
-}
-
-// Orden y etiquetas de las categorías del catálogo
-const CATEGORIAS_META = [
-  { key: "todos",       label: "Todos" },
-  { key: "collares",    label: "Collares" },
-  { key: "pulseras",    label: "Pulseras" },
-  { key: "aros",        label: "Aros" },
-  { key: "colgantes",   label: "Colgantes" },
-  { key: "conjuntos",   label: "Conjuntos" },
-  { key: "anillos",     label: "Anillos" },
-  { key: "exhibidores", label: "Exhibidores" },
-];
-
-function inicializarCategorias() {
-  const cont = document.getElementById("categorias-barra");
-  if (!cont) return;
-
-  const presentes = new Set(productosActivos.map(p => p.categoria));
-  const items = CATEGORIAS_META.filter(c => c.key === "todos" || presentes.has(c.key));
-
-  cont.innerHTML = items.map(c =>
-    `<button class="categoria-chip${c.key === categoriaActiva ? " activa" : ""}" data-cat="${c.key}">${c.label}</button>`
-  ).join("");
-
-  cont.querySelectorAll(".categoria-chip").forEach(btn => {
-    btn.addEventListener("click", () => {
-      categoriaActiva = btn.dataset.cat;
-      cont.querySelectorAll(".categoria-chip").forEach(b => b.classList.toggle("activa", b === btn));
-      reiniciarPaginacion();
-      renderizarProductos();
-    });
+  // La búsqueda alterna entre carruseles y grilla de resultados
+  document.getElementById("filtro-nombre")?.addEventListener("input", () => {
+    reiniciarPaginacion();
+    renderizarProductos();
   });
 }
 
 async function inicializarCatalogo() {
-  // Mostrar catálogo estático primero (rápido)
+  // Página de categoría: título según ?c=
+  if (CATEGORIA_PAGINA) {
+    const titulo = document.getElementById("catalogo-titulo");
+    if (titulo) titulo.textContent = etiquetaCategoria(CATEGORIA_PAGINA);
+    document.title = etiquetaCategoria(CATEGORIA_PAGINA) + " — Joyería Aravena";
+  }
+
   renderizarProductos();
-  inicializarCategorias();
   inicializarFiltros();
   // Nota: NO se llama a inicializarAnimaciones() aquí. main.js ya la llama
-  // justo después de esta función (con los productos ya en el DOM). Llamarla
-  // en ambos lados duplicaba listeners de scroll, parallax y contadores.
+  // justo después de esta función (con los productos ya en el DOM).
 
-  document.getElementById("producto-detalle-overlay").addEventListener("click", cerrarDetalleProducto);
-  document.getElementById("producto-detalle-cerrar").addEventListener("click",  cerrarDetalleProducto);
-
-  // Catálogo MANUAL: se usa js/products.js (estático). La sincronización automática
-  // desde Supabase/Drive quedó desactivada. Para reactivarla, descomenta lo siguiente:
-  // await cargarCatalogoDesdeSupa();
-  // if (productosActivos.length > 0) renderizarProductos();
+  document.getElementById("producto-detalle-overlay")?.addEventListener("click", cerrarDetalleProducto);
+  document.getElementById("producto-detalle-cerrar")?.addEventListener("click",  cerrarDetalleProducto);
 }

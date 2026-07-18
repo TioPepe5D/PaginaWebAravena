@@ -699,19 +699,19 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 8px rgba(var(--color-diamante-rgb), 0.7);
 }
 
-/* En desktop: video a la izquierda, mapa a la derecha, separador vertical */
+/* En desktop: video grande a la izquierda, mapa más discreto a la derecha */
 @media (min-width: 860px) {
   .conoce-fila {
     flex-direction: row;
-    align-items: stretch;
+    align-items: center;
     justify-content: center;
-    gap: 26px;
+    gap: 34px;
   }
   .video-card {
     flex: 0 0 auto;
-    width: auto;            /* el ancho lo da el video 9:16 (~245px) */
+    width: auto;            /* el ancho lo da el video 9:16 */
     max-width: none;
-    height: 440px;          /* alto de la fila */
+    height: 560px;          /* el video manda en la fila */
   }
   .video-card video { height: 100%; width: auto; }
   .conoce-sep {
@@ -722,12 +722,11 @@ img { max-width: 100%; display: block; }
     background: linear-gradient(180deg, transparent, var(--color-diamante), transparent);
   }
   .ubicacion-card {
-    flex: 1 1 auto;
+    flex: 0 1 560px;        /* mapa acotado: ya no domina la fila */
     min-width: 0;
-    justify-content: flex-start;
+    justify-content: center;
   }
-  .ubicacion-mapa { flex: 1 1 auto; }
-  .ubicacion-mapa iframe { height: 440px; }
+  .ubicacion-mapa iframe { height: 340px; }
 }
 
 /* Marco de luz LED del mapa */
@@ -830,6 +829,98 @@ img { max-width: 100%; display: block; }
   max-width: 1200px;
   margin: 0 auto;
   padding: 80px 24px;
+}
+
+/* ── Filas por categoría con carrusel deslizante ── */
+.cat-fila { margin-bottom: 38px; }
+
+.cat-fila-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 0 4px;
+}
+.cat-fila-titulo {
+  font-family: var(--fuente-display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--color-texto);
+  margin: 0;
+}
+.cat-fila-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--color-diamante-suave);
+  padding: 7px 16px;
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.4);
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+}
+.cat-fila-link:hover {
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
+  border-color: var(--color-diamante);
+  box-shadow: var(--led-glow);
+}
+
+/* Carrusel continuo: el contenido va duplicado, se desplaza la mitad */
+.marquee {
+  position: relative;
+  overflow: hidden;
+  padding: 6px 0 10px;   /* aire para la sombra/hover de las tarjetas */
+}
+/* Difuminado en los extremos */
+.marquee::before,
+.marquee::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 46px;
+  z-index: 3;
+  pointer-events: none;
+}
+.marquee::before { left: 0;  background: linear-gradient(90deg, var(--color-fondo), transparent); }
+.marquee::after  { right: 0; background: linear-gradient(270deg, var(--color-fondo), transparent); }
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+.marquee-track .producto-card {
+  width: 250px;
+  flex: 0 0 auto;
+  margin-right: 20px;   /* margen (no gap) para que el bucle -50% calce exacto */
+}
+.marquee-izq { animation: marqueeIzq linear infinite; }
+.marquee-der { animation: marqueeDer linear infinite; }
+@keyframes marqueeIzq { from { transform: translateX(0); }    to { transform: translateX(-50%); } }
+@keyframes marqueeDer { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+/* Se pausa al pasar el cursor (para mirar o agregar al carrito) */
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track { animation-play-state: paused; }
+
+@media (max-width: 640px) {
+  .cat-fila { margin-bottom: 28px; }
+  .cat-fila-titulo { font-size: 1.25rem; }
+  .marquee-track .producto-card { width: 200px; margin-right: 14px; }
+  .marquee::before, .marquee::after { width: 24px; }
+}
+/* Accesibilidad: sin animación → carrusel deslizable a mano */
+@media (prefers-reduced-motion: reduce) {
+  .marquee { overflow-x: auto; }
+  .marquee-izq, .marquee-der { animation: none; }
 }
 
 /* =============================================
@@ -1021,58 +1112,6 @@ img { max-width: 100%; display: block; }
 }
 .btn-ver-mas svg { transition: transform 0.25s ease; }
 .btn-ver-mas:hover svg { transform: translateY(2px); }
-
-/* Barra de categorías */
-.categorias-barra {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 22px;
-}
-.categoria-chip {
-  font-family: var(--fuente-secundaria);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--color-texto-suave);
-  background: transparent;
-  border: 1px solid rgba(var(--color-diamante-rgb), 0.18);
-  border-radius: 999px;
-  padding: 8px 16px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.categoria-chip:hover {
-  color: var(--color-texto);
-  border-color: rgba(var(--color-diamante-rgb), 0.5);
-}
-.categoria-chip.activa {
-  color: var(--color-diamante-suave);
-  background: rgba(var(--color-diamante-rgb), 0.10);
-  border-color: rgba(var(--color-diamante-rgb), 0.7);
-  box-shadow: 0 0 6px rgba(var(--color-diamante-rgb), 0.4), inset 0 0 8px rgba(var(--color-diamante-rgb), 0.12);
-}
-/* En móvil: cuadrícula de 2 columnas — filas simétricas, nada suelto */
-@media (max-width: 640px) {
-  .categorias-barra {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    max-width: 340px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .categoria-chip {
-    width: 100%;
-    text-align: center;
-    font-size: 0.64rem;
-    letter-spacing: 1px;
-    padding: 9px 8px;
-  }
-}
 
 /* Filtro barra */
 .filtro-barra {
@@ -2099,7 +2138,6 @@ img { max-width: 100%; display: block; }
 .light .cantidad-selector-card { background: rgba(13,126,196,0.05); }
 .light .cantidad-selector-card .qty-btn { background: rgba(13,126,196,0.10); color: #0f1419; }
 .light .cantidad-selector-card .cantidad-valor { color: #0f1419; }
-.light .categoria-chip { background: rgba(13,126,196,0.04); }
 .light .btn-primary { background: rgba(13,126,196,0.08); }
 .light .btn-ver-mas,
 .light .btn-ubicacion { background: rgba(13,126,196,0.06); }
@@ -2124,8 +2162,8 @@ img { max-width: 100%; display: block; }
   /* Fila video+mapa de extremo a extremo */
   .video-seccion { max-width: none; padding-left: 48px; padding-right: 48px; }
   .ubicacion-sub { max-width: 820px; }
-  .video-card { height: 480px; }
-  .ubicacion-mapa iframe { height: 480px; }
+  .video-card { height: 620px; }        /* video protagonista */
+  .ubicacion-mapa iframe { height: 360px; }
 
   /* Catálogo de borde a borde, con más columnas según la pantalla */
   .catalogo { max-width: none; padding-left: 48px; padding-right: 48px; }

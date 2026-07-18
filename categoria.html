@@ -4,77 +4,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Joyería Aravena — Anillos, Collares y Pulseras en Chile</title>
-  <meta name="description" content="Descubre nuestra colección de joyas en plata nacional SL 925, plata italiana y oro GoldFit 18K. Anillos, collares, pulseras y aros con envío a todo Chile.">
-  <meta name="keywords" content="joyería, joyas Chile, anillos plata, collares oro, pulseras, aros, plata 925, oro goldfit, joyería online Chile">
-  <meta name="author" content="Joyería Aravena">
+  <title>Categoría — Joyería Aravena</title>
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://joyasaravena.cl/">
-
-  <!-- Open Graph / WhatsApp / Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Joyería Aravena">
-  <meta property="og:url" content="https://joyasaravena.cl/">
-  <meta property="og:title" content="Joyería Aravena — Anillos, Collares y Pulseras en Chile">
-  <meta property="og:description" content="Joyas en plata nacional SL 925, plata italiana y oro GoldFit 18K. Anillos, collares, pulseras y aros. Envío a todo Chile.">
-  <meta property="og:image" content="https://joyasaravena.cl/img/og.jpg">
-  <meta property="og:locale" content="es_CL">
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Joyería Aravena — Anillos, Collares y Pulseras en Chile">
-  <meta name="twitter:description" content="Joyas en plata nacional SL 925, plata italiana y oro GoldFit 18K. Envío a todo Chile.">
-  <meta name="twitter:image" content="https://joyasaravena.cl/img/og.jpg">
-
   <link rel="stylesheet" href="css/styles.css?v=2">
   <link rel="stylesheet" href="css/auth.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
-  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 
 <body>
-
-  <!-- JSON-LD: Datos estructurados para Google -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "JewelryStore",
-    "name": "Joyería Aravena",
-    "url": "https://joyasaravena.cl",
-    "logo": "https://joyasaravena.cl/img/og.jpg",
-    "image": "https://joyasaravena.cl/img/og.jpg",
-    "description": "Joyería con colección de anillos, collares, pulseras y aros en plata nacional SL 925, plata italiana y oro GoldFit 18K. Envíos a todo Chile.",
-    "priceRange": "$$",
-    "currenciesAccepted": "CLP",
-    "paymentAccepted": "MercadoPago, Tarjeta de crédito, Débito",
-    "areaServed": {
-      "@type": "Country",
-      "name": "Chile"
-    },
-    "contactPoint": {
-      "@type": "ContactPoint",
-      "contactType": "customer service",
-      "availableLanguage": "Spanish"
-    },
-    "sameAs": [],
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": "Catálogo de Joyas",
-      "itemListElement": [
-        { "@type": "OfferCatalog", "name": "Anillos" },
-        { "@type": "OfferCatalog", "name": "Collares" },
-        { "@type": "OfferCatalog", "name": "Pulseras" },
-        { "@type": "OfferCatalog", "name": "Aros" }
-      ]
-    }
-  }
-  </script>
-
-  <!-- LOADER INICIAL -->
-  <div class="page-loader" id="page-loader" aria-hidden="true">
-    <div class="page-loader-logo">Joyería Aravena</div>
-  </div>
 
   <!-- HEADER -->
   <header class="header">
@@ -145,152 +82,21 @@
       <span class="ticker-sep">✦</span>
     </div>
   </div>
-  <!-- BUSCADOR (oculto por defecto) -->
-  <div class="buscador-overlay" id="buscador-overlay">
-    <div class="buscador-container">
-      <input type="text" id="buscador-input" placeholder="Buscar productos..." autocomplete="off">
-      <button id="buscador-cerrar">&#10005;</button>
-    </div>
-  </div>
 
-  <!-- HERO: banner de bienvenida -->
-  <section class="hero" id="hero" data-parallax>
-    <div class="hero-content animar">
-      <h1>Joyería <span>Aravena</span></h1>
-      <a href="#catalogo" class="btn-primary btn-pulse">Ver catálogo</a>
-    </div>
-  </section>
-
-  <hr class="section-divider">
-
-  <!-- CONFIANZA: cifras -->
-  <section class="confianza">
-    <div class="stats-bar animar">
-      <div class="stat-item">
-        <div class="stat-numero" data-count="10">0</div>
-        <p class="stat-label">Años de experiencia</p>
-      </div>
-      <div class="stat-item">
-        <div class="stat-numero" data-count="2500">0</div>
-        <p class="stat-label">Clientes felices</p>
-      </div>
-      <div class="stat-item">
-        <div class="stat-numero" data-count="500">0</div>
-        <p class="stat-label">Envíos semanales</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONOCE: video (izq) + mapa con su título (der); apilado en celular -->
-  <section class="video-seccion" id="ubicacion">
-    <div class="conoce-fila animar">
-
-      <div class="video-card">
-        <!-- Autoplay silenciado, una sola vez (sin loop); luego decide el cliente -->
-        <video id="video-conoce" controls autoplay muted playsinline preload="metadata">
-          <source src="img/conoce-aravena.mp4" type="video/mp4">
-          Tu navegador no puede reproducir el video.
-        </video>
-      </div>
-
-      <div class="conoce-sep" aria-hidden="true"></div>
-
-      <div class="ubicacion-card">
-        <h2 class="ubicacion-titulo">📍 ¿Quieres comprar presencial?</h2>
-        <p class="ubicacion-sub">Ven a nuestra <strong>Bodega Mayorista</strong> en Providencia — Fidel Oteiza 1921, Of. 1003 · 🚇 Metro Pedro de Valdivia</p>
-        <div class="ubicacion-mapa">
-          <iframe
-            title="Ubicación de Joyería Aravena en Google Maps"
-            src="https://maps.google.com/maps?q=Fidel%20Oteiza%201921%2C%20Providencia%2C%20Santiago%2C%20Chile&z=16&output=embed"
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-            allowfullscreen></iframe>
-        </div>
-        <a class="btn-ubicacion"
-           href="https://www.google.com/maps/search/?api=1&query=Fidel+Oteiza+1921%2C+Providencia%2C+Santiago%2C+Chile"
-           target="_blank" rel="noopener">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-          </svg>
-          Cómo llegar · Fidel Oteiza 1921, Providencia
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- CATÁLOGO: filas por categoría con carrusel deslizante -->
+  <!-- CATÁLOGO DE LA CATEGORÍA (?c=collares, pulseras, ...) -->
   <section class="catalogo" id="catalogo">
-    <h2 id="catalogo-titulo" class="animar">Nuestra Colección</h2>
+    <h2 id="catalogo-titulo" class="animar">Categoría</h2>
 
-    <!-- Filas por categoría (las genera JS). Al buscar, se ocultan y
-         aparece la grilla de resultados. -->
-    <div id="categorias-filas"></div>
+    <div class="productos-grid" id="productos-grid"></div>
+    <div class="ver-mas-wrap" id="ver-mas-wrap"></div>
 
-    <!-- Grilla de resultados de búsqueda -->
-    <div class="productos-grid" id="productos-grid" hidden></div>
-    <div class="ver-mas-wrap" id="ver-mas-wrap" hidden></div>
-
+    <div class="ver-mas-wrap">
+      <a class="btn-ver-mas" href="index.html#catalogo">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        Volver al catálogo
+      </a>
+    </div>
   </section>
-
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="footer-container">
-      <div class="footer-col">
-        <p class="footer-logo">Joyería Aravena</p>
-        <div class="footer-redes">
-          <a href="https://wa.me/56966497904?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena" class="footer-red" target="_blank" rel="noopener" title="WhatsApp" aria-label="WhatsApp">
-            <svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="16" fill="#25D366"/>
-              <path fill="white" d="M23.5 8.5A10.47 10.47 0 0 0 16 5.5C10.2 5.5 5.5 10.2 5.5 16c0 1.85.49 3.65 1.41 5.24L5.5 26.5l5.4-1.41A10.46 10.46 0 0 0 16 26.5c5.8 0 10.5-4.7 10.5-10.5 0-2.8-1.09-5.43-3.0-7.5zm-7.5 16.16a8.7 8.7 0 0 1-4.43-1.21l-.32-.19-3.3.86.88-3.21-.21-.33A8.68 8.68 0 0 1 7.34 16c0-4.78 3.89-8.66 8.66-8.66 2.32 0 4.49.9 6.13 2.53a8.6 8.6 0 0 1 2.53 6.13c0 4.78-3.88 8.66-8.66 8.66zm4.75-6.49c-.26-.13-1.54-.76-1.78-.84-.24-.09-.41-.13-.58.13-.17.26-.67.84-.82 1.02-.15.17-.3.19-.56.06-.26-.13-1.1-.41-2.09-1.3-.77-.69-1.3-1.54-1.45-1.8-.15-.26-.02-.4.11-.53.12-.12.26-.3.39-.46.13-.15.17-.26.26-.43.09-.17.04-.33-.02-.46-.06-.13-.58-1.4-.8-1.92-.21-.5-.42-.43-.58-.44-.15-.01-.33-.01-.5-.01s-.46.06-.7.33c-.24.26-.91.89-.91 2.17s.93 2.52 1.06 2.69c.13.17 1.83 2.8 4.44 3.93.62.27 1.11.43 1.49.55.63.2 1.2.17 1.65.1.5-.07 1.54-.63 1.76-1.24.22-.61.22-1.13.15-1.24-.06-.11-.24-.17-.5-.3z"/>
-            </svg>
-          </a>
-          <a href="https://www.instagram.com/joyasaravena.cl/" class="footer-red" target="_blank" rel="noopener" title="Instagram" aria-label="Instagram">
-            <svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <radialGradient id="ig-grad" cx="30%" cy="107%" r="150%">
-                  <stop offset="0%" stop-color="#fdf497"/>
-                  <stop offset="5%" stop-color="#fdf497"/>
-                  <stop offset="45%" stop-color="#fd5949"/>
-                  <stop offset="60%" stop-color="#d6249f"/>
-                  <stop offset="90%" stop-color="#285AEB"/>
-                </radialGradient>
-              </defs>
-              <rect width="32" height="32" rx="8" fill="url(#ig-grad)"/>
-              <rect x="6" y="6" width="20" height="20" rx="5.5" fill="none" stroke="white" stroke-width="2"/>
-              <circle cx="16" cy="16" r="5" fill="none" stroke="white" stroke-width="2"/>
-              <circle cx="22" cy="10" r="1.5" fill="white"/>
-            </svg>
-          </a>
-          <a href="https://www.tiktok.com/@joyasaravena" class="footer-red" target="_blank" rel="noopener" title="TikTok" aria-label="TikTok">
-            <svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="16" cy="16" r="16" fill="#010101"/>
-              <!-- sombra cyan -->
-              <path fill="#69C9D0" transform="translate(1,1)" d="M20.5 7.2a4.1 4.1 0 0 1-3.2-3.6V3h-2.9v11.6a2.45 2.45 0 1 1-1.7-2.34V9.3a5.35 5.35 0 1 0 4.6 5.3V9.9a6.95 6.95 0 0 0 4.07 1.3V8.3a4.12 4.12 0 0 1-.87-.1z"/>
-              <!-- sombra rosa -->
-              <path fill="#EE1D52" transform="translate(-1,-1)" d="M20.5 7.2a4.1 4.1 0 0 1-3.2-3.6V3h-2.9v11.6a2.45 2.45 0 1 1-1.7-2.34V9.3a5.35 5.35 0 1 0 4.6 5.3V9.9a6.95 6.95 0 0 0 4.07 1.3V8.3a4.12 4.12 0 0 1-.87-.1z"/>
-              <!-- icono blanco principal -->
-              <path fill="white" d="M20.5 7.2a4.1 4.1 0 0 1-3.2-3.6V3h-2.9v11.6a2.45 2.45 0 1 1-1.7-2.34V9.3a5.35 5.35 0 1 0 4.6 5.3V9.9a6.95 6.95 0 0 0 4.07 1.3V8.3a4.12 4.12 0 0 1-.87-.1z"/>
-            </svg>
-          </a>
-        </div>
-      </div>
-      <div class="footer-col">
-        <h4>Navegación</h4>
-        <a href="#catalogo">Productos</a>
-        <a href="contacto.html">Contacto</a>
-      </div>
-      <div class="footer-col">
-        <h4>Contacto</h4>
-        <p>📧 joyeriaaravena@gmail.com</p>
-        <p>📱 +56 9 6649 7904</p>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p class="footer-copy">©2026 Joyería Aravena · Todos los derechos reservados</p>
-    </div>
-  </footer>
-
 
   <!-- Botón WhatsApp flotante -->
   <a href="https://wa.me/56966497904?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena"
@@ -300,7 +106,6 @@
     </svg>
   </a>
 
-  <!-- Panel detalle producto -->
   <div class="producto-detalle-overlay" id="producto-detalle-overlay"></div>
   <aside class="producto-detalle-panel" id="producto-detalle-panel">
     <button class="producto-detalle-cerrar" id="producto-detalle-cerrar">&times;</button>
@@ -444,8 +249,6 @@
     </div>
   </aside>
 
-
-  <!-- Scripts JavaScript -->
   <script src="js/products.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/catalog.js?v=2"></script>
