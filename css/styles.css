@@ -628,15 +628,78 @@ img { max-width: 100%; display: block; }
 /* =============================================
    VIDEO + UBICACIÓN — cómo llegar a la bodega
    ============================================= */
+/* Encabezado de confianza (el elemento más llamativo de la sección) */
+.confianza-header {
+  font-family: var(--fuente-display);
+  font-size: 2.4rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.3px;
+  text-align: center;
+  color: var(--color-texto);
+  max-width: 900px;
+  margin: 0 auto 16px;
+  text-shadow: 0 0 30px rgba(var(--color-diamante-rgb), 0.25);
+}
+.confianza-sub {
+  text-align: center;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: #9fb0bd;
+  max-width: 740px;
+  margin: 0 auto 30px;
+}
+
+/* Título y descripción del video */
+.video-titulo {
+  font-family: var(--fuente-display);
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-align: center;
+  color: var(--color-texto);
+  margin: 0 0 8px;
+}
+.video-desc {
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #9fb0bd;
+  max-width: 620px;
+  margin: 0 auto 22px;
+}
+
 .video-seccion {
   max-width: 900px;
   margin: 0 auto;
   padding: 6px 20px 18px;
 }
-.video-card { position: relative; }
 
-/* Marco con borde de luz LED, compartido por video y mapa */
-.video-pendiente,
+/* El video es vertical (9:16): marco angosto y centrado para no deformarlo */
+.video-card {
+  position: relative;
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.35);
+  box-shadow: 0 0 18px rgba(var(--color-diamante-rgb), 0.16),
+              0 12px 32px rgba(0,0,0,0.55);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.video-card:hover {
+  border-color: rgba(var(--color-diamante-rgb), 0.65);
+  box-shadow: var(--led-glow), 0 14px 36px rgba(0,0,0,0.6);
+}
+.video-card video {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #000;
+}
+
+/* Marco de luz LED del mapa */
 .ubicacion-mapa {
   position: relative;
   border-radius: 16px;
@@ -646,47 +709,9 @@ img { max-width: 100%; display: block; }
               0 10px 28px rgba(0,0,0,0.5);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-.video-pendiente:hover,
 .ubicacion-mapa:hover {
   border-color: rgba(var(--color-diamante-rgb), 0.65);
   box-shadow: var(--led-glow), 0 12px 32px rgba(0,0,0,0.55);
-}
-
-/* Tarjeta del video (aún sin archivo): espacio visible y elegante */
-.video-pendiente {
-  height: 300px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  color: var(--color-diamante-suave);
-  background:
-    radial-gradient(circle at 50% 40%, rgba(var(--color-diamante-rgb), 0.12), transparent 65%),
-    var(--color-fondo-secundario);
-}
-.video-pendiente svg { opacity: 0.9; }
-.video-pendiente span {
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--color-texto);
-}
-.video-pendiente small {
-  font-size: 0.66rem;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--color-texto-suave);
-}
-/* Cuando exista el archivo, este <video> hereda el mismo marco */
-.video-card video {
-  display: block;
-  width: 100%;
-  height: 300px;
-  border-radius: 16px;
-  object-fit: cover;
-  background: var(--color-fondo-secundario);
 }
 
 .ubicacion {
@@ -754,12 +779,16 @@ img { max-width: 100%; display: block; }
 }
 
 @media (max-width: 700px) {
+  .confianza { padding: 40px 16px 24px; }
+  .confianza-header { font-size: 1.6rem; margin-bottom: 12px; }
+  .confianza-sub { font-size: 0.86rem; margin-bottom: 24px; }
   .video-seccion { padding: 4px 16px 12px; }
+  .video-titulo { font-size: 1.4rem; }
+  .video-desc { font-size: 0.84rem; }
+  .video-card { max-width: 300px; }
   .ubicacion { padding: 6px 16px 34px; }
   .ubicacion-titulo { font-size: 1.4rem; }
   .ubicacion-sub { font-size: 0.82rem; }
-  .video-pendiente,
-  .video-card video,
   .ubicacion-mapa iframe { height: 220px; }
 }
 
@@ -779,10 +808,13 @@ img { max-width: 100%; display: block; }
    CONFIANZA — título en cinta + barra de cifras
    ============================================= */
 .confianza {
-  padding: 30px 20px 26px;
+  padding: 56px 20px 30px;
   position: relative;
   perspective: 1000px;   /* profundidad real para la inclinación 3D */
 }
+/* Salto de línea del título solo en pantallas anchas */
+.br-desktop { display: none; }
+@media (min-width: 720px) { .br-desktop { display: inline; } }
 
 /* La barra: la luz LED recorre el contorno. El interior es negro puro (igual
    que la página), así la luz gira pero la barra NO se ve como un parche. */
@@ -2058,13 +2090,11 @@ img { max-width: 100%; display: block; }
   .confianza { padding-left: 48px; padding-right: 48px; }
   .stats-bar { max-width: none; }
 
-  /* Video y mapa de extremo a extremo, más altos para llenar la pantalla */
-  .video-seccion { max-width: none; padding-left: 48px; padding-right: 48px; }
+  /* El mapa cruza toda la pantalla; el video (vertical) se agranda un poco */
   .ubicacion { max-width: none; padding-left: 48px; padding-right: 48px; }
   .ubicacion-sub { max-width: 760px; }
-  .video-pendiente,
-  .video-card video,
   .ubicacion-mapa iframe { height: 420px; }
+  .video-card { max-width: 380px; }
 
   /* Catálogo de borde a borde, con más columnas según la pantalla */
   .catalogo { max-width: none; padding-left: 48px; padding-right: 48px; }
