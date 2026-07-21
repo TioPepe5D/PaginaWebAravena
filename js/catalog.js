@@ -13,7 +13,9 @@ let productosVisibles = PRODUCTOS_POR_TANDA;
 let esVerMas = false;
 
 // Orden y etiquetas de las categorías del catálogo
+// "todos" es especial: su página muestra el catálogo completo
 const CATEGORIAS_META = [
+  { key: "todos",       label: "Todos los Productos" },
   { key: "collares",    label: "Collares" },
   { key: "pulseras",    label: "Pulseras" },
   { key: "aros",        label: "Aros" },
@@ -115,7 +117,10 @@ function renderizarFilas() {
   if (!cont) return;
 
   cont.innerHTML = CATEGORIAS_META.map((cat, i) => {
-    const items = productosActivos.filter(p => p.categoria === cat.key);
+    // "todos": muestra del catálogo completo (16 al azar); su página lo trae entero
+    const items = cat.key === 'todos'
+      ? productosActivos.slice(0, 16)
+      : productosActivos.filter(p => p.categoria === cat.key);
     if (!items.length) return '';
     // Dirección alternada: Collares →, Pulseras ←, Aros →, ...
     const dir = i % 2 === 0 ? 'marquee-izq' : 'marquee-der';
@@ -190,7 +195,9 @@ function renderizarProductos() {
   if (verMasWrap) verMasWrap.hidden = false;
 
   let filtrados = [...productosActivos];
-  if (CATEGORIA_PAGINA) filtrados = filtrados.filter(p => p.categoria === CATEGORIA_PAGINA);
+  if (CATEGORIA_PAGINA && CATEGORIA_PAGINA !== 'todos') {
+    filtrados = filtrados.filter(p => p.categoria === CATEGORIA_PAGINA);
+  }
   if (busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
 
   if (filtrados.length === 0) {
@@ -200,7 +207,8 @@ function renderizarProductos() {
   }
 
   const total = filtrados.length;
-  const mostrados = Math.min(productosVisibles, total);
+  // En las páginas de categoría se ven TODAS las fotos de una (sin "Ver más")
+  const mostrados = CATEGORIA_PAGINA ? total : Math.min(productosVisibles, total);
   const inicioNuevo = esVerMas ? Math.max(0, mostrados - PRODUCTOS_POR_TANDA) : 0;
 
   grid.innerHTML = filtrados.slice(0, mostrados).map((p, i) => {
@@ -338,6 +346,43 @@ function detalleAgregarAlCarrito(id) {
   }, 1800);
 }
 
+/* =============================================
+   CLIENTES SATISFECHOS — carrusel de reseñas
+   (Editable: cambia nombres, comunas, textos o fotos aquí)
+   ============================================= */
+const TESTIMONIOS = [
+  { nombre: "Carolina M.", edad: 34, comuna: "Maipú",          estrellas: 5, foto: "img/c9621c1b-ea8d-4295-908d-15a368375ef0.jpg",  texto: "Compré el lote de conjuntos para mi emprendimiento y volaron en una semana. La calidad de la plata es tal cual se ve en las fotos." },
+  { nombre: "Javiera R.",  edad: 27, comuna: "Puente Alto",    estrellas: 5, foto: "img/f59aada8-1ebf-4672-890c-8e861df5aa33.jpg",  texto: "Llevo 6 meses comprando todos los meses. Siempre responden al tiro por WhatsApp y el despacho llegó en 2 días a mi casa." },
+  { nombre: "Marcela P.",  edad: 45, comuna: "La Florida",     estrellas: 5, foto: "img/3bbca0bd-a1b4-4961-ae06-2dd2238a2edf.jpg", texto: "Fui a la bodega en Providencia y la atención fue excelente. Revisé todo antes de llevarlo y salí con 3 lotes. Muy recomendados." },
+  { nombre: "Daniela S.",  edad: 31, comuna: "Quilicura",      estrellas: 4, foto: "img/e79f4258-cf77-484c-b40a-c582c0728ef4.jpg",  texto: "Los aros goldfield se venden solos. Solo me hubiera gustado más variedad de argollas grandes, pero la calidad 10/10." },
+  { nombre: "Paulina V.",  edad: 38, comuna: "San Bernardo",   estrellas: 5, foto: "img/cd253b55-6358-40a5-a5c8-5c28624a459b.jpg",  texto: "Las pulseras tenis son mi producto estrella en la feria. Precio mayorista real, se nota la diferencia con otros proveedores." },
+  { nombre: "Katherine L.",edad: 29, comuna: "Ñuñoa",          estrellas: 5, foto: "img/edfa520d-4008-41cd-83a3-ad8029697e16.jpg",  texto: "Pedí collares de hombre para probar y mis clientes quedaron felices. El código de seguimiento llegó altiro. Confiables." },
+];
+
+function estrellasHTML(n) {
+  return '★'.repeat(n) + '☆'.repeat(5 - n);
+}
+
+function renderizarTestimonios() {
+  const track = document.getElementById("testimonios-track");
+  if (!track) return;
+  const tarjetas = TESTIMONIOS.map(t => `
+    <div class="testi-card">
+      <div class="testi-estrellas" aria-label="${t.estrellas} de 5 estrellas">${estrellasHTML(t.estrellas)}</div>
+      <p class="testi-texto">“${t.texto}”</p>
+      <img class="testi-producto" src="${t.foto}" alt="Producto comprado por ${t.nombre}" loading="lazy" decoding="async">
+      <div class="testi-persona">
+        <span class="testi-avatar">${t.nombre.charAt(0)}</span>
+        <div class="testi-datos">
+          <strong>${t.nombre}</strong>
+          <small>${t.edad} años · ${t.comuna}</small>
+        </div>
+      </div>
+    </div>`).join('');
+  // Duplicado para el bucle continuo del carrusel
+  track.innerHTML = tarjetas + tarjetas;
+}
+
 function inicializarFiltros() {
   // La búsqueda alterna entre carruseles y grilla de resultados
   document.getElementById("filtro-nombre")?.addEventListener("input", () => {
@@ -355,6 +400,7 @@ async function inicializarCatalogo() {
   }
 
   renderizarProductos();
+  renderizarTestimonios();
   inicializarFiltros();
   // Nota: NO se llama a inicializarAnimaciones() aquí. main.js ya la llama
   // justo después de esta función (con los productos ya en el DOM).
