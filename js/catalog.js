@@ -351,12 +351,16 @@ function detalleAgregarAlCarrito(id) {
    (Editable: cambia nombres, comunas, textos o fotos aquí)
    ============================================= */
 const TESTIMONIOS = [
-  { nombre: "Carolina M.", edad: 34, comuna: "Maipú",          estrellas: 5, foto: "img/c9621c1b-ea8d-4295-908d-15a368375ef0.jpg",  texto: "Compré el lote de conjuntos para mi emprendimiento y volaron en una semana. La calidad de la plata es tal cual se ve en las fotos." },
-  { nombre: "Javiera R.",  edad: 27, comuna: "Puente Alto",    estrellas: 5, foto: "img/f59aada8-1ebf-4672-890c-8e861df5aa33.jpg",  texto: "Llevo 6 meses comprando todos los meses. Siempre responden al tiro por WhatsApp y el despacho llegó en 2 días a mi casa." },
-  { nombre: "Marcela P.",  edad: 45, comuna: "La Florida",     estrellas: 5, foto: "img/3bbca0bd-a1b4-4961-ae06-2dd2238a2edf.jpg", texto: "Fui a la bodega en Providencia y la atención fue excelente. Revisé todo antes de llevarlo y salí con 3 lotes. Muy recomendados." },
-  { nombre: "Daniela S.",  edad: 31, comuna: "Quilicura",      estrellas: 4, foto: "img/e79f4258-cf77-484c-b40a-c582c0728ef4.jpg",  texto: "Los aros goldfield se venden solos. Solo me hubiera gustado más variedad de argollas grandes, pero la calidad 10/10." },
-  { nombre: "Paulina V.",  edad: 38, comuna: "San Bernardo",   estrellas: 5, foto: "img/cd253b55-6358-40a5-a5c8-5c28624a459b.jpg",  texto: "Las pulseras tenis son mi producto estrella en la feria. Precio mayorista real, se nota la diferencia con otros proveedores." },
-  { nombre: "Katherine L.",edad: 29, comuna: "Ñuñoa",          estrellas: 5, foto: "img/edfa520d-4008-41cd-83a3-ad8029697e16.jpg",  texto: "Pedí collares de hombre para probar y mis clientes quedaron felices. El código de seguimiento llegó altiro. Confiables." },
+  { nombre: "Carolina M.", edad: 34, comuna: "Antofagasta", estrellas: 5, pedido: "Lote de conjuntos", texto: "Compré el lote de conjuntos para mi emprendimiento y volaron en una semana. La calidad de la plata es tal cual se ve en las fotos." },
+  { nombre: "Javiera R.", edad: 27, comuna: "Puerto Montt", estrellas: 5, pedido: "Collares coquette", foto: "img/f59aada8-1ebf-4672-890c-8e861df5aa33.jpg", texto: "Llevo 6 meses comprando y siempre responden al tiro por WhatsApp. El despacho llegó en 2 días hasta el sur." },
+  { nombre: "Marcela P.", edad: 45, comuna: "Providencia", estrellas: 5, pedido: "3 lotes en bodega", texto: "Fui a la bodega y la atención fue excelente. Revisé todo antes de llevarlo y salí feliz. Muy recomendados." },
+  { nombre: "Daniela S.", edad: 31, comuna: "La Serena", estrellas: 4, pedido: "Aros Goldfield 18K", foto: "img/e79f4258-cf77-484c-b40a-c582c0728ef4.jpg", texto: "Los aros goldfield se venden solos. Me hubiera gustado más variedad de argollas grandes, pero la calidad 10/10." },
+  { nombre: "Paulina V.", edad: 38, comuna: "Concepción", estrellas: 5, pedido: "Pulseras tenis", texto: "Las pulseras tenis son mi producto estrella en la feria. Precio mayorista real, se nota la diferencia con otros proveedores." },
+  { nombre: "Katherine L.", edad: 29, comuna: "Temuco", estrellas: 5, pedido: "Collares de hombre", foto: "img/edfa520d-4008-41cd-83a3-ad8029697e16.jpg", texto: "Pedí collares de hombre para probar y mis clientes quedaron felices. El código de seguimiento llegó altiro." },
+  { nombre: "Francisca A.", edad: 33, comuna: "Iquique", estrellas: 5, pedido: "Medio kilo mixto", texto: "El medio kilo mixto es la mejor inversión para empezar a revender. Llegó todo perfecto y bien embalado." },
+  { nombre: "Valentina C.", edad: 26, comuna: "Rancagua", estrellas: 5, pedido: "Lote 11 conjuntos", foto: "img/c9621c1b-ea8d-4295-908d-15a368375ef0.jpg", texto: "Súper contenta, ya es mi tercer pedido. La plata SL 925 mantiene el brillo y no se pone negra como otras." },
+  { nombre: "Constanza D.", edad: 41, comuna: "Valdivia", estrellas: 5, pedido: "Rosarios oro 18K", texto: "Los rosarios en oro goldfield son preciosos y se venden muy bien para regalo. Atención de primera." },
+  { nombre: "Camila F.", edad: 30, comuna: "Coquimbo", estrellas: 4, pedido: "Pulseras + argollas", texto: "Buena relación precio-calidad. El envío por Starken llegó en 3 días hábiles tal como dijeron." },
 ];
 
 function estrellasHTML(n) {
@@ -367,19 +371,20 @@ function renderizarTestimonios() {
   const track = document.getElementById("testimonios-track");
   if (!track) return;
   const tarjetas = TESTIMONIOS.map(t => `
-    <div class="testi-card">
-      <div class="testi-estrellas" aria-label="${t.estrellas} de 5 estrellas">${estrellasHTML(t.estrellas)}</div>
-      <p class="testi-texto">“${t.texto}”</p>
-      <img class="testi-producto" src="${t.foto}" alt="Producto comprado por ${t.nombre}" loading="lazy" decoding="async">
-      <div class="testi-persona">
+    <div class="testi-card${t.foto ? '' : ' testi-solo-texto'}">
+      <div class="testi-top">
         <span class="testi-avatar">${t.nombre.charAt(0)}</span>
         <div class="testi-datos">
           <strong>${t.nombre}</strong>
           <small>${t.edad} años · ${t.comuna}</small>
         </div>
+        <span class="testi-check" title="Compra verificada">✓</span>
       </div>
-    </div>`).join('');
-  // Duplicado para el bucle continuo del carrusel
+      <div class="testi-estrellas" aria-label="${t.estrellas} de 5 estrellas">${estrellasHTML(t.estrellas)}</div>
+      <p class="testi-texto">“${t.texto}”</p>
+      ${t.foto ? `<img class="testi-producto" src="${t.foto}" alt="Pedido de ${t.nombre}" loading="lazy" decoding="async">` : ''}
+      <p class="testi-pedido">🛍️ Compró: <strong>${t.pedido}</strong></p>
+    </div>`).join("");
   track.innerHTML = tarjetas + tarjetas;
 }
 

@@ -1878,7 +1878,7 @@ img { max-width: 100%; display: block; }
 .footer {
   background: var(--color-footer);
   border-top: 1px solid var(--color-borde);
-  padding: 80px 24px 32px;
+  padding: 48px 24px 40px;
   position: relative;
 }
 .footer::before {
@@ -1890,96 +1890,81 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 12px rgba(var(--color-diamante-rgb), 0.55);
 }
 
-/* Redes sociales footer */
+/* Footer minimalista y centrado */
+.footer-inner {
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+.footer-logo-img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 12px rgba(var(--color-diamante-rgb), 0.5));
+}
+
+/* Redes sociales — bien centradas */
 .footer-redes {
   display: flex;
-  gap: 12px;
-  margin-top: 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
 }
 .footer-red {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  border: 1px solid var(--color-borde);
-  color: var(--color-texto-suave);
-  background: rgba(30,157,241,0.05);
-  transition: var(--transicion);
   overflow: hidden;
   line-height: 0;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 .footer-red svg {
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   display: block;
-  flex-shrink: 0;
 }
 .footer-red:hover {
-  color: var(--color-primario);
-  border-color: var(--color-primario);
-  background: rgba(30,157,241,0.12);
-  box-shadow: 0 0 16px rgba(30,157,241,0.35);
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 0 18px rgba(var(--color-diamante-rgb), 0.5);
 }
 
-.footer-container {
-  max-width: 900px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 40px;
-  margin-bottom: 40px;
-}
-
-.footer-logo {
-  font-family: var(--fuente-display);
-  font-size: 1.6rem;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--color-texto);
+/* Botón a Preguntas Frecuentes */
+.btn-faq {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 28px;
+  font-family: var(--fuente-secundaria);
+  font-size: 0.74rem;
   font-weight: 600;
-  margin-bottom: 12px;
-}
-
-.footer-col p {
-  font-size: 0.8rem;
-  color: var(--color-texto-suave);
-  margin-bottom: 8px;
-  line-height: 1.6;
-}
-
-.footer-col h4 {
-  font-size: 0.72rem;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  color: var(--color-primario);
-  font-weight: 700;
-  margin-bottom: 16px;
+  text-decoration: none;
+  color: var(--color-diamante-suave);
+  background: rgba(var(--color-diamante-rgb), 0.06);
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.45);
+  border-radius: 999px;
+  transition: all 0.25s ease;
 }
-
-.footer-col a {
-  display: block;
-  font-size: 0.82rem;
-  color: var(--color-texto-suave);
-  margin-bottom: 8px;
-  transition: var(--transicion);
-}
-.footer-col a:hover { color: var(--color-primario); }
-
-.footer-bottom {
-  max-width: 900px;
-  margin: 0 auto;
-  padding-top: 24px;
-  border-top: 1px solid var(--color-borde);
-  text-align: center;
+.btn-faq:hover {
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
+  border-color: var(--color-diamante);
+  box-shadow: var(--led-glow);
 }
 
 .footer-copy {
   font-size: 0.72rem;
   color: var(--color-texto-suave);
   letter-spacing: 1px;
+  margin: 0;
 }
 
 /* =============================================
@@ -1998,7 +1983,6 @@ img { max-width: 100%; display: block; }
   .stat-numero { font-size: 1.5rem; margin-bottom: 4px; }
   /* Antes 0.5rem = 8px: ilegible en celular */
   .stat-label { font-size: 0.6rem; letter-spacing: 0.4px; }
-  .footer-container { grid-template-columns: 1fr; gap: 28px; }
   .catalogo, .confianza, .footer { padding-left: 20px; padding-right: 20px; }
 }
 
@@ -2172,10 +2156,8 @@ img { max-width: 100%; display: block; }
   .catalogo { max-width: none; padding-left: 48px; padding-right: 48px; }
   .productos-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 26px; }
 
-  /* Divisores y footer acompañan el ancho completo */
+  /* Divisores acompañan el ancho completo */
   .section-divider { max-width: calc(100% - 96px); margin-left: auto; margin-right: auto; }
-  .footer-container,
-  .footer-bottom { max-width: none; padding-left: 48px; padding-right: 48px; }
 }
 
 /* =============================================
@@ -2255,14 +2237,15 @@ img { max-width: 100%; display: block; }
   border-radius: 10px;
   border: 1px solid rgba(var(--color-diamante-rgb), 0.15);
 }
-.testi-persona {
+/* Encabezado de la reseña: avatar + persona + verificado */
+.testi-top {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 .testi-avatar {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
@@ -2273,9 +2256,30 @@ img { max-width: 100%; display: block; }
   background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
   box-shadow: 0 0 10px rgba(var(--color-diamante-rgb), 0.35);
 }
-.testi-datos { display: flex; flex-direction: column; line-height: 1.25; }
-.testi-datos strong { font-size: 0.82rem; color: var(--color-texto); }
+.testi-datos { display: flex; flex-direction: column; line-height: 1.25; flex: 1 1 auto; }
+.testi-datos strong { font-size: 0.85rem; color: var(--color-texto); }
 .testi-datos small { font-size: 0.7rem; color: #9fb0bd; }
+.testi-check {
+  flex: 0 0 auto;
+  width: 20px; height: 20px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-size: 0.7rem;
+  color: #fff;
+  background: #10b981;
+  box-shadow: 0 0 8px rgba(16,185,129,0.5);
+}
+/* Línea "Compró: ..." */
+.testi-pedido {
+  font-size: 0.74rem;
+  color: #9fb0bd;
+  margin: 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(var(--color-diamante-rgb), 0.12);
+}
+.testi-pedido strong { color: var(--color-diamante-suave); font-weight: 600; }
+/* Tarjetas sin foto: un poco más de aire para el texto */
+.testi-solo-texto .testi-texto { font-size: 0.86rem; }
 
 /* =============================================
    PREGUNTAS FRECUENTES
@@ -2368,4 +2372,34 @@ img { max-width: 100%; display: block; }
   .testi-card { width: 260px; margin-right: 14px; }
   .faq { padding: 20px 14px 50px; }
   .faq-titulo { font-size: 1.5rem; }
+}
+
+/* =============================================
+   PÁGINA DE PREGUNTAS FRECUENTES
+   ============================================= */
+.faq-pagina {
+  padding-top: 70px;   /* espacio bajo el header + cinta sticky */
+  position: relative;
+}
+.faq-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--color-diamante-suave);
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.4);
+  border-radius: 999px;
+  padding: 8px 18px;
+  margin-bottom: 24px;
+  transition: all 0.25s ease;
+}
+.faq-volver:hover {
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
+  border-color: var(--color-diamante);
+  box-shadow: var(--led-glow);
 }
