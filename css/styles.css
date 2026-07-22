@@ -50,6 +50,9 @@
   --fuente-principal:  'Open Sans', 'Montserrat', sans-serif;
   --fuente-secundaria: 'Open Sans', system-ui, sans-serif;
   --fuente-display:    'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  /* Montos: Cormorant usa cifras de estilo antiguo y quedan desalineadas.
+     Montserrat con cifras tabulares mantiene todos los dígitos del mismo ancho. */
+  --fuente-monto:      'Montserrat', system-ui, sans-serif;
 
   /* ── Sombras ── */
   --sombra:      0 0 20px rgba(29,161,242,0.25), 0 4px 16px rgba(0,0,0,0.6);
@@ -1879,17 +1882,55 @@ img { max-width: 100%; display: block; }
 .carrito-accion:hover { color: var(--color-diamante); }
 .carrito-accion-vaciar:hover { color: #f4212e; }
 
+/* Fila deslizable: el botón Eliminar vive debajo de la tarjeta */
+.carrito-fila {
+  position: relative;
+  margin-bottom: 10px;
+  border-radius: 14px;
+  overflow: hidden;
+  /* La animación de entrada va aquí: si fuera en la tarjeta, su translateY
+     pisaría el translateX del deslizamiento */
+  animation: fadeInItem 0.3s ease both;
+}
+/* La papelera queda siempre a la vista (no todos descubren el gesto).
+   En computador no hay deslizamiento, así que el panel rojo sobra. */
+@media (min-width: 701px) {
+  .carrito-fila-borrar { display: none; }
+}
+.carrito-fila-borrar {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 92px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #e0323f, #b91c26);
+  color: #fff;
+  font-family: var(--fuente-secundaria);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.carrito-fila-borrar:hover { background: linear-gradient(135deg, #f0404d, #c81f2a); }
+
 .carrito-item {
+  position: relative;
   display: flex;
   gap: 14px;
   align-items: flex-start;
   padding: 14px;
-  margin-bottom: 10px;
   border-radius: 14px;
+  /* Se mueve con el dedo; touch-action deja el scroll vertical intacto */
+  touch-action: pan-y;
+  transform: translateX(0);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.25s ease, box-shadow 0.25s ease;
   background: linear-gradient(140deg, rgba(var(--color-diamante-rgb), 0.05), transparent 60%), var(--color-card);
   border: 1px solid rgba(var(--color-diamante-rgb), 0.2);
-  animation: fadeInItem 0.3s ease both;
-  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 .carrito-item:hover {
   border-color: rgba(var(--color-diamante-rgb), 0.5);
@@ -1992,7 +2033,21 @@ img { max-width: 100%; display: block; }
 }
 .carrito-total-row { display: flex; justify-content: space-between; align-items: baseline; }
 .carrito-total-label { font-size: 0.9rem; color: var(--color-texto-suave); }
-.carrito-total { font-size: 1.4rem; font-weight: 700; color: var(--color-diamante); text-shadow: 0 0 15px rgba(var(--color-diamante-rgb), 0.5); }
+.carrito-total {
+  font-family: var(--fuente-monto);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.32rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--color-diamante);
+  text-shadow: 0 0 15px rgba(var(--color-diamante-rgb), 0.5);
+}
+/* Todos los montos comparten el mismo tratamiento */
+.carrito-desglose-row span:last-child,
+.carrito-item-precio {
+  font-family: var(--fuente-monto);
+  font-variant-numeric: tabular-nums;
+}
 .carrito-total-info { font-size: 0.72rem; color: var(--color-texto-suave); line-height: 1.4; margin-bottom: 4px; }
 
 .btn-mp {
@@ -2275,42 +2330,98 @@ img { max-width: 100%; display: block; }
 /* =============================================
    TOAST CARRITO
    ============================================= */
+/* Aviso al agregar al carrito: tarjeta con guía y accesos directos */
 .toast-carrito {
   position: fixed;
-  bottom: 100px;
+  bottom: 26px;
   left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: var(--color-fondo-secundario);
-  border: 1px solid var(--color-primario);
-  color: var(--color-texto);
-  padding: 12px 22px;
-  border-radius: 100px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 0 24px rgba(30,157,241,0.3);
+  width: 340px;
+  max-width: calc(100vw - 28px);
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(160deg, rgba(var(--color-diamante-rgb), 0.09), transparent 60%), #0d1117;
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.45);
+  box-shadow: 0 0 24px rgba(var(--color-diamante-rgb), 0.28), 0 18px 44px rgba(0,0,0,0.6);
   opacity: 0;
   pointer-events: none;
   z-index: 9999;
   transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
-  white-space: nowrap;
-}
-.toast-carrito span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  background: var(--color-primario);
-  border-radius: 50%;
-  font-size: 0.75rem;
-  flex-shrink: 0;
 }
 .toast-carrito.activo {
   opacity: 1;
+  pointer-events: auto;
   transform: translateX(-50%) translateY(0);
+}
+.toast-cab { display: flex; align-items: center; gap: 11px; }
+.toast-check {
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #25D366;
+  color: #041018;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.toast-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.toast-txt strong {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #e7e9ea;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toast-txt small { font-size: 0.72rem; color: #a7adb3; }
+.toast-guia {
+  margin: 11px 0 12px;
+  padding: 9px 11px;
+  border-radius: 9px;
+  background: rgba(143, 227, 255, 0.09);
+  border: 1px solid rgba(143, 227, 255, 0.22);
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: #bff0ff;
+}
+.toast-btns { display: flex; gap: 8px; }
+.toast-btn {
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: 999px;
+  font-family: var(--fuente-secundaria);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.toast-btn-ver {
+  border: none;
+  background: linear-gradient(135deg, #1c9cf0, #1581c9);
+  color: #fff;
+}
+.toast-btn-ver:hover { box-shadow: 0 0 16px rgba(143, 227, 255, 0.55); }
+.toast-btn-seguir {
+  border: 1px solid rgba(143, 227, 255, 0.4);
+  background: transparent;
+  color: #bff0ff;
+}
+.toast-btn-seguir:hover { background: rgba(143, 227, 255, 0.12); }
+
+/* El ícono del carrito late un momento para que el cliente lo ubique */
+.carrito-btn-guia {
+  animation: carritoGuia 0.7s ease 3;
+  border-radius: 50%;
+}
+@keyframes carritoGuia {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(143, 227, 255, 0); transform: scale(1); }
+  40%      { box-shadow: 0 0 0 7px rgba(143, 227, 255, 0.28); transform: scale(1.12); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .carrito-btn-guia { animation: none; }
 }
 
 /* =============================================

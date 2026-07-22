@@ -264,10 +264,11 @@ body > .footer { margin-top: auto; }
 }
 
 .carrito-aside-precio {
-  font-family: var(--fuente-display);
-  font-size: 1.6rem;
+  font-family: var(--fuente-monto);
+  font-variant-numeric: tabular-nums;
+  font-size: 1.45rem;
   font-weight: 700;
-  letter-spacing: 0;
+  letter-spacing: -0.4px;
   color: var(--color-diamante);
   text-shadow: 0 0 16px rgba(var(--color-diamante-rgb), 0.45);
 }
@@ -894,8 +895,9 @@ body > .footer { margin-top: auto; }
     color: var(--color-texto-suave);
   }
   .cbp-monto {
-    font-family: var(--fuente-display);
-    font-size: 1.1rem;
+    font-family: var(--fuente-monto);
+    font-variant-numeric: tabular-nums;
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--color-diamante);
   }
@@ -943,4 +945,37 @@ body > .footer { margin-top: auto; }
   color: #fff;
   border-color: #25D366;
   box-shadow: 0 6px 20px rgba(37, 211, 102, 0.35);
+}
+
+/* Cifras tabulares en todos los montos del carrito */
+.carrito-aside-row span:last-child,
+.carrito-page-item-precio,
+.sug-precio {
+  font-family: var(--fuente-monto);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Teléfono: código de país + número */
+.tel-grupo {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.tel-grupo select {
+  flex: 0 0 108px;
+  min-width: 0;
+}
+.tel-grupo input {
+  flex: 1;
+  min-width: 0;
+}
+.envio-hint {
+  display: block;
+  margin-top: 5px;
+  font-size: 0.72rem;
+  color: var(--color-texto-suave);
+}
+.envio-field select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }

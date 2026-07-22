@@ -233,6 +233,7 @@ function asisSaludar() {
 function asisAbrir() {
   document.getElementById("asis-panel")?.classList.add("activo");
   document.getElementById("asis-burbuja")?.classList.add("oculto");
+  detenerCicloBurbuja();   // ya está conversando: no hace falta insistir
   asisSaludar();
   document.getElementById("asis-input")?.focus();
 }
@@ -248,10 +249,12 @@ function inicializarAsistente() {
   cont.className = "asistente";
   cont.innerHTML = `
     <button type="button" class="asis-burbuja" id="asis-burbuja" aria-label="Abrir asistente de consultas">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
-      </svg>
-      <span class="asis-burbuja-txt">¿Dudas?</span>
+      <span class="asis-burbuja-icono">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+        </svg>
+      </span>
+      <span class="asis-burbuja-txt">¿Te puedo ayudar? 😊</span>
     </button>
 
     <section class="asis-panel" id="asis-panel" aria-label="Asistente de consultas">
@@ -297,6 +300,44 @@ function inicializarAsistente() {
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") asisCerrar();
   });
+
+  arrancarCicloBurbuja();
+}
+
+/* =============================================
+   CICLO DE LA BURBUJA
+   La pregunta se asoma 10 segundos y luego se repliega a solo el ícono
+   durante 30, una y otra vez. Si el cliente abre el chat, el ciclo se
+   detiene para no molestar.
+   ============================================= */
+const ASIS_VISIBLE_MS = 10000;
+const ASIS_OCULTO_MS  = 30000;
+let _asisTimer = null;
+
+function arrancarCicloBurbuja() {
+  const btn = document.getElementById("asis-burbuja");
+  if (!btn) return;
+
+  const expandir = () => {
+    if (document.getElementById("asis-panel")?.classList.contains("activo")) {
+      _asisTimer = setTimeout(expandir, ASIS_OCULTO_MS);
+      return;
+    }
+    btn.classList.add("expandida");
+    _asisTimer = setTimeout(contraer, ASIS_VISIBLE_MS);
+  };
+  const contraer = () => {
+    btn.classList.remove("expandida");
+    _asisTimer = setTimeout(expandir, ASIS_OCULTO_MS);
+  };
+
+  // Primera aparición a los 3 segundos: da tiempo a que cargue la página
+  _asisTimer = setTimeout(expandir, 3000);
+}
+
+function detenerCicloBurbuja() {
+  clearTimeout(_asisTimer);
+  document.getElementById("asis-burbuja")?.classList.remove("expandida");
 }
 
 document.addEventListener("DOMContentLoaded", inicializarAsistente);

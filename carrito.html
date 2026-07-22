@@ -4,12 +4,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carrito — Joyería Aravena</title>
+  <title>Carrito de Tu Inversión — Joyería Aravena</title>
   <meta name="description" content="Tu carrito de compras en Joyería Aravena.">
   <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/auth.css">
-  <link rel="stylesheet" href="css/asistente.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="css/carrito.css">
   <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
@@ -87,7 +86,7 @@
   <main class="carrito-page">
 
     <div class="carrito-page-header animar">
-      <h1>Carrito <span id="carrito-badge" class="carrito-page-badge">0</span></h1>
+      <h1>Carrito de Tu Inversión <span id="carrito-badge" class="carrito-page-badge">0</span></h1>
     </div>
 
     <div class="carrito-page-grid animar">
@@ -128,7 +127,7 @@
               <path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/>
               <path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            Pagar con MercadoPago
+            Realizar pago
           </button>
           <div class="btn-mp-estado" id="btn-mp-estado"></div>
 
@@ -309,7 +308,11 @@
 
           <div class="envio-field">
             <label>Número de Teléfono *</label>
-            <input type="tel" id="env-telefono-pago" placeholder="+56917223260" autocomplete="tel" maxlength="12" minlength="12" pattern="\+56[0-9]{9}" inputmode="tel" title="Formato: +56912345678 (12 caracteres exactos)" required>
+            <div class="tel-grupo">
+              <select id="env-tel-codigo" aria-label="Código de país" required></select>
+              <input type="tel" id="env-telefono-pago" placeholder="912345678" autocomplete="tel-national" inputmode="numeric" required>
+            </div>
+            <small class="envio-hint" id="env-tel-hint">9 dígitos, sin el código de país.</small>
           </div>
 
           <div class="envio-field">
@@ -317,9 +320,25 @@
             <input type="text" id="env-rut-pago" placeholder="12.345.678-9" autocomplete="off" maxlength="12" minlength="9" pattern="[0-9.\-kK]{9,12}" title="Formato: 12.345.678-9" required>
           </div>
 
+          <div class="envio-field campo-completo">
+            <label>Región *</label>
+            <select id="env-region-pago" required>
+              <option value="">Selecciona tu región</option>
+            </select>
+          </div>
+
           <div class="envio-field">
-            <label>Ciudad *</label>
-            <input type="text" id="env-ciudad-pago" placeholder="Ej: Santiago" autocomplete="address-level2" maxlength="40" minlength="3" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+" title="Solo letras y espacios" required>
+            <label>Ciudad / Provincia *</label>
+            <select id="env-ciudad-pago" required disabled>
+              <option value="">Primero elige la región</option>
+            </select>
+          </div>
+
+          <div class="envio-field">
+            <label>Comuna *</label>
+            <select id="env-comuna-pago" required disabled>
+              <option value="">Primero elige la ciudad</option>
+            </select>
           </div>
 
           <div class="envio-field campo-completo">
@@ -447,8 +466,8 @@
     </div>
   </aside>
 
+  <script src="js/regiones-chile.js"></script>
   <script src="js/products.js"></script>
-  <script src="js/asistente.js"></script>
   <script src="js/buscador.js"></script>
   <script src="js/supabase-client.js"></script>
   <script src="js/carrito-page.js"></script>

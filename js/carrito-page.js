@@ -240,24 +240,101 @@ function _validarRut(rut) {
 function _validarCorreo(c) {
   return /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,6}$/.test(c);
 }
+/* ── Teléfono: código de país + número con la cantidad exacta de dígitos ── */
+function _paisSeleccionado() {
+  const sel = document.getElementById('env-tel-codigo');
+  const codigo = sel ? sel.value : '+56';
+  return CODIGOS_PAIS.find(p => p.codigo === codigo) || CODIGOS_PAIS[0];
+}
+
+function _poblarCodigosPais() {
+  const sel = document.getElementById('env-tel-codigo');
+  if (!sel || sel.options.length) return;
+  sel.innerHTML = CODIGOS_PAIS.map(p =>
+    `<option value="${p.codigo}" title="${p.pais}">${p.bandera} ${p.codigo}</option>`).join('');
+  sel.value = '+56';   // Chile por defecto
+}
+
+function _actualizarPistaTelefono() {
+  const p = _paisSeleccionado();
+  const hint = document.getElementById('env-tel-hint');
+  const tel  = document.getElementById('env-telefono-pago');
+  if (hint) hint.textContent = `${p.digitos} dígitos, sin el código de país. Ej: ${p.ejemplo}`;
+  if (tel) {
+    tel.placeholder = p.ejemplo;
+    tel.maxLength = p.digitos;
+    // Si ya había un número más largo, se recorta al nuevo largo
+    tel.value = tel.value.replace(/\D/g, '').slice(0, p.digitos);
+  }
+}
+
+/* ── Región → Ciudad/Provincia → Comuna, en cascada ── */
+function _poblarRegiones() {
+  const sel = document.getElementById('env-region-pago');
+  if (!sel || sel.options.length > 1) return;
+  sel.innerHTML = '<option value="">Selecciona tu región</option>' +
+    REGIONES_CHILE.map(r => `<option value="${r.region}">${r.region}</option>`).join('');
+}
+
+function _poblarCiudades(nombreRegion, preseleccion) {
+  const sel = document.getElementById('env-ciudad-pago');
+  if (!sel) return;
+  const region = REGIONES_CHILE.find(r => r.region === nombreRegion);
+  if (!region) {
+    sel.innerHTML = '<option value="">Primero elige la región</option>';
+    sel.disabled = true;
+    _poblarComunas(null, null);
+    return;
+  }
+  sel.disabled = false;
+  sel.innerHTML = '<option value="">Selecciona ciudad o provincia</option>' +
+    region.provincias.map(p => `<option value="${p.nombre}">${p.nombre}</option>`).join('');
+  if (preseleccion && region.provincias.some(p => p.nombre === preseleccion)) {
+    sel.value = preseleccion;
+  }
+  _poblarComunas(nombreRegion, sel.value);
+}
+
+function _poblarComunas(nombreRegion, nombreCiudad, preseleccion) {
+  const sel = document.getElementById('env-comuna-pago');
+  if (!sel) return;
+  const region = REGIONES_CHILE.find(r => r.region === nombreRegion);
+  const prov = region && region.provincias.find(p => p.nombre === nombreCiudad);
+  if (!prov) {
+    sel.innerHTML = '<option value="">Primero elige la ciudad</option>';
+    sel.disabled = true;
+    return;
+  }
+  sel.disabled = false;
+  sel.innerHTML = '<option value="">Selecciona tu comuna</option>' +
+    prov.comunas.map(c => `<option value="${c}">${c}</option>`).join('');
+  if (preseleccion && prov.comunas.includes(preseleccion)) sel.value = preseleccion;
+}
+
 function _bindRestricciones() {
   const get = id => document.getElementById(id);
   if (get('_restricciones_aplicadas')) return;
 
   // Solo letras y espacios
-  ['env-nombre-pago', 'env-ciudad-pago'].forEach(id => {
-    const el = get(id);
-    if (!el) return;
-    el.addEventListener('input', () => {
-      el.value = el.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
-    });
+  const nom = get('env-nombre-pago');
+  if (nom) nom.addEventListener('input', () => {
+    nom.value = nom.value.replace(/[^A-Za-zÁÉÍÓÚáéíóúÑñ\s]/g, '');
   });
 
-  // Teléfono: solo +56 seguido de 9 dígitos (máx 12 chars)
+  // Teléfono: solo dígitos, con el largo exacto del país elegido
+  _poblarCodigosPais();
+  _actualizarPistaTelefono();
+  get('env-tel-codigo')?.addEventListener('change', _actualizarPistaTelefono);
   const tel = get('env-telefono-pago');
   if (tel) tel.addEventListener('input', () => {
-    tel.value = tel.value.replace(/[^0-9+]/g, '').slice(0, 12);
+    tel.value = tel.value.replace(/\D/g, '').slice(0, _paisSeleccionado().digitos);
   });
+
+  // Ubicación en cascada
+  _poblarRegiones();
+  get('env-region-pago')?.addEventListener('change', e => _poblarCiudades(e.target.value));
+  get('env-ciudad-pago')?.addEventListener('change', e =>
+    _poblarComunas(get('env-region-pago').value, e.target.value));
 
   // RUT: formateo automático
   const rutEl = get('env-rut-pago');
@@ -281,10 +358,17 @@ function abrirFormularioEnvio() {
   if (guardados) {
     const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
     set('env-nombre-pago',      guardados.nombre);
-    set('env-telefono-pago',    guardados.telefono);
+    set('env-tel-codigo',       guardados.telCodigo);
+    set('env-telefono-pago',    guardados.telNumero);
     set('env-rut-pago',         guardados.rut);
-    set('env-ciudad-pago',      guardados.ciudad);
     set('env-correo-pago',      guardados.correo);
+    // La ubicación se repuebla en cascada para que los selects tengan opciones
+    if (guardados.region) {
+      set('env-region-pago', guardados.region);
+      _poblarCiudades(guardados.region, guardados.ciudad);
+      _poblarComunas(guardados.region, guardados.ciudad, guardados.comuna);
+    }
+    _actualizarPistaTelefono();
     set('env-empresa-pago',     guardados.empresa);
     set('env-preferencia-pago', guardados.preferencia);
     set('env-sucursal-pago',    guardados.sucursal);
@@ -306,8 +390,6 @@ function abrirFormularioEnvio() {
               const d = data[0];
               const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
               if (d.nombre)    set('env-nombre-pago',   d.nombre + (d.apellido ? ' ' + d.apellido : ''));
-              if (d.telefono)  set('env-telefono-pago', d.telefono);
-              if (d.ciudad)    set('env-ciudad-pago',   d.ciudad);
               if (d.direccion) set('env-domicilio-pago',d.direccion);
             }
           });
@@ -324,9 +406,13 @@ function cerrarFormularioEnvio() {
 
 function confirmarEnvioYPagar() {
   const nombre    = document.getElementById('env-nombre-pago').value.trim();
-  const telefono  = document.getElementById('env-telefono-pago').value.trim();
+  const telCodigo = document.getElementById('env-tel-codigo').value;
+  const telNumero = document.getElementById('env-telefono-pago').value.trim();
+  const telefono  = telCodigo + telNumero;
   const rut       = document.getElementById('env-rut-pago').value.trim();
-  const ciudad    = document.getElementById('env-ciudad-pago').value.trim();
+  const region    = document.getElementById('env-region-pago').value;
+  const ciudad    = document.getElementById('env-ciudad-pago').value;
+  const comuna    = document.getElementById('env-comuna-pago').value;
   const correo    = document.getElementById('env-correo-pago').value.trim();
   const empresa   = document.getElementById('env-empresa-pago').value;
   const preferencia = document.getElementById('env-preferencia-pago').value;
@@ -336,20 +422,18 @@ function confirmarEnvioYPagar() {
   const errEl = document.getElementById('env-form-error');
   const fail = msg => { errEl.textContent = msg; errEl.style.display = 'block'; };
 
-  if (!nombre || !telefono || !rut || !ciudad || !correo || !empresa) {
+  if (!nombre || !telNumero || !rut || !region || !ciudad || !comuna || !correo || !empresa) {
     return fail('Por favor completa todos los campos obligatorios (*)');
   }
   if (nombre.length < 3 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) {
     return fail('Nombre inválido. Solo letras y espacios (mín. 3 caracteres).');
   }
-  if (!/^\+56[0-9]{9}$/.test(telefono)) {
-    return fail('Teléfono inválido. Formato requerido: +56912345678 (12 caracteres).');
+  const pais = _paisSeleccionado();
+  if (!new RegExp(`^[0-9]{${pais.digitos}}$`).test(telNumero)) {
+    return fail(`Teléfono inválido. Para ${pais.pais} son exactamente ${pais.digitos} dígitos (ej: ${pais.ejemplo}).`);
   }
   if (!_validarRut(rut)) {
     return fail('RUT inválido. Verifica el dígito verificador (ej: 12.345.678-9).');
-  }
-  if (ciudad.length < 3 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(ciudad)) {
-    return fail('Ciudad inválida. Solo letras y espacios.');
   }
   if (!_validarCorreo(correo)) {
     return fail('Correo electrónico inválido.');
@@ -362,7 +446,8 @@ function confirmarEnvioYPagar() {
   }
   errEl.style.display = 'none';
 
-  _datosEnvio = { nombre, telefono, rut, ciudad, correo, empresa, preferencia, sucursal, domicilio };
+  _datosEnvio = { nombre, telefono, telCodigo, telNumero, rut, region, ciudad, comuna,
+                  correo, empresa, preferencia, sucursal, domicilio };
 
   // Guardar en localStorage para próximas compras (funciona para todos)
   localStorage.setItem('checkout_datos', JSON.stringify(_datosEnvio));
@@ -432,11 +517,11 @@ async function _iniciarPagoMP() {
   } catch (err) {
     console.error("[MP] Error al iniciar pago:", err);
     if (estado) {
-      estado.textContent = `⚠ ${err.message || 'Error al conectar con MercadoPago'}. Intenta nuevamente o escríbenos por WhatsApp.`;
+      estado.textContent = `⚠ ${err.message || 'Error al conectar con el medio de pago'}. Intenta nuevamente o escríbenos por WhatsApp.`;
       estado.style.color = "#dc2626";
     }
     btn.disabled = false;
-    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009EE3"/><path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/><path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Pagar con MercadoPago`;
+    btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009EE3"/><path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/><path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Realizar pago`;
   }
 }
 

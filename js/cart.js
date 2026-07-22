@@ -137,29 +137,44 @@ function renderizarCarrito() {
   }
   if (pie) pie.hidden = false;
 
+  /* Cada producto se desliza a la izquierda para descubrir el botón Eliminar,
+     igual que en las apps nativas. El botón queda debajo, fijo. */
   contenedor.innerHTML = carrito.map(item => `
-    <div class="carrito-item">
-      <img src="${item.imagen}" alt="${item.nombre}">
-      <div class="carrito-item-info">
-        <p class="carrito-item-nombre">${item.nombre}</p>
-        <p class="carrito-item-categoria">${item.categoria}</p>
-        <p class="carrito-item-precio">$${item.precio.toLocaleString("es-CL")}</p>
-        <div class="cantidad-selector">
-          <button onclick="cambiarCantidad(${item.id}, -1)">−</button>
-          <span class="cantidad-valor">${item.cantidad}</span>
-          <button onclick="cambiarCantidad(${item.id}, 1)">+</button>
-        </div>
-      </div>
-      <button class="carrito-item-eliminar" onclick="eliminarDelCarrito(${item.id})" title="Eliminar">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <div class="carrito-fila" data-id="${item.id}">
+      <button class="carrito-fila-borrar" onclick="eliminarDelCarrito(${item.id})" tabindex="-1" aria-label="Eliminar ${item.nombre}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
           <path d="M10 11v6"/><path d="M14 11v6"/>
           <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
         </svg>
+        <span>Eliminar</span>
       </button>
+      <div class="carrito-item">
+        <img src="${item.imagen}" alt="${item.nombre}">
+        <div class="carrito-item-info">
+          <p class="carrito-item-nombre">${item.nombre}</p>
+          <p class="carrito-item-categoria">${item.categoria || ""}</p>
+          <p class="carrito-item-precio">$${item.precio.toLocaleString("es-CL")}</p>
+          <div class="cantidad-selector">
+            <button onclick="cambiarCantidad(${item.id}, -1)">−</button>
+            <span class="cantidad-valor">${item.cantidad}</span>
+            <button onclick="cambiarCantidad(${item.id}, 1)">+</button>
+          </div>
+        </div>
+        <button class="carrito-item-eliminar" onclick="eliminarDelCarrito(${item.id})" title="Eliminar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M10 11v6"/><path d="M14 11v6"/>
+            <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
+          </svg>
+        </button>
+      </div>
     </div>
   `).join("");
+
+  activarDeslizarParaEliminar(contenedor);
 
   const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
   const comision = Math.round(subtotal * 0.03);
@@ -180,6 +195,59 @@ function renderizarCarrito() {
   }
 
   if (totalEl) totalEl.textContent = "$" + total.toLocaleString("es-CL") + " CLP";
+}
+
+/* =============================================
+   DESLIZAR PARA ELIMINAR
+   Se arrastra la tarjeta hacia la izquierda y aparece el botón Eliminar.
+   Si el gesto pasa la mitad del recorrido, queda abierto; si no, vuelve.
+   ============================================= */
+const CARRITO_ANCHO_BORRAR = 92;   // debe coincidir con el CSS
+
+function activarDeslizarParaEliminar(contenedor) {
+  contenedor.querySelectorAll(".carrito-fila").forEach(fila => {
+    const tarjeta = fila.querySelector(".carrito-item");
+    let inicioX = 0, inicioY = 0, desplazado = 0, arrastrando = false, decidido = false;
+
+    const abrir  = () => { tarjeta.style.transform = `translateX(-${CARRITO_ANCHO_BORRAR}px)`; fila.classList.add("abierta"); };
+    const cerrar = () => { tarjeta.style.transform = "translateX(0)"; fila.classList.remove("abierta"); };
+
+    tarjeta.addEventListener("touchstart", e => {
+      inicioX = e.touches[0].clientX;
+      inicioY = e.touches[0].clientY;
+      arrastrando = true;
+      decidido = false;
+      tarjeta.style.transition = "none";
+    }, { passive: true });
+
+    tarjeta.addEventListener("touchmove", e => {
+      if (!arrastrando) return;
+      const dx = e.touches[0].clientX - inicioX;
+      const dy = e.touches[0].clientY - inicioY;
+
+      // Hasta saber si el gesto es horizontal o vertical no se mueve nada:
+      // así el scroll del panel sigue funcionando con normalidad.
+      if (!decidido) {
+        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+        decidido = true;
+        if (Math.abs(dy) > Math.abs(dx)) { arrastrando = false; return; }
+      }
+
+      const base = fila.classList.contains("abierta") ? -CARRITO_ANCHO_BORRAR : 0;
+      desplazado = Math.max(-CARRITO_ANCHO_BORRAR, Math.min(0, base + dx));
+      tarjeta.style.transform = `translateX(${desplazado}px)`;
+    }, { passive: true });
+
+    tarjeta.addEventListener("touchend", () => {
+      if (!arrastrando) return;
+      arrastrando = false;
+      tarjeta.style.transition = "";
+      if (desplazado < -CARRITO_ANCHO_BORRAR / 2) abrir(); else cerrar();
+      desplazado = 0;
+    });
+
+    // En computador, el botón de la papelera sigue estando a la vista
+  });
 }
 
 function abrirCarrito() {
@@ -274,10 +342,12 @@ async function iniciarPago() {
       estado.style.color = "#dc2626";
     }
     btn.disabled = false;
-    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009EE3"/><path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/><path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Pagar`;
+    btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009EE3"/><path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/><path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Realizar pago`;
   }
 }
 
+/* Aviso al agregar: confirma el producto y, sobre todo, señala dónde está
+   el carrito para que el cliente sepa cómo llegar al pago. */
 function mostrarToast(nombre) {
   let toast = document.getElementById("toast-carrito");
   if (!toast) {
@@ -286,10 +356,44 @@ function mostrarToast(nombre) {
     toast.className = "toast-carrito";
     document.body.appendChild(toast);
   }
-  toast.innerHTML = `<span>✓</span> ${nombre} agregado`;
+
+  const totalItems = carrito.reduce((s, i) => s + i.cantidad, 0);
+  toast.innerHTML = `
+    <div class="toast-cab">
+      <span class="toast-check">✓</span>
+      <div class="toast-txt">
+        <strong>${nombre}</strong>
+        <small>Agregado a tu carrito · ${totalItems} ${totalItems === 1 ? "producto" : "productos"}</small>
+      </div>
+    </div>
+    <p class="toast-guia">Tu carrito está arriba a la derecha 👆 Ábrelo cuando quieras pagar.</p>
+    <div class="toast-btns">
+      <button type="button" class="toast-btn toast-btn-ver" id="toast-ver-carrito">Ver carrito y pagar</button>
+      <button type="button" class="toast-btn toast-btn-seguir" id="toast-seguir">Seguir comprando</button>
+    </div>`;
+
   toast.classList.remove("activo");
   void toast.offsetWidth;
   toast.classList.add("activo");
+
+  // El ícono del carrito se resalta un momento para que el ojo lo encuentre
+  const icono = document.getElementById("carrito-btn") || document.querySelector(".carrito-btn");
+  if (icono) {
+    icono.classList.remove("carrito-btn-guia");
+    void icono.offsetWidth;
+    icono.classList.add("carrito-btn-guia");
+    setTimeout(() => icono.classList.remove("carrito-btn-guia"), 2600);
+  }
+
+  const ocultar = () => toast.classList.remove("activo");
+  document.getElementById("toast-seguir").addEventListener("click", ocultar);
+  document.getElementById("toast-ver-carrito").addEventListener("click", () => {
+    ocultar();
+    // Si la página tiene panel lateral se abre ahí; si no, va al carrito
+    if (document.getElementById("carrito-panel")) abrirCarrito();
+    else window.location.href = "carrito.html";
+  });
+
   clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => toast.classList.remove("activo"), 2200);
+  toast._timer = setTimeout(ocultar, 6000);
 }
