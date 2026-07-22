@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Carrito de Tu Inversión — Joyería Aravena</title>
+  <title>Carrito de Inversión — Joyería Aravena</title>
   <meta name="description" content="Tu carrito de compras en Joyería Aravena.">
   <meta name="robots" content="noindex, nofollow">
   <link rel="stylesheet" href="css/styles.css">
@@ -86,12 +86,25 @@
   <main class="carrito-page">
 
     <div class="carrito-page-header animar">
-      <h1>Carrito de Tu Inversión <span id="carrito-badge" class="carrito-page-badge">0</span></h1>
+      <h1>Carrito de Inversión <span id="carrito-badge" class="carrito-page-badge">0</span></h1>
     </div>
 
     <div class="carrito-page-grid animar">
 
       <div class="carrito-page-col">
+
+        <!-- Objetivos: mientras más suma el pedido, más regalos se desbloquean -->
+        <section class="metas" id="metas" hidden>
+          <div class="metas-cab">
+            <h2 class="metas-titulo">🎁 Regalos por tu compra</h2>
+            <span class="metas-falta" id="metas-falta"></span>
+          </div>
+          <div class="metas-barra">
+            <div class="metas-linea"><span class="metas-linea-llena" id="metas-linea-llena"></span></div>
+            <div class="metas-hitos" id="metas-hitos"></div>
+          </div>
+        </section>
+
         <!-- Lista de items -->
         <div class="carrito-page-items" id="carrito-page-items">
           <p class="carrito-vacio-msg">Tu carrito está vacío. <a href="index.html#catalogo">Ver productos →</a></p>
@@ -99,7 +112,7 @@
 
         <!-- Sugerencias: se llenan desde JS -->
         <section class="sugeridos" id="sugeridos" hidden>
-          <h2 class="sugeridos-titulo">Otros Emprendedores También Compraron</h2>
+          <h2 class="sugeridos-titulo">⬇️ Otros Emprendedores También Compraron</h2>
           <div class="sugeridos-fila" id="sugeridos-fila"></div>
         </section>
       </div>
@@ -120,14 +133,14 @@
             <span>Total estimado</span>
             <span class="carrito-aside-precio" id="carrito-aside-total">$0 CLP</span>
           </div>
-          <p class="carrito-aside-info">Impuestos incluidos. Envío calculado al finalizar.</p>
+          <p class="carrito-aside-info">📦 Todos los envíos son <strong>por pagar</strong>: el despacho se cancela al recibir el pedido.</p>
           <button class="btn-mp" id="btn-pagar" disabled>
             <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="24" cy="24" r="24" fill="#009EE3"/>
               <path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/>
               <path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            Realizar pago
+            Realizar Pago Con Tarjeta
           </button>
           <div class="btn-mp-estado" id="btn-mp-estado"></div>
 
@@ -467,6 +480,7 @@
   </aside>
 
   <script src="js/regiones-chile.js"></script>
+  <script src="js/regalos.js"></script>
   <script src="js/products.js"></script>
   <script src="js/buscador.js"></script>
   <script src="js/supabase-client.js"></script>

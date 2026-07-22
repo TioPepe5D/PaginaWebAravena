@@ -113,6 +113,13 @@ function renderizarCarrito() {
   const totalEl = document.getElementById("carrito-total");
   const badge = document.getElementById("carrito-header-badge");
 
+  // Los regalos se agregan o retiran según cuánto suma el pedido
+  const ajuste = ajustarRegalos(carrito);
+  if (ajuste.cambio) {
+    carrito = ajuste.lista;
+    guardarCarrito();
+  }
+
   const totalItems = carrito.reduce((s, i) => s + i.cantidad, 0);
   if (badge) badge.textContent = totalItems;
 
@@ -139,7 +146,26 @@ function renderizarCarrito() {
 
   /* Cada producto se desliza a la izquierda para descubrir el botón Eliminar,
      igual que en las apps nativas. El botón queda debajo, fijo. */
-  contenedor.innerHTML = carrito.map(item => `
+  contenedor.innerHTML = carrito.map(item => {
+    // Un regalo no se edita ni se borra: aparece y desaparece con el monto
+    if (esRegalo(item)) {
+      const meta = metaDeRegalo(item);
+      return `
+        <div class="carrito-fila">
+          <div class="carrito-item carrito-item-regalo">
+            <span class="carrito-regalo-icono">${meta.emoji}</span>
+            <div class="carrito-item-info">
+              <p class="carrito-item-nombre">${item.nombre}</p>
+              <p class="carrito-item-categoria">Regalo sorpresa</p>
+              <div class="carrito-item-fila">
+                <p class="carrito-item-precio regalo-gratis">GRATIS</p>
+                <span class="regalo-sello-mini">Incluido</span>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+    return `
     <div class="carrito-fila" data-id="${item.id}">
       <button class="carrito-fila-borrar" onclick="eliminarDelCarrito(${item.id})" tabindex="-1" aria-label="Eliminar ${item.nombre}">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -155,11 +181,14 @@ function renderizarCarrito() {
         <div class="carrito-item-info">
           <p class="carrito-item-nombre">${item.nombre}</p>
           <p class="carrito-item-categoria">${item.categoria || ""}</p>
-          <p class="carrito-item-precio">$${item.precio.toLocaleString("es-CL")}</p>
-          <div class="cantidad-selector">
-            <button onclick="cambiarCantidad(${item.id}, -1)">−</button>
-            <span class="cantidad-valor">${item.cantidad}</span>
-            <button onclick="cambiarCantidad(${item.id}, 1)">+</button>
+          <!-- Precio y cantidad en la misma línea: caben más productos a la vista -->
+          <div class="carrito-item-fila">
+            <p class="carrito-item-precio">$${item.precio.toLocaleString("es-CL")}</p>
+            <div class="cantidad-selector">
+              <button onclick="cambiarCantidad(${item.id}, -1)">−</button>
+              <span class="cantidad-valor">${item.cantidad}</span>
+              <button onclick="cambiarCantidad(${item.id}, 1)">+</button>
+            </div>
           </div>
         </div>
         <button class="carrito-item-eliminar" onclick="eliminarDelCarrito(${item.id})" title="Eliminar">
@@ -171,8 +200,8 @@ function renderizarCarrito() {
           </svg>
         </button>
       </div>
-    </div>
-  `).join("");
+    </div>`;
+  }).join("");
 
   activarDeslizarParaEliminar(contenedor);
 
@@ -359,41 +388,33 @@ function mostrarToast(nombre) {
 
   const totalItems = carrito.reduce((s, i) => s + i.cantidad, 0);
   toast.innerHTML = `
-    <div class="toast-cab">
-      <span class="toast-check">✓</span>
-      <div class="toast-txt">
-        <strong>${nombre}</strong>
-        <small>Agregado a tu carrito · ${totalItems} ${totalItems === 1 ? "producto" : "productos"}</small>
-      </div>
-    </div>
-    <p class="toast-guia">Tu carrito está arriba a la derecha 👆 Ábrelo cuando quieras pagar.</p>
-    <div class="toast-btns">
-      <button type="button" class="toast-btn toast-btn-ver" id="toast-ver-carrito">Ver carrito y pagar</button>
-      <button type="button" class="toast-btn toast-btn-seguir" id="toast-seguir">Seguir comprando</button>
-    </div>`;
+    <span class="toast-check">✓</span>
+    <span class="toast-txt">
+      <strong>${nombre}</strong>
+      <small>${totalItems} ${totalItems === 1 ? "producto" : "productos"} en tu carrito</small>
+    </span>`;
 
+  // Sale justo desde el ícono del carrito, como un aviso del sistema
   toast.classList.remove("activo");
   void toast.offsetWidth;
   toast.classList.add("activo");
 
-  // El ícono del carrito se resalta un momento para que el ojo lo encuentre
+  const ocultar = () => toast.classList.remove("activo");
+  toast.onclick = () => {
+    ocultar();
+    if (document.getElementById("carrito-panel")) abrirCarrito();
+    else window.location.href = "carrito.html";
+  };
+
+  // El ícono del carrito parpadea suave para que el cliente lo ubique
   const icono = document.getElementById("carrito-btn") || document.querySelector(".carrito-btn");
   if (icono) {
     icono.classList.remove("carrito-btn-guia");
     void icono.offsetWidth;
     icono.classList.add("carrito-btn-guia");
-    setTimeout(() => icono.classList.remove("carrito-btn-guia"), 2600);
+    setTimeout(() => icono.classList.remove("carrito-btn-guia"), 1800);
   }
 
-  const ocultar = () => toast.classList.remove("activo");
-  document.getElementById("toast-seguir").addEventListener("click", ocultar);
-  document.getElementById("toast-ver-carrito").addEventListener("click", () => {
-    ocultar();
-    // Si la página tiene panel lateral se abre ahí; si no, va al carrito
-    if (document.getElementById("carrito-panel")) abrirCarrito();
-    else window.location.href = "carrito.html";
-  });
-
   clearTimeout(toast._timer);
-  toast._timer = setTimeout(ocultar, 6000);
+  toast._timer = setTimeout(ocultar, 3200);
 }

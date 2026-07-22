@@ -239,8 +239,12 @@ function asisAbrir() {
 }
 
 function asisCerrar() {
-  document.getElementById("asis-panel")?.classList.remove("activo");
+  const panel = document.getElementById("asis-panel");
+  if (!panel?.classList.contains("activo")) return;
+  panel.classList.remove("activo");
+  // Al cerrar, la burbuja vuelve a asomarse y se reanuda el ciclo
   document.getElementById("asis-burbuja")?.classList.remove("oculto");
+  arrancarCicloBurbuja();
 }
 
 function inicializarAsistente() {
@@ -306,9 +310,9 @@ function inicializarAsistente() {
 
 /* =============================================
    CICLO DE LA BURBUJA
-   La pregunta se asoma 10 segundos y luego se repliega a solo el ícono
-   durante 30, una y otra vez. Si el cliente abre el chat, el ciclo se
-   detiene para no molestar.
+   Aparece 10 segundos con la pregunta y desaparece por completo los
+   siguientes 30, una y otra vez. Si el cliente abre el chat, el ciclo
+   se detiene para no molestar.
    ============================================= */
 const ASIS_VISIBLE_MS = 10000;
 const ASIS_OCULTO_MS  = 30000;
@@ -318,21 +322,26 @@ function arrancarCicloBurbuja() {
   const btn = document.getElementById("asis-burbuja");
   if (!btn) return;
 
-  const expandir = () => {
+  const mostrar = () => {
+    // Si está conversando, se salta el turno y vuelve a intentar después
     if (document.getElementById("asis-panel")?.classList.contains("activo")) {
-      _asisTimer = setTimeout(expandir, ASIS_OCULTO_MS);
+      _asisTimer = setTimeout(mostrar, ASIS_OCULTO_MS);
       return;
     }
+    btn.classList.remove("oculto");
     btn.classList.add("expandida");
-    _asisTimer = setTimeout(contraer, ASIS_VISIBLE_MS);
-  };
-  const contraer = () => {
-    btn.classList.remove("expandida");
-    _asisTimer = setTimeout(expandir, ASIS_OCULTO_MS);
+    _asisTimer = setTimeout(esconder, ASIS_VISIBLE_MS);
   };
 
-  // Primera aparición a los 3 segundos: da tiempo a que cargue la página
-  _asisTimer = setTimeout(expandir, 3000);
+  const esconder = () => {
+    btn.classList.remove("expandida");
+    btn.classList.add("oculto");   // desaparece entero, no solo el texto
+    _asisTimer = setTimeout(mostrar, ASIS_OCULTO_MS);
+  };
+
+  // Arranca escondido y asoma a los 3 segundos, ya cargada la página
+  btn.classList.add("oculto");
+  _asisTimer = setTimeout(mostrar, 3000);
 }
 
 function detenerCicloBurbuja() {

@@ -90,6 +90,11 @@ function renderizarCarritoPage() {
   const contenedor = document.getElementById("carrito-page-items");
   const totalEl = document.getElementById("carrito-aside-total");
 
+  // Antes de pintar: agregar o retirar los regalos según el monto
+  const desbloqueados = sincronizarRegalos();
+  renderizarMetas();
+  desbloqueados.forEach((m, i) => setTimeout(() => avisarRegalo(m, false), i * 900));
+
   if (carrito.length === 0) {
     contenedor.innerHTML = '<p class="carrito-vacio-msg">Tu carrito está vacío. <a href="index.html#catalogo">Ver productos →</a></p>';
     if (totalEl) totalEl.textContent = "$0 CLP";
@@ -98,7 +103,22 @@ function renderizarCarritoPage() {
     return;
   }
 
-  contenedor.innerHTML = carrito.map(item => `
+  contenedor.innerHTML = carrito.map(item => {
+    // Los regalos no se editan ni se eliminan: dependen del monto del pedido
+    if (esRegalo(item)) {
+      const meta = METAS_REGALO.find(m => m.id === String(item.id));
+      return `
+        <div class="carrito-page-item carrito-page-item-regalo">
+          <span class="regalo-icono">${meta.emoji}</span>
+          <div class="carrito-page-item-info">
+            <p class="carrito-page-item-nombre">${item.nombre}</p>
+            <p class="carrito-page-item-cat">Regalo sorpresa</p>
+            <p class="carrito-page-item-precio regalo-gratis">GRATIS</p>
+          </div>
+          <span class="regalo-sello">Incluido</span>
+        </div>`;
+    }
+    return `
     <div class="carrito-page-item">
       <img src="${item.imagen}" alt="${item.nombre}">
       <div class="carrito-page-item-info">
@@ -119,8 +139,8 @@ function renderizarCarritoPage() {
           <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>
         </svg>
       </button>
-    </div>
-  `).join("");
+    </div>`;
+  }).join("");
 
   const subtotal  = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
   const comision  = Math.round(subtotal * 0.03);
@@ -137,6 +157,97 @@ function renderizarCarritoPage() {
 
   renderizarSugeridos();
   actualizarBarraPago(total);
+}
+
+/* =============================================
+   REGALOS POR MONTO
+   Tres objetivos. Al alcanzar uno, el regalo se suma al pedido como
+   producto de $0 y se avisa al cliente. Si el carrito baja del monto,
+   el regalo se retira solo.
+   ============================================= */
+function sincronizarRegalos() {
+  const r = ajustarRegalos(carrito);
+  if (r.cambio) {
+    carrito = r.lista;
+    guardarCarrito();
+    actualizarContador();
+  }
+  return r.nuevos;
+}
+
+function renderizarMetas() {
+  const seccion = document.getElementById("metas");
+  if (!seccion) return;
+
+  const base = subtotalPagado(carrito);
+  if (base <= 0) { seccion.hidden = true; return; }
+  seccion.hidden = false;
+
+  const tope = METAS_REGALO[METAS_REGALO.length - 1].monto;
+  const avance = Math.min(100, (base / tope) * 100);
+  const linea = document.getElementById("metas-linea-llena");
+  if (linea) linea.style.width = avance + "%";
+
+  // Cuánto falta para el próximo regalo
+  const siguiente = METAS_REGALO.find(m => base < m.monto);
+  const falta = document.getElementById("metas-falta");
+  if (falta) {
+    falta.textContent = siguiente
+      ? `Te faltan $${(siguiente.monto - base).toLocaleString("es-CL")} para el próximo regalo`
+      : "¡Desbloqueaste todos los regalos! 🎉";
+  }
+
+  const hitos = document.getElementById("metas-hitos");
+  if (hitos) {
+    hitos.innerHTML = METAS_REGALO.map(m => {
+      const logrado = base >= m.monto;
+      const pos = (m.monto / tope) * 100;
+      return `
+        <button type="button" class="meta-hito ${logrado ? "logrado" : ""}"
+                style="left:${pos}%" data-meta="${m.id}"
+                title="${logrado ? "¡Regalo desbloqueado! Toca para abrirlo" : "Compra $" + m.monto.toLocaleString("es-CL") + " para desbloquearlo"}">
+          <span class="meta-emoji">${logrado ? m.emoji : "🔒"}</span>
+          <span class="meta-monto">$${(m.monto / 1000)}k</span>
+        </button>`;
+    }).join("");
+  }
+}
+
+// Al tocar un regalo desbloqueado se "abre" con una animación
+function abrirRegalo(idMeta) {
+  const meta = METAS_REGALO.find(m => m.id === idMeta);
+  const btn = document.querySelector(`.meta-hito[data-meta="${idMeta}"]`);
+  if (!meta || !btn || !btn.classList.contains("logrado")) return;
+
+  btn.classList.remove("abriendo");
+  void btn.offsetWidth;
+  btn.classList.add("abriendo");
+  avisarRegalo(meta, true);
+}
+
+/* Aviso propio de los regalos: más visible que el del carrito, porque
+   es una buena noticia que conviene que el cliente note. */
+function avisarRegalo(meta, esApertura) {
+  let aviso = document.getElementById("aviso-regalo");
+  if (!aviso) {
+    aviso = document.createElement("div");
+    aviso.id = "aviso-regalo";
+    aviso.className = "aviso-regalo";
+    document.body.appendChild(aviso);
+  }
+  aviso.innerHTML = `
+    <span class="aviso-regalo-emoji">${meta.emoji}</span>
+    <div class="aviso-regalo-txt">
+      <strong>${esApertura ? "Tu regalo sorpresa" : "¡Regalo desbloqueado!"}</strong>
+      <small>${esApertura
+        ? "Lo preparamos y va dentro de tu pedido 📦"
+        : `Superaste $${meta.monto.toLocaleString("es-CL")} · ya está en tu carrito`}</small>
+    </div>`;
+  aviso.classList.remove("activo");
+  void aviso.offsetWidth;
+  aviso.classList.add("activo");
+  clearTimeout(aviso._timer);
+  aviso._timer = setTimeout(() => aviso.classList.remove("activo"), 4200);
 }
 
 /* =============================================
@@ -157,19 +268,39 @@ function actualizarBarraPago(total) {
    con otros si faltan. Nunca repite lo que ya está agregado.
    ============================================= */
 const SUGERIDOS_MAX = 8;
+const SUGERIDOS_TOPE_PRECIO = 20000;   // se ofrecen agregados baratos, no otra compra grande
+
+let _ordenSugeridos = null;
+
+function _barajar(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 function renderizarSugeridos() {
   const seccion = document.getElementById("sugeridos");
   const fila = document.getElementById("sugeridos-fila");
   if (!seccion || !fila || typeof productos === "undefined") return;
 
-  const enCarrito = new Set(carrito.map(i => String(i.id)));
-  const categorias = new Set(carrito.map(i => categoriaDeItem(i)));
-  const disponibles = productos.filter(p => !enCarrito.has(String(p.id)) && p.precio > 0);
+  // El orden se baraja una sola vez por visita: si se rehiciera en cada
+  // cambio de cantidad, las tarjetas saltarían de lugar.
+  if (!_ordenSugeridos) {
+    const baratos = _barajar(productos.filter(p =>
+      p.precio > 0 && (p.categoria === "exhibidores" || p.precio <= SUGERIDOS_TOPE_PRECIO)));
+    const resto = productos
+      .filter(p => p.precio > 0 && !baratos.includes(p))
+      .sort((a, b) => a.precio - b.precio);
+    _ordenSugeridos = [...baratos, ...resto];
+  }
 
-  const afines = disponibles.filter(p => categorias.has(p.categoria));
-  const resto  = disponibles.filter(p => !categorias.has(p.categoria));
-  const lista  = [...afines, ...resto].slice(0, SUGERIDOS_MAX);
+  const enCarrito = new Set(carrito.map(i => String(i.id)));
+  const lista = _ordenSugeridos
+    .filter(p => !enCarrito.has(String(p.id)))
+    .slice(0, SUGERIDOS_MAX);
 
   if (!lista.length) { seccion.hidden = true; return; }
 
@@ -629,6 +760,12 @@ function configurarPago() {
   if (btnCerrarEnvio) btnCerrarEnvio.addEventListener("click", cerrarFormularioEnvio);
   if (overlayEnvio)   overlayEnvio.addEventListener("click", e => {
     if (e.target === overlayEnvio) cerrarFormularioEnvio();
+  });
+
+  // Los hitos se repintan seguido: se escucha en el contenedor
+  document.getElementById("metas-hitos")?.addEventListener("click", e => {
+    const hito = e.target.closest(".meta-hito");
+    if (hito) abrirRegalo(hito.dataset.meta);
   });
 
   // Modal confirmar eliminar

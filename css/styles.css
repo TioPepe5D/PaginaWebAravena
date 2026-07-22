@@ -1941,8 +1941,8 @@ img { max-width: 100%; display: block; }
   to   { opacity: 1; transform: translateY(0); }
 }
 .carrito-item img {
-  width: 76px;
-  height: 76px;
+  width: 62px;
+  height: 62px;
   object-fit: cover;
   border-radius: var(--radio);
   border: 1px solid var(--color-borde);
@@ -1951,7 +1951,25 @@ img { max-width: 100%; display: block; }
 .carrito-item-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
 .carrito-item-nombre { font-size: 0.92rem; font-weight: 600; margin: 0; color: var(--color-texto); }
 .carrito-item-categoria { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--color-texto-suave); margin: 0; }
-.carrito-item-precio { font-size: 0.95rem; font-weight: 700; margin: 4px 0 8px; color: var(--color-primario); }
+.carrito-item-precio {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-primario);
+  font-family: var(--fuente-monto);
+  font-variant-numeric: tabular-nums;
+}
+/* Precio y +/- comparten línea para que quepan más productos */
+.carrito-item-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 7px;
+}
+/* Controles más chicos dentro del panel */
+.carrito-panel .cantidad-selector button { width: 27px; height: 27px; font-size: 0.95rem; }
+.carrito-panel .cantidad-valor { min-width: 26px; padding: 4px 0; font-size: 0.82rem; }
 
 .cantidad-selector {
   display: inline-flex;
@@ -2330,86 +2348,59 @@ img { max-width: 100%; display: block; }
 /* =============================================
    TOAST CARRITO
    ============================================= */
-/* Aviso al agregar al carrito: tarjeta con guía y accesos directos */
+/* Aviso al agregar: pequeño, cae desde el ícono del carrito */
 .toast-carrito {
   position: fixed;
-  bottom: 26px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  width: 340px;
-  max-width: calc(100vw - 28px);
-  padding: 16px;
-  border-radius: 16px;
-  background: linear-gradient(160deg, rgba(var(--color-diamante-rgb), 0.09), transparent 60%), #0d1117;
-  border: 1px solid rgba(var(--color-diamante-rgb), 0.45);
-  box-shadow: 0 0 24px rgba(var(--color-diamante-rgb), 0.28), 0 18px 44px rgba(0,0,0,0.6);
+  top: 62px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: min(280px, calc(100vw - 32px));
+  padding: 9px 14px 9px 10px;
+  border-radius: 12px;
+  background: rgba(13, 17, 23, 0.96);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.35);
+  box-shadow: 0 8px 26px rgba(0,0,0,0.5);
+  cursor: pointer;
   opacity: 0;
   pointer-events: none;
+  /* Nace pegado al ícono y baja un poco al aparecer */
+  transform: translateY(-14px) scale(0.94);
+  transform-origin: top right;
   z-index: 9999;
-  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: opacity 0.22s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .toast-carrito.activo {
   opacity: 1;
   pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0) scale(1);
 }
-.toast-cab { display: flex; align-items: center; gap: 11px; }
+.toast-carrito:hover { border-color: rgba(var(--color-diamante-rgb), 0.65); }
 .toast-check {
   flex: 0 0 auto;
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
   background: #25D366;
   color: #041018;
-  font-size: 0.85rem;
+  font-size: 0.68rem;
   font-weight: 700;
 }
-.toast-txt { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.toast-txt { display: flex; flex-direction: column; gap: 0; min-width: 0; }
 .toast-txt strong {
-  font-size: 0.86rem;
+  font-size: 0.79rem;
   font-weight: 600;
   color: #e7e9ea;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.toast-txt small { font-size: 0.72rem; color: #a7adb3; }
-.toast-guia {
-  margin: 11px 0 12px;
-  padding: 9px 11px;
-  border-radius: 9px;
-  background: rgba(143, 227, 255, 0.09);
-  border: 1px solid rgba(143, 227, 255, 0.22);
-  font-size: 0.76rem;
-  line-height: 1.45;
-  color: #bff0ff;
-}
-.toast-btns { display: flex; gap: 8px; }
-.toast-btn {
-  flex: 1;
-  padding: 10px 8px;
-  border-radius: 999px;
-  font-family: var(--fuente-secundaria);
-  font-size: 0.76rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.toast-btn-ver {
-  border: none;
-  background: linear-gradient(135deg, #1c9cf0, #1581c9);
-  color: #fff;
-}
-.toast-btn-ver:hover { box-shadow: 0 0 16px rgba(143, 227, 255, 0.55); }
-.toast-btn-seguir {
-  border: 1px solid rgba(143, 227, 255, 0.4);
-  background: transparent;
-  color: #bff0ff;
-}
-.toast-btn-seguir:hover { background: rgba(143, 227, 255, 0.12); }
+.toast-txt small { font-size: 0.68rem; color: #a7adb3; }
 
 /* El ícono del carrito late un momento para que el cliente lo ubique */
 .carrito-btn-guia {
@@ -2752,4 +2743,36 @@ img { max-width: 100%; display: block; }
   background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
   border-color: var(--color-diamante);
   box-shadow: var(--led-glow);
+}
+
+/* Regalo dentro del panel lateral */
+.carrito-item-regalo {
+  border-color: rgba(var(--color-diamante-rgb), 0.5);
+  background: linear-gradient(140deg, rgba(var(--color-diamante-rgb), 0.14), transparent 65%), var(--color-card);
+}
+.carrito-regalo-icono {
+  flex: 0 0 auto;
+  width: 62px;
+  height: 62px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radio);
+  font-size: 1.7rem;
+  background: rgba(var(--color-diamante-rgb), 0.1);
+  border: 1px dashed rgba(var(--color-diamante-rgb), 0.45);
+}
+.carrito-item-precio.regalo-gratis {
+  color: var(--color-diamante);
+  letter-spacing: 1px;
+}
+.regalo-sello-mini {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #041018;
+  background: var(--color-diamante);
 }
