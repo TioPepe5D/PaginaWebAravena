@@ -130,7 +130,7 @@ function renderizarCarrito() {
   `).join("");
 
   const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
-  const comision = Math.round(subtotal * 0.05);
+  const comision = Math.round(subtotal * 0.03);
   const total = subtotal + comision;
 
   const desglose = document.getElementById("carrito-desglose");
@@ -141,7 +141,7 @@ function renderizarCarrito() {
         <span>$${subtotal.toLocaleString("es-CL")} CLP</span>
       </div>
       <div class="carrito-desglose-row">
-        <span style="font-size:0.7rem">Comisión Bancaria impuesto (5%)</span>
+        <span style="font-size:0.7rem">Comisión Bancaria</span>
         <span>$${comision.toLocaleString("es-CL")} CLP</span>
       </div>
     `;
@@ -180,7 +180,7 @@ async function iniciarPago() {
   if (estado) estado.textContent = "";
 
   const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
-  const comision = Math.round(subtotal * 0.05);
+  const comision = Math.round(subtotal * 0.03);
   const totalFinal = subtotal + comision;
 
   const items = carrito.map(i => ({
@@ -194,7 +194,7 @@ async function iniciarPago() {
   if (comision > 0) {
     items.push({
       id: "comision-bancaria",
-      title: "Comisión Bancaria impuesto",
+      title: "Comisión Bancaria",
       quantity: 1,
       unit_price: comision,
       currency_id: "CLP"

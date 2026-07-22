@@ -79,6 +79,13 @@ function confirmarEliminar() {
   habilitarBotonPago();
 }
 
+// Los carritos guardados antes no traían la categoría: se busca por id
+function categoriaDeItem(item) {
+  if (item.categoria) return item.categoria;
+  const p = (typeof productos !== "undefined") ? productos.find(x => String(x.id) === String(item.id)) : null;
+  return p ? p.categoria : "Joyas";
+}
+
 function renderizarCarritoPage() {
   const contenedor = document.getElementById("carrito-page-items");
   const totalEl = document.getElementById("carrito-aside-total");
@@ -86,6 +93,8 @@ function renderizarCarritoPage() {
   if (carrito.length === 0) {
     contenedor.innerHTML = '<p class="carrito-vacio-msg">Tu carrito está vacío. <a href="index.html#catalogo">Ver productos →</a></p>';
     if (totalEl) totalEl.textContent = "$0 CLP";
+    renderizarSugeridos();
+    actualizarBarraPago(0);
     return;
   }
 
@@ -94,7 +103,7 @@ function renderizarCarritoPage() {
       <img src="${item.imagen}" alt="${item.nombre}">
       <div class="carrito-page-item-info">
         <p class="carrito-page-item-nombre">${item.nombre}</p>
-        <p class="carrito-page-item-cat">${item.categoria}</p>
+        <p class="carrito-page-item-cat">${categoriaDeItem(item)}</p>
         <p class="carrito-page-item-precio">$${item.precio.toLocaleString("es-CL")}</p>
       </div>
       <div class="cantidad-selector">
@@ -114,7 +123,7 @@ function renderizarCarritoPage() {
   `).join("");
 
   const subtotal  = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
-  const comision  = Math.round(subtotal * 0.05);
+  const comision  = Math.round(subtotal * 0.03);
   const total     = subtotal + comision;
 
   const subtotalEl  = document.getElementById("carrito-aside-subtotal");
@@ -125,6 +134,75 @@ function renderizarCarritoPage() {
   if (comisionEl)  comisionEl.textContent  = "$" + comision.toLocaleString("es-CL") + " CLP";
   if (comisionRow) comisionRow.style.display = subtotal > 0 ? "flex" : "none";
   if (totalEl)     totalEl.textContent = "$" + total.toLocaleString("es-CL") + " CLP";
+
+  renderizarSugeridos();
+  actualizarBarraPago(total);
+}
+
+/* =============================================
+   BARRA DE PAGO FIJA (celular)
+   El panel de totales queda muy abajo cuando hay varios productos.
+   ============================================= */
+function actualizarBarraPago(total) {
+  const barra = document.getElementById("carrito-barra-pago");
+  if (!barra) return;
+  barra.hidden = carrito.length === 0;
+  const monto = document.getElementById("cbp-monto");
+  if (monto) monto.textContent = "$" + total.toLocaleString("es-CL") + " CLP";
+}
+
+/* =============================================
+   OTROS EMPRENDEDORES TAMBIÉN COMPRARON
+   Sugiere productos de las mismas categorías del carrito; completa
+   con otros si faltan. Nunca repite lo que ya está agregado.
+   ============================================= */
+const SUGERIDOS_MAX = 8;
+
+function renderizarSugeridos() {
+  const seccion = document.getElementById("sugeridos");
+  const fila = document.getElementById("sugeridos-fila");
+  if (!seccion || !fila || typeof productos === "undefined") return;
+
+  const enCarrito = new Set(carrito.map(i => String(i.id)));
+  const categorias = new Set(carrito.map(i => categoriaDeItem(i)));
+  const disponibles = productos.filter(p => !enCarrito.has(String(p.id)) && p.precio > 0);
+
+  const afines = disponibles.filter(p => categorias.has(p.categoria));
+  const resto  = disponibles.filter(p => !categorias.has(p.categoria));
+  const lista  = [...afines, ...resto].slice(0, SUGERIDOS_MAX);
+
+  if (!lista.length) { seccion.hidden = true; return; }
+
+  seccion.hidden = false;
+  fila.innerHTML = lista.map(p => `
+    <article class="sug-card">
+      <a class="sug-link" href="producto.html?id=${p.id}">
+        <img src="${p.imagen}" alt="${p.nombre}" loading="lazy" decoding="async">
+        <p class="sug-nombre">${p.nombre}</p>
+      </a>
+      <div class="sug-pie">
+        <span class="sug-precio">$${p.precio.toLocaleString("es-CL")}</span>
+        <button class="sug-add" onclick="agregarSugerido(${p.id})" title="Agregar al carrito" aria-label="Agregar ${p.nombre} al carrito">+</button>
+      </div>
+    </article>`).join("");
+}
+
+function agregarSugerido(id) {
+  if (typeof productos === "undefined") return;
+  const p = productos.find(x => String(x.id) === String(id));
+  if (!p) return;
+
+  const existente = carrito.find(i => String(i.id) === String(id));
+  if (existente) {
+    if (existente.cantidad >= MAX_POR_ITEM) { mostrarAvisoLimite(p.nombre); return; }
+    existente.cantidad++;
+  } else {
+    carrito.push({ id: p.id, nombre: p.nombre, precio: p.precio, imagen: p.imagen, categoria: p.categoria, cantidad: 1 });
+  }
+  guardarCarrito();
+  actualizarContador();
+  renderizarCarritoPage();
+  habilitarBotonPago();
 }
 
 function habilitarBotonPago() {
@@ -460,6 +538,8 @@ function configurarPago() {
   const overlayEnvio   = document.getElementById("modal-envio-overlay");
 
   if (btn)            btn.addEventListener("click", iniciarPago);
+  // La barra fija de celular dispara el mismo flujo de pago
+  document.getElementById("cbp-btn")?.addEventListener("click", iniciarPago);
   if (btnConfEnvio)   btnConfEnvio.addEventListener("click", confirmarEnvioYPagar);
   if (btnCerrarEnvio) btnCerrarEnvio.addEventListener("click", cerrarFormularioEnvio);
   if (overlayEnvio)   overlayEnvio.addEventListener("click", e => {

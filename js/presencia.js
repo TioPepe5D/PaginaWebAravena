@@ -12,7 +12,6 @@
     'carrito.html':      'Carrito',
     'perfil.html':       'Mi perfil',
     'contacto.html':     'Contacto',
-    'nosotros.html':     'Nosotros',
     'pago-exitoso.html': 'Pago exitoso',
     'pago-fallido.html': 'Pago fallido',
     'pago-pendiente.html':'Pago pendiente',

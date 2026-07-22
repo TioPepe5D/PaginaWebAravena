@@ -15,7 +15,6 @@ const PAGINAS_SITIO = [
   { titulo: "Políticas de envío",      href: "faq.html#envios",  claves: "envio envios despacho starken chilexpress entrega demora plazo seguimiento" },
   { titulo: "Cambios y devoluciones",  href: "faq.html#cambios", claves: "cambio cambios devolucion devoluciones garantia reembolso" },
   { titulo: "Contacto",                href: "contacto.html",    claves: "contacto whatsapp correo mail telefono escribir hablar" },
-  { titulo: "Nosotros",                href: "nosotros.html",    claves: "nosotros quienes somos empresa historia bodega" },
   { titulo: "Mi carrito",              href: "carrito.html",     claves: "carrito compra pedido pagar checkout" },
   { titulo: "Mi cuenta",               href: "perfil.html",      claves: "cuenta perfil usuario sesion favoritos pedidos" },
 ];
