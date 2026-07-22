@@ -79,8 +79,8 @@ body > .footer { margin-top: auto; }
 /* Cada producto es una tarjeta con borde de luz, no una fila suelta */
 .carrito-page-item {
   display: grid;
-  grid-template-columns: 96px 1fr auto auto;
-  gap: 20px;
+  grid-template-columns: 96px 1fr auto;
+  gap: 18px;
   align-items: center;
   padding: 18px;
   margin-bottom: 14px;
@@ -130,10 +130,22 @@ body > .footer { margin-top: auto; }
 }
 
 .carrito-page-item-precio {
-  font-size: 0.95rem;
-  color: var(--color-texto-suave);
-  margin-top: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-texto);
+  margin: 0;
 }
+/* Precio y cantidad en una fila; el selector conserva su tamaño natural
+   en vez de estirarse a toda una columna del grid */
+.cpi-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.cpi-fila .cantidad-selector { flex: 0 0 auto; }
 
 /* Selector cantidad */
 .cantidad-selector {
@@ -334,20 +346,22 @@ body > .footer { margin-top: auto; }
   }
 
   .carrito-page-item {
-    grid-template-columns: 72px 1fr;
-    grid-template-rows: auto auto;
+    grid-template-columns: 72px 1fr auto;
+    gap: 14px;
+    padding: 14px;
   }
 
   .carrito-page-item img {
     width: 72px;
     height: 72px;
-    grid-row: 1 / 3;
   }
 
-  .carrito-page-item-eliminar {
-    grid-column: 2;
-    justify-self: start;
-  }
+  /* La papelera se alinea con el nombre, no al centro de la tarjeta */
+  .carrito-page-item-eliminar { align-self: start; }
+
+  .cpi-fila { gap: 10px; }
+  .cpi-fila .cantidad-selector button { width: 32px; height: 32px; }
+  .cpi-fila .cantidad-valor { min-width: 30px; }
 
   .carrito-page-aside {
     position: static;
@@ -785,19 +799,30 @@ body > .footer { margin-top: auto; }
   color: var(--color-diamante);
   margin: 0 0 14px;
 }
-/* Una sola franja que se desliza: ocupa poco alto y no opaca el carrito */
+/* Franja en movimiento continuo de izquierda a derecha */
+.sugeridos-marco {
+  overflow: hidden;
+  padding: 4px 0 8px;
+  /* Los bordes se difuminan para que las tarjetas no aparezcan de golpe */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
+}
 .sugeridos-fila {
   display: flex;
   gap: 12px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  scroll-snap-type: x proximity;
-  scrollbar-width: thin;
+  width: max-content;
+  animation: sugDeslizar 40s linear infinite;
 }
-.sugeridos-fila::-webkit-scrollbar { height: 6px; }
-.sugeridos-fila::-webkit-scrollbar-thumb {
-  background: rgba(var(--color-diamante-rgb), 0.35);
-  border-radius: 3px;
+/* Empieza corrida media pista (la copia) y avanza hacia la derecha */
+@keyframes sugDeslizar {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+/* Se detiene al pasar el mouse para poder elegir con calma */
+.sugeridos-marco:hover .sugeridos-fila { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .sugeridos-fila { animation: none; }
+  .sugeridos-marco { overflow-x: auto; }
 }
 .sug-card {
   flex: 0 0 132px;
@@ -1096,6 +1121,7 @@ body > .footer { margin-top: auto; }
 /* Regalo dentro de la lista de productos */
 .carrito-page-item-regalo {
   grid-template-columns: 96px 1fr auto;
+  align-items: center;
   border-color: rgba(var(--color-diamante-rgb), 0.5);
   background: linear-gradient(140deg, rgba(var(--color-diamante-rgb), 0.13), transparent 65%), var(--color-card);
 }
@@ -1156,9 +1182,9 @@ body > .footer { margin-top: auto; }
   .metas { padding: 15px 16px 12px; }
   .metas-titulo { font-size: 0.72rem; }
   .metas-falta { font-size: 0.7rem; }
-  .carrito-page-item-regalo { grid-template-columns: 72px 1fr; }
-  .regalo-icono { width: 72px; height: 72px; font-size: 1.9rem; grid-row: 1 / 3; }
-  .regalo-sello { grid-column: 2; justify-self: start; }
+  .carrito-page-item-regalo { grid-template-columns: 72px 1fr auto; }
+  .regalo-icono { width: 72px; height: 72px; font-size: 1.9rem; }
+  .regalo-sello { padding: 5px 10px; font-size: 0.62rem; }
   /* La barra de pago fija tapa el aviso */
   .aviso-regalo { bottom: 88px; }
 }

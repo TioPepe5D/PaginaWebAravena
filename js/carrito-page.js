@@ -118,18 +118,22 @@ function renderizarCarritoPage() {
           <span class="regalo-sello">Incluido</span>
         </div>`;
     }
+    // Precio y cantidad van juntos dentro de la info: si el selector fuera
+    // una columna del grid, se estiraría a todo el ancho disponible.
     return `
     <div class="carrito-page-item">
       <img src="${item.imagen}" alt="${item.nombre}">
       <div class="carrito-page-item-info">
         <p class="carrito-page-item-nombre">${item.nombre}</p>
         <p class="carrito-page-item-cat">${categoriaDeItem(item)}</p>
-        <p class="carrito-page-item-precio">$${item.precio.toLocaleString("es-CL")}</p>
-      </div>
-      <div class="cantidad-selector">
-        <button onclick="cambiarCantidad(${item.id}, -1)">−</button>
-        <span class="cantidad-valor">${item.cantidad}</span>
-        <button onclick="cambiarCantidad(${item.id}, 1)">+</button>
+        <div class="cpi-fila">
+          <p class="carrito-page-item-precio">$${item.precio.toLocaleString("es-CL")}</p>
+          <div class="cantidad-selector">
+            <button onclick="cambiarCantidad(${item.id}, -1)" aria-label="Quitar uno">−</button>
+            <span class="cantidad-valor">${item.cantidad}</span>
+            <button onclick="cambiarCantidad(${item.id}, 1)" aria-label="Agregar uno">+</button>
+          </div>
+        </div>
       </div>
       <button class="carrito-page-item-eliminar" onclick="pedirConfirmacionEliminar(${item.id})" title="Eliminar">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -305,7 +309,7 @@ function renderizarSugeridos() {
   if (!lista.length) { seccion.hidden = true; return; }
 
   seccion.hidden = false;
-  fila.innerHTML = lista.map(p => `
+  const tarjetas = lista.map(p => `
     <article class="sug-card">
       <a class="sug-link" href="producto.html?id=${p.id}">
         <img src="${p.imagen}" alt="${p.nombre}" loading="lazy" decoding="async">
@@ -316,6 +320,11 @@ function renderizarSugeridos() {
         <button class="sug-add" onclick="agregarSugerido(${p.id})" title="Agregar al carrito" aria-label="Agregar ${p.nombre} al carrito">+</button>
       </div>
     </article>`).join("");
+
+  // Se duplica el contenido: al terminar la primera copia la animación
+  // reinicia y el desplazamiento se ve continuo, sin saltos.
+  fila.innerHTML = tarjetas + tarjetas;
+  fila.style.animationDuration = Math.max(24, lista.length * 5) + "s";
 }
 
 function agregarSugerido(id) {
