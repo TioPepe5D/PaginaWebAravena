@@ -366,32 +366,6 @@
     <p class="footer-copy">©2026 Joyería Aravena · Todos los derechos reservados</p>
   </footer>
 
-  <!-- Panel detalle producto -->
-  <div class="producto-detalle-overlay" id="producto-detalle-overlay"></div>
-  <aside class="producto-detalle-panel" id="producto-detalle-panel">
-    <button class="producto-detalle-cerrar" id="producto-detalle-cerrar">&times;</button>
-    <div class="producto-detalle-contenido" id="producto-detalle-contenido"></div>
-  </aside>
-
-  <div class="carrito-overlay" id="carrito-overlay"></div>
-  <aside class="carrito-panel" id="carrito-panel">
-    <div class="carrito-header">
-      <h3>Tu Carrito <span class="carrito-header-badge" id="carrito-header-badge">0</span></h3>
-      <button class="carrito-cerrar" id="carrito-cerrar">&times;</button>
-    </div>
-    <div class="carrito-items" id="carrito-items">
-      <p class="carrito-vacio">Tu carrito está vacío</p>
-    </div>
-    <div class="carrito-footer">
-      <div class="carrito-desglose" id="carrito-desglose"></div>
-      <div class="carrito-total-row">
-        <span class="carrito-total-label">Total estimado</span>
-        <span class="carrito-total" id="carrito-total">$0 CLP</span>
-      </div>
-
-      <p class="footer-copy">©2026 Joyería Aravena · Todos los derechos reservados</p>
-    </div>
-  </footer>
 
   <div class="carrito-overlay" id="carrito-overlay"></div>
   <aside class="carrito-panel" id="carrito-panel">
@@ -408,10 +382,16 @@
         <span class="carrito-total" id="carrito-total">$0 CLP</span>
       </div>
       <p class="carrito-total-info">Impuestos incluidos. Envío calculado al finalizar.</p>
-      <button class="btn-mp" id="btn-pagar-sidebar" disabled>
-        <svg width="18" height="18" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="24" fill="#009EE3"/><path d="M13 24c0-6.075 4.925-11 11-11s11 4.925 11 11-4.925 11-11 11S13 30.075 13 24z" fill="white"/><path d="M20 24l3 3 6-6" stroke="#009EE3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Pagar con MercadoPago
-      </button>
+      <a class="btn-mp" id="btn-pagar-sidebar" href="carrito.html">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6L9 17l-5-5"/>
+        </svg>
+        Ir a pagar
+      </a>
+      <div class="carrito-acciones">
+        <button type="button" class="carrito-accion" id="carrito-seguir">← Seguir comprando</button>
+        <button type="button" class="carrito-accion carrito-accion-vaciar" id="carrito-vaciar">Vaciar carrito</button>
+      </div>
       <div class="btn-mp-estado" id="btn-mp-estado"></div>
     </div>
   </aside>

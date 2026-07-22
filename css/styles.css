@@ -1826,19 +1826,74 @@ img { max-width: 100%; display: block; }
 
 .carrito-items { flex: 1; overflow-y: auto; padding: 8px 28px; }
 .carrito-vacio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
   text-align: center;
   color: var(--color-texto-suave);
-  margin-top: 60px;
+  margin-top: 70px;
   font-size: 0.95rem;
 }
+.carrito-vacio svg { color: rgba(var(--color-diamante-rgb), 0.45); }
+.carrito-vacio p { margin: 0; }
+.carrito-vacio-cta {
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.45);
+  background: rgba(var(--color-diamante-rgb), 0.07);
+  color: var(--color-diamante-suave);
+  font-family: var(--fuente-secundaria);
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+.carrito-vacio-cta:hover {
+  color: #fff;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
+  border-color: var(--color-diamante);
+  box-shadow: var(--led-glow);
+}
+
+/* Acciones secundarias del panel */
+.carrito-acciones {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+.carrito-accion {
+  background: none;
+  border: none;
+  padding: 6px 2px;
+  cursor: pointer;
+  font-family: var(--fuente-secundaria);
+  font-size: 0.78rem;
+  color: var(--color-texto-suave);
+  transition: color 0.2s ease;
+}
+.carrito-accion:hover { color: var(--color-diamante); }
+.carrito-accion-vaciar:hover { color: #f4212e; }
 
 .carrito-item {
   display: flex;
   gap: 14px;
   align-items: flex-start;
-  padding: 18px 0;
-  border-bottom: 1px solid var(--color-borde);
+  padding: 14px;
+  margin-bottom: 10px;
+  border-radius: 14px;
+  background: linear-gradient(140deg, rgba(var(--color-diamante-rgb), 0.05), transparent 60%), var(--color-card);
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.2);
   animation: fadeInItem 0.3s ease both;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.carrito-item:hover {
+  border-color: rgba(var(--color-diamante-rgb), 0.5);
+  box-shadow: 0 0 14px rgba(var(--color-diamante-rgb), 0.18);
 }
 @keyframes fadeInItem {
   from { opacity: 0; transform: translateY(8px); }
@@ -1860,8 +1915,10 @@ img { max-width: 100%; display: block; }
 .cantidad-selector {
   display: inline-flex;
   align-items: center;
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio);
+  /* Dentro de una columna flex se estiraría a todo el ancho */
+  align-self: flex-start;
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.35);
+  border-radius: 999px;
   overflow: hidden;
 }
 .cantidad-selector button {
@@ -1911,6 +1968,8 @@ img { max-width: 100%; display: block; }
   flex-direction: column;
   gap: 8px;
 }
+/* display:flex gana a [hidden]; hay que anularlo explícitamente */
+.carrito-footer[hidden] { display: none; }
 .carrito-desglose {
   display: flex;
   flex-direction: column;

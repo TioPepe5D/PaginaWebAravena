@@ -11,8 +11,25 @@ function inicializarCarrito() {
   document.getElementById("carrito-btn").addEventListener("click", abrirCarrito);
   document.getElementById("carrito-cerrar").addEventListener("click", cerrarCarrito);
   document.getElementById("carrito-overlay").addEventListener("click", cerrarCarrito);
+  document.getElementById("carrito-seguir")?.addEventListener("click", cerrarCarrito);
+  document.getElementById("carrito-vaciar")?.addEventListener("click", vaciarCarrito);
 
-  // El botón sidebar ahora es un enlace a carrito.html — no necesita listener
+  // Escape cierra el panel
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") cerrarCarrito();
+  });
+
+  // El botón de pago del panel es un enlace a carrito.html: ahí se piden
+  // los datos de envío antes de ir a MercadoPago.
+}
+
+function vaciarCarrito() {
+  if (carrito.length === 0) return;
+  carrito = [];
+  guardarCarrito();
+  actualizarContador();
+  renderizarCarrito();
+  if (typeof renderizarProductos === "function") renderizarProductos();
 }
 
 const MAX_POR_ITEM = 10;
@@ -99,11 +116,26 @@ function renderizarCarrito() {
   const totalItems = carrito.reduce((s, i) => s + i.cantidad, 0);
   if (badge) badge.textContent = totalItems;
 
+  const pie = document.querySelector(".carrito-panel .carrito-footer");
+
   if (carrito.length === 0) {
-    contenedor.innerHTML = "<p class='carrito-vacio'>Tu carrito está vacío</p>";
+    contenedor.innerHTML = `
+      <div class="carrito-vacio">
+        <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <p>Tu carrito está vacío</p>
+        <a href="index.html#catalogo" class="carrito-vacio-cta">Ver catálogo</a>
+      </div>`;
     if (totalEl) totalEl.textContent = "$0 CLP";
+    // Sin productos no tiene sentido mostrar totales ni el botón de pago
+    const desgloseVacio = document.getElementById("carrito-desglose");
+    if (desgloseVacio) desgloseVacio.innerHTML = "";
+    if (pie) pie.hidden = true;
     return;
   }
+  if (pie) pie.hidden = false;
 
   contenedor.innerHTML = carrito.map(item => `
     <div class="carrito-item">
@@ -153,11 +185,17 @@ function renderizarCarrito() {
 function abrirCarrito() {
   document.getElementById("carrito-panel").classList.add("activo");
   document.getElementById("carrito-overlay").classList.add("activo");
+  // Siempre desde el primer producto, no donde quedó el scroll anterior
+  const items = document.getElementById("carrito-items");
+  if (items) items.scrollTop = 0;
+  // Con el panel abierto la página de atrás no debe desplazarse
+  document.body.style.overflow = "hidden";
 }
 
 function cerrarCarrito() {
   document.getElementById("carrito-panel").classList.remove("activo");
   document.getElementById("carrito-overlay").classList.remove("activo");
+  document.body.style.overflow = "";
 }
 
 function actualizarContador() {
