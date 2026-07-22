@@ -288,6 +288,94 @@ img { max-width: 100%; display: block; }
 }
 .header-buscador input::placeholder { color: var(--color-texto-suave); }
 
+/* Panel de resultados del buscador (productos + secciones del sitio) */
+.header-buscador { position: relative; }
+.buscador-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 1200;
+  max-height: 62vh;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 14px;
+  background: var(--color-card);
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.35);
+  box-shadow: 0 0 18px rgba(var(--color-diamante-rgb), 0.18),
+              0 16px 40px rgba(0,0,0,0.6);
+}
+.buscador-panel.activo { display: block; }
+.bpanel-titulo {
+  margin: 6px 8px 4px;
+  font-family: var(--fuente-secundaria);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--color-diamante);
+}
+.bpanel-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--color-texto);
+  transition: background 0.18s ease;
+}
+.bpanel-item:hover { background: rgba(var(--color-diamante-rgb), 0.1); }
+.bpanel-item img {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex: 0 0 auto;
+  background: #000;
+}
+.bpanel-item-link svg { color: var(--color-diamante); flex: 0 0 auto; margin: 0 13px; }
+.bpanel-item-txt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.bpanel-item-txt strong {
+  font-family: var(--fuente-secundaria);
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.25;
+  /* Nombres largos: máximo dos líneas */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.bpanel-item-txt small {
+  font-size: 0.74rem;
+  color: var(--color-diamante-suave);
+}
+.bpanel-vacio {
+  margin: 0;
+  padding: 16px 10px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-texto-suave);
+}
+
+/* En celular la caja del buscador es angosta: el panel usa todo el ancho */
+@media (max-width: 700px) {
+  .buscador-panel {
+    position: fixed;
+    top: 72px;              /* el header mide 65px: queda holgura */
+    left: 10px;
+    right: 10px;
+    max-height: 70vh;
+  }
+}
+
 /* Iconos a la derecha */
 .header-container .header-iconos {
   flex: 0 0 auto;
@@ -710,6 +798,7 @@ img { max-width: 100%; display: block; }
     justify-content: center;
     gap: 34px;
   }
+  .video-col { flex: 0 0 auto; }
   .video-card {
     flex: 0 0 auto;
     width: auto;            /* el ancho lo da el video 9:16 */
@@ -831,7 +920,8 @@ img { max-width: 100%; display: block; }
 .catalogo {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 80px 24px;
+  /* Poco espacio abajo: los testimonios van pegados al catálogo */
+  padding: 80px 24px 24px;
 }
 
 /* ── Filas por categoría con carrusel deslizante ── */
@@ -1898,28 +1988,54 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 12px rgba(var(--color-diamante-rgb), 0.55);
 }
 
-/* Footer minimalista y centrado */
+/* Footer en columnas: la información se lee de lado, no apilada */
 .footer-inner {
-  max-width: 620px;
+  max-width: 1100px;
   margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1.15fr;
+  gap: 32px 44px;
+  align-items: start;
+  text-align: left;
+}
+.footer-col {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 20px;
+  align-items: flex-start;
+  gap: 11px;
 }
-.footer-logo-img {
-  width: 72px;
-  height: 72px;
-  object-fit: contain;
-  filter: drop-shadow(0 0 12px rgba(var(--color-diamante-rgb), 0.5));
+.footer-col-titulo {
+  margin: 0 0 4px;
+  font-family: var(--fuente-secundaria);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--color-diamante);
+}
+.footer-dato {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--fuente-secundaria);
+  font-size: 0.83rem;
+  letter-spacing: 0.3px;
+  color: var(--color-texto);
+  text-decoration: none;
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+.footer-dato svg { color: var(--color-diamante); flex-shrink: 0; }
+.footer-dato:hover {
+  color: var(--color-diamante);
+  text-shadow: 0 0 10px rgba(var(--color-diamante-rgb), 0.5);
 }
 
-/* Redes sociales — bien centradas */
+/* Redes sociales */
 .footer-redes {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  margin-top: 6px;
   gap: 16px;
 }
 .footer-red {
@@ -1969,22 +2085,20 @@ img { max-width: 100%; display: block; }
 }
 
 /* Medios de pago aceptados */
-.footer-pagos {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
+/* El botón del footer no debe partirse en dos líneas */
+.footer-col .btn-faq { padding: 11px 20px; white-space: nowrap; }
+
 .footer-pagos-label {
+  margin: 0;
   font-family: var(--fuente-secundaria);
   font-size: 0.66rem;
-  letter-spacing: 1.6px;
+  letter-spacing: 1.4px;
   text-transform: uppercase;
   color: var(--color-texto-suave);
 }
 .footer-pagos-logos {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
@@ -2003,60 +2117,15 @@ img { max-width: 100%; display: block; }
   box-shadow: 0 0 16px rgba(var(--color-diamante-rgb), 0.45);
 }
 
-/* Datos de contacto */
-.footer-contacto {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-}
-.footer-contacto a {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--fuente-secundaria);
-  font-size: 0.84rem;
-  letter-spacing: 0.5px;
-  color: var(--color-texto);
-  text-decoration: none;
-  transition: color 0.25s ease, text-shadow 0.25s ease;
-}
-.footer-contacto a svg { color: var(--color-diamante); flex-shrink: 0; }
-.footer-contacto a:hover {
-  color: var(--color-diamante);
-  text-shadow: 0 0 10px rgba(var(--color-diamante-rgb), 0.6);
-}
-
-/* Políticas y enlaces */
-.footer-links {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px 20px;
-  padding-top: 16px;
-  border-top: 1px solid rgba(var(--color-diamante-rgb), 0.18);
-  width: 100%;
-}
-.footer-links a {
-  font-family: var(--fuente-secundaria);
-  font-size: 0.74rem;
-  letter-spacing: 0.6px;
-  color: var(--color-texto-suave);
-  text-decoration: none;
-  transition: color 0.25s ease;
-}
-.footer-links a:hover {
-  color: var(--color-diamante);
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
 .footer-copy {
+  max-width: 1100px;
+  margin: 34px auto 0;
+  padding-top: 20px;
+  border-top: 1px solid rgba(var(--color-diamante-rgb), 0.18);
+  text-align: center;
   font-size: 0.72rem;
   color: var(--color-texto-suave);
   letter-spacing: 1px;
-  margin: 0;
 }
 
 /* =============================================
@@ -2076,6 +2145,17 @@ img { max-width: 100%; display: block; }
   /* Antes 0.5rem = 8px: ilegible en celular */
   .stat-label { font-size: 0.6rem; letter-spacing: 0.4px; }
   .catalogo, .confianza, .footer { padding-left: 20px; padding-right: 20px; }
+  /* Footer: contacto arriba a lo ancho, ayuda y pagos lado a lado abajo */
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 26px 20px;
+  }
+  .footer-col:first-child { grid-column: 1 / -1; }
+  .confianza-head { font-size: 1.5rem; margin-bottom: 18px; }
+}
+
+@media (max-width: 380px) {
+  .footer-inner { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 480px) {
@@ -2253,9 +2333,9 @@ img { max-width: 100%; display: block; }
 }
 
 /* =============================================
-   TÍTULO SOBRE EL VIDEO
+   TÍTULO SOBRE LAS CIFRAS
    ============================================= */
-.video-head {
+.confianza-head {
   font-family: var(--fuente-display);
   font-size: 2.1rem;
   font-weight: 600;
@@ -2272,8 +2352,16 @@ img { max-width: 100%; display: block; }
    CLIENTES SATISFECHOS
    ============================================= */
 .testimonios {
-  padding: 30px 0 44px;
+  padding: 4px 0 44px;
   text-align: center;
+}
+
+/* Columna del video: la tarjeta y, debajo, el botón de enlaces */
+.video-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
 }
 .testimonios-titulo {
   font-family: var(--fuente-display);

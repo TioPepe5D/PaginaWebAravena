@@ -40,6 +40,15 @@
       <div class="logo">
         <a href="index.html" aria-label="Joyería Aravena"><img src="img/logo-aravena.png" alt="Joyería Aravena" class="logo-img"></a>
       </div>
+
+      <!-- Buscador junto al logo -->
+      <div class="header-buscador">
+        <svg class="header-buscador-icono" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="filtro-nombre" placeholder="Buscar joyas..." autocomplete="off">
+      </div>
+
       <div class="header-iconos">
         <button class="icono-btn" id="cuenta-btn" title="Mi cuenta">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" id="cuenta-icono">
@@ -145,54 +154,22 @@
   <!-- FOOTER -->
   <footer class="footer">
     <div class="footer-inner">
-      <img src="img/logo-aravena.png" alt="Joyería Aravena" class="footer-logo-img">
 
-      <!-- Medios de pago aceptados -->
-      <div class="footer-pagos">
-        <span class="footer-pagos-label">Aceptamos tarjetas de débito y crédito</span>
-        <div class="footer-pagos-logos">
-          <span class="pago-card" title="Visa">
-            <svg viewBox="0 0 48 32" width="46" height="31" role="img" aria-label="Visa">
-              <rect width="48" height="32" rx="4" fill="#ffffff"/>
-              <text x="24" y="21" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" font-style="italic" fill="#1a1f71">VISA</text>
-            </svg>
-          </span>
-          <span class="pago-card" title="Mastercard">
-            <svg viewBox="0 0 48 32" width="46" height="31" role="img" aria-label="Mastercard">
-              <rect width="48" height="32" rx="4" fill="#ffffff"/>
-              <circle cx="20" cy="16" r="8.5" fill="#EB001B"/>
-              <circle cx="28" cy="16" r="8.5" fill="#F79E1B" fill-opacity="0.85"/>
-            </svg>
-          </span>
-          <span class="pago-card" title="Redcompra — débito">
-            <svg viewBox="0 0 48 32" width="46" height="31" role="img" aria-label="Redcompra débito">
-              <rect width="48" height="32" rx="4" fill="#ffffff"/>
-              <text x="24" y="20" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="bold" fill="#c8102e">DÉBITO</text>
-            </svg>
-          </span>
-        </div>
-      </div>
-
-      <!-- Contacto -->
-      <div class="footer-contacto">
-        <a href="https://wa.me/56966497904?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyer%C3%ADa%20Aravena" target="_blank" rel="noopener">
+      <div class="footer-col">
+        <h4 class="footer-col-titulo">Contacto</h4>
+        <a class="footer-dato" href="https://wa.me/56966497904?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyer%C3%ADa%20Aravena" target="_blank" rel="noopener">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           +56 9 6649 7904
         </a>
-        <a href="mailto:Contacto@JoyasAravena.cl">
+        <a class="footer-dato" href="mailto:Contacto@JoyasAravena.cl">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
           Contacto@JoyasAravena.cl
         </a>
-      </div>
-
-      <!-- Políticas y enlaces -->
-      <nav class="footer-links" aria-label="Políticas y enlaces">
-        <a href="faq.html#envios">Políticas de envío</a>
-        <a href="faq.html#cambios">Cambios y devoluciones</a>
-        <a href="faq.html">Preguntas frecuentes</a>
-      </nav>
-
-      <div class="footer-redes">
+        <a class="footer-dato" href="https://www.google.com/maps/search/?api=1&query=Fidel+Oteiza+1921%2C+Providencia%2C+Santiago%2C+Chile" target="_blank" rel="noopener">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Fidel Oteiza 1921, Of. 1003 · Providencia
+        </a>
+        <div class="footer-redes">
           <a href="https://wa.me/56966497904?text=Hola,%20me%20interesa%20una%20joya%20de%20Joyería%20Aravena" class="footer-red" target="_blank" rel="noopener" title="WhatsApp" aria-label="WhatsApp">
             <svg width="22" height="22" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
               <circle cx="16" cy="16" r="16" fill="#25D366"/>
@@ -227,15 +204,49 @@
               <path fill="white" d="M20.5 7.2a4.1 4.1 0 0 1-3.2-3.6V3h-2.9v11.6a2.45 2.45 0 1 1-1.7-2.34V9.3a5.35 5.35 0 1 0 4.6 5.3V9.9a6.95 6.95 0 0 0 4.07 1.3V8.3a4.12 4.12 0 0 1-.87-.1z"/>
             </svg>
           </a>
+        </div>
       </div>
 
-      <a class="btn-faq" href="https://linktr.ee/JoyasAravena" target="_blank" rel="noopener">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-        Todos Nuestros Enlaces
-      </a>
+      <div class="footer-col">
+        <h4 class="footer-col-titulo">Ayuda</h4>
+        <a class="footer-dato" href="faq.html#envios">Políticas de envío</a>
+        <a class="footer-dato" href="faq.html#cambios">Cambios y devoluciones</a>
+        <a class="footer-dato" href="faq.html">Preguntas frecuentes</a>
+        <a class="footer-dato" href="contacto.html">Escríbenos</a>
+      </div>
 
-      <p class="footer-copy">©2026 Joyería Aravena · Todos los derechos reservados</p>
+      <div class="footer-col">
+        <h4 class="footer-col-titulo">Medios de pago</h4>
+        <div class="footer-pagos-logos">
+          <span class="pago-card" title="Visa">
+            <svg viewBox="0 0 48 32" width="46" height="31" role="img" aria-label="Visa">
+              <rect width="48" height="32" rx="4" fill="#ffffff"/>
+              <text x="24" y="21" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" font-style="italic" fill="#1a1f71">VISA</text>
+            </svg>
+          </span>
+          <span class="pago-card" title="Mastercard">
+            <svg viewBox="0 0 48 32" width="46" height="31" role="img" aria-label="Mastercard">
+              <rect width="48" height="32" rx="4" fill="#ffffff"/>
+              <circle cx="20" cy="16" r="8.5" fill="#EB001B"/>
+              <circle cx="28" cy="16" r="8.5" fill="#F79E1B" fill-opacity="0.85"/>
+            </svg>
+          </span>
+          <span class="pago-card" title="Redcompra — débito">
+            <svg viewBox="0 0 48 32" width="46" height="31" role="img" aria-label="Redcompra débito">
+              <rect width="48" height="32" rx="4" fill="#ffffff"/>
+              <text x="24" y="20" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="bold" fill="#c8102e">DÉBITO</text>
+            </svg>
+          </span>
+        </div>
+        <p class="footer-pagos-label">Aceptamos tarjetas de débito y crédito</p>
+        <a class="btn-faq" href="https://linktr.ee/JoyasAravena" target="_blank" rel="noopener">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+          Todos Nuestros Enlaces
+        </a>
+      </div>
+
     </div>
+    <p class="footer-copy">©2026 Joyería Aravena · Todos los derechos reservados</p>
   </footer>
 
   <!-- Botón WhatsApp flotante -->
@@ -369,6 +380,7 @@
   </aside>
 
   <script src="js/products.js"></script>
+  <script src="js/buscador.js"></script>
   <script src="js/cart.js"></script>
   <script src="js/animations.js"></script>
   <script src="js/effects.js"></script>
