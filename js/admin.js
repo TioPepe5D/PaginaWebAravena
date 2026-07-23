@@ -583,12 +583,19 @@ async function cambiarEstado(pedidoId, nuevoEstado, silencioso) {
   aplicarFiltros();
 
   try {
-    const { error } = await db
+    /* Con .select() se confirma que la fila cambió. Sin él, un update que
+       no toca ninguna fila no devuelve error y el panel mostraría un
+       cambio que la base nunca guardó. */
+    const { data, error } = await db
       .from('pedidos')
       .update({ estado: nuevoEstado })
-      .eq('id', pedidoId);
+      .eq('id', pedidoId)
+      .select('id');
 
     if (error) throw error;
+    if (!data || data.length === 0) {
+      throw new Error('La base no registró el cambio. Revisa los permisos del pedido.');
+    }
 
     renderizarGrafico();
 
@@ -687,25 +694,15 @@ async function confirmarEliminarPedido() {
 
     if (bulk) {
       const count = data.deleted ?? 0;
-      if (_hardDelete) {
-        todosLosPedidos = todosLosPedidos.filter(p => p.estado !== 'eliminado');
-        mostrarToast('Papelera vaciada', `${count} pedido(s) borrado(s) definitivamente`, 'ok');
-      } else {
-        // Soft delete: cambiar estado en memoria
-        todosLosPedidos.forEach(p => { if (p.estado === bulk) p.estado = 'eliminado'; });
-        mostrarToast('Pedidos movidos a papelera', `${count} pedido(s) en papelera. Puedes restaurarlos desde "Eliminados".`, 'ok');
-      }
+      mostrarToast(_hardDelete ? 'Pedidos borrados' : 'Pedidos eliminados',
+        `${count} pedido(s)`, 'ok');
     } else {
       const idCorto = String(pedidoId).slice(0, 8).toUpperCase();
       if (_hardDelete) {
-        todosLosPedidos = todosLosPedidos.filter(p => String(p.id) !== String(pedidoId));
         mostrarToast('Pedido borrado', `#${idCorto} borrado definitivamente`, 'ok');
       } else {
         const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
-        if (pedido) {
-          _estadoAntesDeEliminar[pedidoId] = pedido.estado;   // para poder deshacer
-          pedido.estado = 'eliminado';
-        }
+        if (pedido) _estadoAntesDeEliminar[pedidoId] = pedido.estado;   // para poder deshacer
         /* Ya no existe la vista "Eliminados", así que la única forma de
            recuperarlo es aquí mismo: el aviso trae Deshacer. */
         mostrarToast('Pedido eliminado', `#${idCorto} salió de la lista`, 'ok',
@@ -713,9 +710,9 @@ async function confirmarEliminarPedido() {
       }
     }
 
-    calcularStats();
-    aplicarFiltros();
-    renderizarGrafico();
+    /* Se relee desde la base en vez de dar por hecho el cambio: así lo que
+       se ve es lo que quedó guardado y "Refrescar" no puede contradecirlo. */
+    await cargarPedidos();
 
   } catch (e) {
     console.error('[Admin] Error eliminando:', e);
@@ -732,13 +729,16 @@ const _estadoAntesDeEliminar = {};
 async function restaurarPedido(pedidoId) {
   const previo = _estadoAntesDeEliminar[pedidoId] || 'pagado';
   try {
-    const { error } = await db.from('pedidos').update({ estado: previo }).eq('id', pedidoId);
+    const { data, error } = await db.from('pedidos')
+      .update({ estado: previo }).eq('id', pedidoId).select('id');
     if (error) { mostrarToast('Error', error.message, 'error'); return; }
-    const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
-    if (pedido) pedido.estado = previo;
+    if (!data || data.length === 0) {
+      mostrarToast('No se pudo restaurar', 'La base no registró el cambio.', 'error');
+      return;
+    }
     delete _estadoAntesDeEliminar[pedidoId];
-    calcularStats();
-    aplicarFiltros();
+    // Se relee para que la lista refleje lo guardado, no lo supuesto
+    await cargarPedidos();
     mostrarToast('Pedido restaurado', `#${String(pedidoId).slice(0,8).toUpperCase()} vuelve a la lista`, 'ok');
   } catch (e) {
     mostrarToast('Error', 'No se pudo restaurar.', 'error');

@@ -3,8 +3,12 @@
    ═══════════════════════════════════════════════════════════ */
 
 :root {
+  /* Celeste diamante, igual que la tienda. --admin-dorado se conserva
+     como alias porque lo usan muchas reglas antiguas. */
+  --admin-celeste: #8fe3ff;
+  --admin-celeste-fuerte: #1c9cf0;
   --admin-dorado: #8fe3ff;
-  --admin-dorado-suave: rgba(212, 175, 55, 0.12);
+  --admin-dorado-suave: rgba(143, 227, 255, 0.12);
   --admin-verde: #10b981;
   --admin-verde-suave: rgba(16, 185, 129, 0.12);
   --admin-ambar: #f59e0b;
@@ -2131,4 +2135,49 @@
   .tabla-acciones { gap: 5px; }
   .btn-accion { padding: 0.42rem 0.7rem; font-size: 0.76rem; }
   .btn-accion-eliminar { white-space: nowrap; }
+}
+
+/* Los grises de estos controles quedaban en 4.58:1, apenas sobre el
+   mínimo y difíciles de distinguir sobre negro. Se aclaran. */
+.rango-btn,
+.rango-a,
+.visitas-bar,
+.resumen-label,
+.resumen-sub,
+.estado-chip { color: #a7adb3; }
+
+.rango-btn {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.14);
+}
+.rango-btn:hover {
+  color: var(--admin-celeste);
+  border-color: var(--admin-celeste);
+  background: rgba(143,227,255,0.1);
+}
+/* El activo es celeste sólido con texto oscuro: se distingue de un vistazo */
+.rango-btn.activo {
+  background: var(--admin-celeste);
+  border-color: var(--admin-celeste);
+  color: #041018;
+  font-weight: 700;
+}
+.estado-chip {
+  background: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.14);
+}
+.resumen-label { color: #b6bcc2; }
+
+/* Blanco sobre azul daba 2.97:1. Texto oscuro sobre celeste llega a 13:1 */
+.estado-chip.activo,
+.estado-chip.chip-pagado.activo,
+.estado-chip.chip-enviado.activo {
+  background: var(--admin-celeste);
+  border-color: var(--admin-celeste);
+  color: #041018;
+  font-weight: 700;
+}
+.estado-chip.activo span {
+  background: rgba(4, 16, 24, 0.18);
+  color: #041018;
 }

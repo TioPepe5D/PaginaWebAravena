@@ -50,10 +50,13 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true, deleted: (data || []).length });
     }
     if (pedidoId) {
-      const { error } = await supabaseAdmin
-        .from('pedidos').delete().eq('id', pedidoId).eq('estado', 'eliminado');
+      const { data, error } = await supabaseAdmin
+        .from('pedidos').delete().eq('id', pedidoId).select('id');
       if (error) return res.status(500).json({ error: error.message });
-      return res.status(200).json({ ok: true, deleted: 1 });
+      if (!data || data.length === 0) {
+        return res.status(404).json({ error: `No se pudo borrar el pedido ${pedidoId}.` });
+      }
+      return res.status(200).json({ ok: true, deleted: data.length });
     }
   }
 
@@ -68,10 +71,19 @@ module.exports = async (req, res) => {
     return res.status(200).json({ ok: true, deleted: (data || []).length });
   }
 
-  const { error } = await supabaseAdmin
+  /* Con .select() se sabe cuántas filas cambiaron de verdad. Sin él la API
+     respondía "deleted: 1" siempre, aunque no hubiera tocado nada: el panel
+     ocultaba el pedido y al refrescar reaparecía. */
+  const { data, error } = await supabaseAdmin
     .from('pedidos')
     .update({ estado: 'eliminado' })
-    .eq('id', pedidoId);
+    .eq('id', pedidoId)
+    .select('id');
+
   if (error) return res.status(500).json({ error: error.message });
-  return res.status(200).json({ ok: true, deleted: 1 });
+  if (!data || data.length === 0) {
+    console.error('[admin-delete-pedido] Ninguna fila actualizada para id:', pedidoId);
+    return res.status(404).json({ error: `No se pudo eliminar el pedido ${pedidoId}: la base no registró el cambio.` });
+  }
+  return res.status(200).json({ ok: true, deleted: data.length });
 };
