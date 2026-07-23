@@ -85,7 +85,14 @@ function mostrarDenegado(mensaje) {
 
 let driveArchivos = []; // archivos cargados desde Drive
 
+let _eventosListos = false;
+
 function configurarEventos() {
+  /* Si esta función corriera dos veces, cada botón quedaría con dos
+     listeners: el menú se abriría y cerraría en el mismo clic. */
+  if (_eventosListos) return;
+  _eventosListos = true;
+
   document.getElementById('btn-logout-admin').addEventListener('click', async () => {
     if (realtimeSub) await db.removeChannel(realtimeSub);
     await db.auth.signOut();
@@ -134,16 +141,46 @@ function configurarEventos() {
   // Botón "Vaciar papelera" — borrado definitivo
   document.getElementById('btn-vaciar-papelera')?.addEventListener('click', pedirVaciarPapelera);
 
-  // Botón Sincronizar Drive
-  document.getElementById('btn-drive-sync')?.addEventListener('click', abrirDriveModal);
-  document.getElementById('btn-sync-catalogo')?.addEventListener('click', sincronizarCatalogo);
+  // Pestañas: pedidos (trabajo diario) vs. ventas y visitas
+  document.querySelectorAll('.admin-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.admin-tab').forEach(t => {
+        const activa = t === tab;
+        t.classList.toggle('activo', activa);
+        t.setAttribute('aria-selected', activa ? 'true' : 'false');
+      });
+      document.querySelectorAll('.admin-tabpanel').forEach(p => {
+        p.hidden = p.id !== tab.dataset.panel;
+      });
+      // El gráfico se dibuja al mostrarse: en un panel oculto mide 0px
+      if (tab.dataset.panel === 'panel-metricas') renderizarGrafico();
+    });
+  });
+
+  // Menú de acciones destructivas
+  const btnMas = document.getElementById('btn-mas-acciones');
+  const menu = document.getElementById('admin-menu');
+  btnMas?.addEventListener('click', e => {
+    e.stopPropagation();
+    const abierto = menu.classList.toggle('abierto');
+    btnMas.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+  });
+  document.addEventListener('click', () => {
+    menu?.classList.remove('abierto');
+    btnMas?.setAttribute('aria-expanded', 'false');
+  });
+
+  // Chips de estado: filtran y muestran el conteo
+  document.getElementById('estado-chips')?.addEventListener('click', e => {
+    const chip = e.target.closest('.estado-chip');
+    if (!chip) return;
+    document.getElementById('filtro-estado').value = chip.dataset.estado;
+    aplicarFiltros();
+  });
+
   document.getElementById('btn-editar-catalogo')?.addEventListener('click', abrirEditarCatalogo);
   document.getElementById('catalogo-cerrar')?.addEventListener('click', cerrarEditarCatalogo);
-  document.getElementById('catalogo-overlay')?.addEventListener('click', cerrarEditarCatalogo);
-  document.getElementById('drive-cerrar')?.addEventListener('click', cerrarDriveModal);
-  document.getElementById('drive-overlay')?.addEventListener('click', cerrarDriveModal);
-  document.getElementById('btn-drive-confirmar')?.addEventListener('click', sincronizarAsignados);
-}
+  document.getElementById('catalogo-overlay')?.addEventListener('click', cerrarEditarCatalogo);}
 
 /* ── Cargar pedidos ──────────────────────── */
 async function cargarPedidos() {
@@ -173,9 +210,11 @@ async function cargarPedidos() {
       new Date(b.created_at) - new Date(a.created_at)
     );
 
-    // Indexar emails
+    /* Indexar emails SOLO de pedidos con usuario. Sin el guard, los
+       pedidos de invitado (user_id undefined) compartían la misma clave
+       y todos terminaban mostrando el correo del último invitado. */
     todosLosPedidos.forEach(p => {
-      if (p.email) emailsUsuarios[p.user_id] = p.email;
+      if (p.email && p.user_id) emailsUsuarios[p.user_id] = p.email;
     });
 
     // Guardar IDs conocidos (primera carga)
@@ -240,16 +279,47 @@ function aplicarFiltros() {
     if (estado !== 'todos' && p.estado !== estado) return false;
 
     if (busqueda) {
-      const id = String(p.id).toLowerCase();
-      const userId = String(p.user_id || '').toLowerCase();
-      const email = String(p.email || emailsUsuarios[p.user_id] || '').toLowerCase();
-      if (!id.includes(busqueda) && !userId.includes(busqueda) && !email.includes(busqueda)) return false;
+      const d = p.datos_envio || {};
+      // Se busca en todo lo que sirve para ubicar un pedido a mano
+      const heno = [
+        p.id, p.user_id, p.email, emailsUsuarios[p.user_id],
+        d.nombre, d.correo, d.telefono, d.rut,
+        d.comuna, d.ciudad, d.region, d.domicilio, d.sucursal, d.empresa
+      ].filter(Boolean).join(' ').toLowerCase();
+      if (!heno.includes(busqueda)) return false;
     }
 
     return true;
   });
 
+  actualizarChipsEstado();
   renderizarTabla();
+}
+
+/* Conteo por estado en los chips y en la pestaña de pedidos */
+function actualizarChipsEstado() {
+  const cuenta = {};
+  todosLosPedidos.forEach(p => { cuenta[p.estado] = (cuenta[p.estado] || 0) + 1; });
+  // "Todos" no incluye la papelera
+  cuenta.todos = todosLosPedidos.filter(p => p.estado !== 'eliminado').length;
+
+  const activo = document.getElementById('filtro-estado')?.value || 'todos';
+  document.querySelectorAll('.estado-chip').forEach(chip => {
+    const est = chip.dataset.estado;
+    const n = cuenta[est] || 0;
+    chip.querySelector('span').textContent = n;
+    chip.classList.toggle('activo', est === activo);
+    // Los estados sin pedidos se atenúan, pero siguen disponibles
+    chip.classList.toggle('vacio', n === 0 && est !== 'todos');
+  });
+
+  // Badge de la pestaña: lo que espera acción (pendientes + por despachar)
+  const porAtender = (cuenta.pendiente || 0) + (cuenta.pagado || 0);
+  const badge = document.getElementById('tab-badge-pedidos');
+  if (badge) {
+    badge.textContent = porAtender;
+    badge.classList.toggle('con-pendientes', porAtender > 0);
+  }
 }
 
 /* ── Render tabla ────────────────────────── */
@@ -257,20 +327,30 @@ function renderizarTabla() {
   const tbody = document.getElementById('tabla-pedidos');
 
   if (pedidosFiltrados.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="tabla-vacia">No hay pedidos que coincidan con los filtros.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="tabla-vacia">No hay pedidos que coincidan con los filtros.</td></tr>';
     return;
   }
 
   tbody.innerHTML = pedidosFiltrados.map(p => {
     const idCorto = String(p.id).slice(0, 8);
-    const fecha = new Date(p.created_at).toLocaleDateString('es-CL', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
+    // Fecha compacta: el año solo aparece si el pedido no es de este año
+    const _d = new Date(p.created_at);
+    const _esteAno = _d.getFullYear() === new Date().getFullYear();
+    const fecha = _d.toLocaleDateString('es-CL', {
+      day: '2-digit', month: '2-digit', ...(_esteAno ? {} : { year: '2-digit' }),
+      hour: '2-digit', minute: '2-digit', hour12: false
     });
-    const email = p.email || emailsUsuarios[p.user_id] || '';
+    const email = p.email || (p.user_id ? emailsUsuarios[p.user_id] : '') || '';
     const clienteId = String(p.user_id || '').slice(0, 8);
     const items = Array.isArray(p.items) ? p.items : [];
-    const itemsCount = items.reduce((s, i) => s + (i.cantidad || 1), 0);
+    // Los regalos por monto no se cuentan como productos vendidos, pero
+    // hay que despacharlos igual: se muestran aparte.
+    const productos = items.filter(i => !i.regalo);
+    const regalos = items.filter(i => i.regalo);
+    const itemsCount = productos.reduce((s, i) => s + (i.cantidad || 1), 0);
+    const regalosHtml = regalos.length
+      ? `<span class="td-regalos" title="${regalos.map(r => r.nombre).join(' · ')}">🎁 +${regalos.length} regalo${regalos.length > 1 ? 's' : ''}</span>`
+      : '';
     const total = Number(p.total) || 0;
 
     const acciones = [];
@@ -311,24 +391,28 @@ function renderizarTabla() {
     const de = p.datos_envio || null;
     let envioHtml;
     if (de) {
+      // La ubicación se arma de lo más específico a lo más general
+      const lugar = [de.comuna, de.ciudad, de.region].filter(Boolean).join(', ');
       const empresa   = de.empresa    ? `<span class="td-envio-empresa">${de.empresa}</span>` : '';
       const nombre    = de.nombre     ? `<span class="td-envio-linea">${de.nombre}</span>` : '';
-      const tel       = de.telefono   ? `<span class="td-envio-linea">📞 ${de.telefono}</span>` : '';
-      const ciudad    = de.ciudad     ? `<span class="td-envio-linea">📍 ${de.ciudad}</span>` : '';
+      const tel       = de.telefono   ? `<a class="td-envio-linea td-envio-tel" href="https://wa.me/${String(de.telefono).replace(/\D/g,'')}" target="_blank" rel="noopener" title="Escribir por WhatsApp">📞 ${de.telefono}</a>` : '';
+      const ubic      = lugar         ? `<span class="td-envio-linea">📍 ${lugar}</span>` : '';
       const pref      = de.preferencia ? `<span class="td-envio-pref">${de.preferencia}${de.sucursal ? ' · ' + de.sucursal : ''}</span>` : '';
       const domicilio = de.domicilio  ? `<span class="td-envio-domicilio">🏠 ${de.domicilio}</span>` : '';
-      envioHtml = `<div class="td-envio">${empresa}${nombre}${tel}${ciudad}${pref}${domicilio}</div>`;
+      envioHtml = `<div class="td-envio">${empresa}${nombre}${tel}${ubic}${pref}${domicilio}</div>`;
     } else {
       envioHtml = `<span class="td-envio-vacio">—</span>`;
     }
 
     return `
       <tr data-id="${p.id}">
-        <td class="td-id" data-label="ID">${idCorto}…</td>
-        <td data-label="Fecha">${fecha}</td>
+        <td class="td-pedido" data-label="Pedido">
+          <span class="td-fecha">${fecha}</span>
+          <span class="td-id">#${idCorto}</span>
+        </td>
         <td class="td-cliente" data-label="Cliente">${clienteHtml}</td>
         <td class="td-envio-col" data-label="Envío">${envioHtml}</td>
-        <td data-label="Items">${itemsCount} ${itemsCount === 1 ? 'item' : 'items'}</td>
+        <td data-label="Items">${itemsCount} ${itemsCount === 1 ? 'item' : 'items'}${regalosHtml}</td>
         <td class="td-total" data-label="Total">$${total.toLocaleString('es-CL')}</td>
         <td data-label="Estado"><span class="estado-badge estado-${p.estado}">${p.estado}</span></td>
         <td><div class="tabla-acciones">${acciones.join('')}</div></td>
@@ -338,8 +422,17 @@ function renderizarTabla() {
 }
 
 /* ── Cambiar estado ──────────────────────── */
-async function cambiarEstado(pedidoId, nuevoEstado) {
-  if (!confirm(`¿Cambiar estado a "${nuevoEstado}"?`)) return;
+/* El cambio de estado se aplica al instante, sin diálogo de confirmación:
+   es la acción más repetida del día. Si fue un clic equivocado, el aviso
+   trae "Deshacer" y devuelve el pedido a su estado anterior. */
+async function cambiarEstado(pedidoId, nuevoEstado, silencioso) {
+  const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
+  const estadoPrevio = pedido ? pedido.estado : null;
+
+  // Se pinta de inmediato y se corrige si el servidor rechaza
+  if (pedido) pedido.estado = nuevoEstado;
+  calcularStats();
+  aplicarFiltros();
 
   try {
     const { error } = await db
@@ -347,24 +440,28 @@ async function cambiarEstado(pedidoId, nuevoEstado) {
       .update({ estado: nuevoEstado })
       .eq('id', pedidoId);
 
-    if (error) {
-      alert('Error al actualizar: ' + error.message);
-      return;
-    }
+    if (error) throw error;
 
-    // Actualizar local (comparación con conversión de tipo)
-    const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
-    if (pedido) pedido.estado = nuevoEstado;
-
-    calcularStats();
-    aplicarFiltros();
     renderizarGrafico();
 
-    mostrarToast('Estado actualizado', `Pedido marcado como ${nuevoEstado}`, 'ok');
+    if (!silencioso) {
+      mostrarToast(
+        'Pedido actualizado',
+        `Marcado como ${nuevoEstado}`,
+        'ok',
+        estadoPrevio && estadoPrevio !== nuevoEstado
+          ? { texto: 'Deshacer', accion: () => cambiarEstado(pedidoId, estadoPrevio, true) }
+          : null
+      );
+    }
 
   } catch (e) {
     console.error('[Admin] Error cambiando estado:', e);
-    alert('Error inesperado.');
+    // Vuelve atrás: el pedido no cambió en la base
+    if (pedido && estadoPrevio) pedido.estado = estadoPrevio;
+    calcularStats();
+    aplicarFiltros();
+    mostrarToast('No se pudo actualizar', e.message || 'Revisa tu conexión', 'error');
   }
 }
 window.cambiarEstado = cambiarEstado;
@@ -708,7 +805,7 @@ function exportarCSV() {
   const rows = pedidosFiltrados.map(p => {
     const items = Array.isArray(p.items) ? p.items : [];
     const itemsStr = items.map(i => `${i.nombre} x${i.cantidad}`).join(' | ');
-    const email = p.email || emailsUsuarios[p.user_id] || '';
+    const email = p.email || (p.user_id ? emailsUsuarios[p.user_id] : '') || '';
     return [
       p.id,
       new Date(p.created_at).toISOString(),
@@ -915,9 +1012,13 @@ function suscribirseANuevosPedidos() {
 }
 
 /* ── Toasts ──────────────────────────────── */
-function mostrarToast(titulo, mensaje, tipo = 'ok', conSonido = false) {
+/* El 4º parámetro acepta `true` para sonar (pedido nuevo) o un objeto
+   { texto, accion } para ofrecer deshacer. */
+function mostrarToast(titulo, mensaje, tipo = 'ok', extra = false) {
   const cont = document.getElementById('admin-toasts');
   if (!cont) return;
+  const conSonido = extra === true;
+  const deshacer = (extra && typeof extra === 'object') ? extra : null;
 
   const iconos = {
     ok: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
@@ -933,14 +1034,24 @@ function mostrarToast(titulo, mensaje, tipo = 'ok', conSonido = false) {
       <p class="admin-toast-title">${titulo}</p>
       <p class="admin-toast-msg">${mensaje}</p>
     </div>
+    ${deshacer ? '<button class="admin-toast-undo">' + deshacer.texto + '</button>' : ''}
   `;
+
+  if (deshacer) {
+    toast.querySelector('.admin-toast-undo').addEventListener('click', e => {
+      e.stopPropagation();
+      removerToast(toast);
+      deshacer.accion();
+    });
+  }
 
   toast.addEventListener('click', () => removerToast(toast));
   cont.appendChild(toast);
 
   if (conSonido) reproducirSonido();
 
-  setTimeout(() => removerToast(toast), 5500);
+  // Con opción de deshacer se deja más tiempo para reaccionar
+  setTimeout(() => removerToast(toast), deshacer ? 8000 : 5500);
 }
 
 function removerToast(toast) {

@@ -73,29 +73,14 @@
           <p class="admin-subtitulo">Gestiona pedidos, ventas y clientes</p>
         </div>
         <div class="admin-header-acciones">
-          <button id="btn-drive-sync" class="btn-drive-sync" title="Sincronizar imágenes desde Google Drive">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" opacity=".3"/>
-              <path d="M4.93 4.93l4.24 4.24M14.83 9.17l4.24-4.24M19.07 19.07l-4.24-4.24M9.17 14.83l-4.24 4.24"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-            Sincronizar Drive
-          </button>
-          <button id="btn-sync-catalogo" class="btn-drive-sync" style="background:#7c3aed" title="Forzar sincronización completa del catálogo desde Drive">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="1 4 1 10 7 10"/>
-              <path d="M3.51 15a9 9 0 1 0 .49-4"/>
-            </svg>
-            Sync Catálogo
-          </button>
-          <button id="btn-editar-catalogo" class="btn-drive-sync" style="background:#0891b2" title="Editar nombres, precios y categorías del catálogo">
+          <button id="btn-editar-catalogo" class="admin-btn admin-btn-sec" title="Editar nombres, precios y categorías del catálogo">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
             </svg>
-            Editar Catálogo
+            Editar catálogo
           </button>
-          <button id="btn-export" class="btn-export" title="Exportar pedidos filtrados">
+          <button id="btn-export" class="admin-btn admin-btn-sec" title="Exportar pedidos filtrados">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/>
@@ -103,25 +88,37 @@
             </svg>
             Exportar CSV
           </button>
-          <button id="btn-vaciar-papelera" class="btn-vaciar-papelera" title="Borrar definitivamente todos los pedidos en la papelera">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-              <path d="M10 11v6"/><path d="M14 11v6"/>
-              <path d="M9 6V4h6v2"/>
-            </svg>
-            Vaciar papelera
-          </button>
-          <button id="btn-limpiar-fallidos" class="btn-limpiar-fallidos" title="Eliminar todos los pedidos con estado fallido">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-              <path d="M10 11v6"/><path d="M14 11v6"/>
-            </svg>
-            Eliminar fallidos
-          </button>
+
+          <!-- Acciones destructivas: agrupadas para no tenerlas siempre a un clic -->
+          <div class="admin-menu-wrap">
+            <button id="btn-mas-acciones" class="admin-btn admin-btn-ghost" title="Más acciones" aria-haspopup="true" aria-expanded="false">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+                <circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>
+              </svg>
+            </button>
+            <div class="admin-menu" id="admin-menu">
+              <button id="btn-vaciar-papelera" class="admin-menu-item admin-menu-peligro">
+                🗑 Vaciar papelera
+              </button>
+              <button id="btn-limpiar-fallidos" class="admin-menu-item admin-menu-peligro">
+                ✕ Eliminar pedidos fallidos
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- Pestañas: separan el trabajo diario (pedidos) de las métricas -->
+      <nav class="admin-tabs" role="tablist">
+        <button class="admin-tab activo" data-panel="panel-pedidos" role="tab" aria-selected="true">
+          📦 Pedidos <span class="admin-tab-badge" id="tab-badge-pedidos">0</span>
+        </button>
+        <button class="admin-tab" data-panel="panel-metricas" role="tab" aria-selected="false">
+          📊 Ventas y visitas
+        </button>
+      </nav>
+
+      <div class="admin-tabpanel" id="panel-metricas" hidden>
 
       <!-- Visitantes en tiempo real -->
       <div class="realtime-bar" id="realtime-bar">
@@ -224,6 +221,20 @@
         </div>
       </section>
 
+      </div><!-- /panel-metricas -->
+
+      <div class="admin-tabpanel" id="panel-pedidos">
+
+      <!-- Accesos rápidos por estado, con el conteo a la vista -->
+      <div class="estado-chips" id="estado-chips">
+        <button class="estado-chip activo" data-estado="todos">Todos <span>0</span></button>
+        <button class="estado-chip chip-pendiente" data-estado="pendiente">Pendientes <span>0</span></button>
+        <button class="estado-chip chip-pagado" data-estado="pagado">Por despachar <span>0</span></button>
+        <button class="estado-chip chip-enviado" data-estado="enviado">Enviados <span>0</span></button>
+        <button class="estado-chip chip-fallido" data-estado="fallido">Fallidos <span>0</span></button>
+        <button class="estado-chip chip-eliminado" data-estado="eliminado">Papelera <span>0</span></button>
+      </div>
+
       <!-- Filtros -->
       <section class="admin-filtros">
         <div class="filtro-busqueda-wrap">
@@ -234,7 +245,7 @@
           <input
             type="text"
             id="filtro-busqueda"
-            placeholder="Buscar por ID, email o cliente…"
+            placeholder="Buscar por nombre, email, comuna, teléfono o ID…"
             class="admin-input"
           >
         </div>
@@ -261,8 +272,7 @@
         <table class="admin-tabla">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Fecha</th>
+              <th>Pedido</th>
               <th>Cliente</th>
               <th>Datos de Envío</th>
               <th>Items</th>
@@ -276,6 +286,8 @@
           </tbody>
         </table>
       </section>
+
+      </div><!-- /panel-pedidos -->
 
     </div>
 
@@ -320,31 +332,6 @@
       </div>
       <div style="padding:1rem 1.5rem;overflow-y:auto;flex:1">
         <div id="catalogo-lista" style="display:grid;gap:.75rem"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal Sincronizar Drive -->
-  <div class="drive-overlay" id="drive-overlay"></div>
-  <div class="drive-modal" id="drive-modal" style="display:none">
-    <div class="drive-modal-header">
-      <div>
-        <h2 class="drive-modal-titulo">Sincronizar imágenes desde Drive</h2>
-        <p class="drive-modal-sub">Asigna cada foto de Drive al producto correspondiente</p>
-      </div>
-      <button class="drive-cerrar" id="drive-cerrar" aria-label="Cerrar">&times;</button>
-    </div>
-    <div class="drive-modal-body">
-      <div id="drive-estado" class="drive-estado"></div>
-      <div class="drive-grid" id="drive-grid"></div>
-      <div class="drive-footer" id="drive-footer" style="display:none">
-        <span class="drive-asignados" id="drive-asignados-count">0 asignados</span>
-        <button class="btn-drive-confirmar" id="btn-drive-confirmar">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          Sincronizar asignados
-        </button>
       </div>
     </div>
   </div>

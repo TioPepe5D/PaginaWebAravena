@@ -1296,7 +1296,7 @@
   .admin-tabla td { display: block; width: 100%; }
 
   .admin-tabla tr {
-    background: var(--admin-tarjeta, #fff);
+    background: var(--color-fondo-suave);
     border: 1px solid var(--color-borde);
     border-radius: 12px;
     padding: 0.9rem 1rem 0.6rem;
@@ -1661,3 +1661,265 @@
 .btn-drive-confirmar:hover:not(:disabled) { opacity: 0.9; }
 .btn-drive-confirmar:active { transform: scale(0.98); }
 .btn-drive-confirmar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════════════════════════
+   PESTAÑAS, MENÚ DE ACCIONES Y CHIPS DE ESTADO
+   ═══════════════════════════════════════════════════════════ */
+
+/* Botones del encabezado, unificados */
+.admin-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-borde);
+  background: var(--color-fondo-suave);
+  color: var(--color-texto);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.admin-btn:hover { border-color: #1c9cf0; color: #1c9cf0; }
+.admin-btn-ghost { padding: 0.6rem 0.7rem; }
+
+/* Menú desplegable de acciones destructivas */
+.admin-menu-wrap { position: relative; }
+.admin-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 60;
+  min-width: 230px;
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--color-fondo-suave);
+  border: 1px solid var(--color-borde);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.28);
+}
+.admin-menu.abierto { display: block; }
+.admin-menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--color-texto);
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+.admin-menu-item:hover { background: rgba(127,127,127,0.12); }
+.admin-menu-peligro { color: #ef4444; }
+.admin-menu-peligro:hover { background: rgba(239,68,68,0.12); }
+
+/* Pestañas */
+.admin-tabs {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 1.4rem;
+  border-bottom: 1px solid var(--color-borde);
+}
+.admin-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.1rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--color-texto-suave);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+.admin-tab:hover { color: var(--color-texto); }
+.admin-tab.activo {
+  color: #1c9cf0;
+  border-bottom-color: #1c9cf0;
+}
+.admin-tab-badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: rgba(127,127,127,0.2);
+  color: var(--color-texto-suave);
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+/* Con pedidos esperando, el badge destaca */
+.admin-tab-badge.con-pendientes {
+  background: #f0b429;
+  color: #1a1a1a;
+}
+
+/* Chips de estado con conteo */
+.estado-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 1.1rem;
+}
+.estado-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-borde);
+  background: var(--color-fondo-suave);
+  color: var(--color-texto-suave);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.estado-chip span {
+  min-width: 20px;
+  padding: 1px 5px;
+  border-radius: 8px;
+  background: rgba(127,127,127,0.18);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-align: center;
+}
+.estado-chip:hover { color: var(--color-texto); border-color: #1c9cf0; }
+.estado-chip.activo {
+  background: #1c9cf0;
+  border-color: #1c9cf0;
+  color: #fff;
+}
+.estado-chip.activo span { background: rgba(255,255,255,0.25); color: #fff; }
+.estado-chip.vacio { opacity: 0.5; }
+.estado-chip.chip-pagado.activo   { background: #10b981; border-color: #10b981; }
+.estado-chip.chip-pendiente.activo{ background: #f0b429; border-color: #f0b429; color: #1a1a1a; }
+.estado-chip.chip-fallido.activo  { background: #ef4444; border-color: #ef4444; }
+.estado-chip.chip-eliminado.activo{ background: #6b7280; border-color: #6b7280; }
+
+/* Regalos incluidos en el pedido */
+.td-regalos {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(143,227,255,0.16);
+  color: #1c9cf0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Teléfono como enlace a WhatsApp */
+.td-envio-tel { text-decoration: none; color: inherit; }
+.td-envio-tel:hover { color: #25D366; text-decoration: underline; }
+
+/* Botón deshacer dentro del aviso */
+.admin-toast-undo {
+  flex: 0 0 auto;
+  align-self: center;
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: #1c9cf0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.admin-toast-undo:hover { background: #1c9cf0; color: #fff; }
+
+/* Columna "Pedido": fecha arriba, identificador abajo */
+.td-pedido { white-space: nowrap; }
+.td-pedido .td-fecha { display: block; font-size: 0.84rem; }
+.td-pedido .td-id {
+  display: block;
+  font-family: monospace;
+  font-size: 0.72rem;
+  color: var(--color-texto-suave);
+}
+
+/* La tabla tenía tanto padding que la columna de acciones —la más usada—
+   quedaba fuera de pantalla y obligaba a desplazarse. */
+@media (min-width: 641px) {
+  .admin-tabla th,
+  .admin-tabla td { padding: 0.8rem 0.7rem; }
+  .admin-tabla { font-size: 0.86rem; }
+  .td-cliente { max-width: 150px; }
+  .td-envio-col { min-width: 150px; max-width: 190px; }
+
+  /* Las acciones quedan ancladas a la derecha: aunque la tabla sea más
+     ancha que la pantalla, siempre se alcanzan sin desplazarse. */
+  .admin-tabla th:last-child,
+  .admin-tabla td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    background: var(--color-fondo-suave);
+    box-shadow: -8px 0 12px -8px rgba(0,0,0,0.35);
+  }
+  .admin-tabla thead th:last-child { background: var(--color-fondo); }
+  .admin-tabla tbody tr:hover td:last-child { background: var(--admin-tarjeta-hover, var(--color-fondo-suave)); }
+  /* Acciones en dos columnas compactas, sin estirar la fila */
+  .admin-tabla td:last-child { padding-right: 0.9rem; }
+  .tabla-acciones {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 4px;
+    justify-content: start;
+  }
+  .btn-accion { padding: 0.35rem 0.6rem; font-size: 0.75rem; white-space: nowrap; }
+}
+
+/* ── Ajustes de celular ── */
+@media (max-width: 640px) {
+  /* El correo del admin empujaba el botón de salir fuera de pantalla */
+  .admin-email-display { display: none; }
+  .admin-header .header-container { gap: 8px; }
+  .btn-logout-admin { padding: 0.45rem 0.7rem; font-size: 0.78rem; }
+
+  /* Acciones del encabezado: en una fila, sin apilarse de a una */
+  .admin-header-acciones {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    width: 100%;
+  }
+  .admin-btn { padding: 0.6rem 0.5rem; font-size: 0.78rem; justify-content: center; }
+  .admin-menu { right: 0; left: auto; }
+
+  /* Pestañas y chips: se deslizan en vez de ocupar varias líneas */
+  .admin-tabs,
+  .estado-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+  .admin-tabs::-webkit-scrollbar,
+  .estado-chips::-webkit-scrollbar { display: none; }
+  .admin-tab, .estado-chip { flex: 0 0 auto; }
+  .admin-tab { padding: 0.65rem 0.85rem; font-size: 0.85rem; }
+  .estado-chip { padding: 0.45rem 0.75rem; font-size: 0.78rem; }
+
+  /* En tarjetas no aplica la columna fija */
+  .admin-tabla th:last-child,
+  .admin-tabla td:last-child {
+    position: static;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  /* Filtro y refrescar comparten fila */
+  .admin-filtros { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .filtro-busqueda-wrap { grid-column: 1 / -1; }
+}
