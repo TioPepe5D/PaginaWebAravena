@@ -72,40 +72,6 @@
           <h1 class="admin-titulo">Panel de administración</h1>
           <p class="admin-subtitulo">Gestiona pedidos, ventas y clientes</p>
         </div>
-        <div class="admin-header-acciones">
-          <button id="btn-editar-catalogo" class="admin-btn admin-btn-sec" title="Editar nombres, precios y categorías del catálogo">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-            Editar catálogo
-          </button>
-          <button id="btn-export" class="admin-btn admin-btn-sec" title="Exportar pedidos filtrados">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Exportar CSV
-          </button>
-
-          <!-- Acciones destructivas: agrupadas para no tenerlas siempre a un clic -->
-          <div class="admin-menu-wrap">
-            <button id="btn-mas-acciones" class="admin-btn admin-btn-ghost" title="Más acciones" aria-haspopup="true" aria-expanded="false">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
-                <circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>
-              </svg>
-            </button>
-            <div class="admin-menu" id="admin-menu">
-              <button id="btn-vaciar-papelera" class="admin-menu-item admin-menu-peligro">
-                🗑 Vaciar papelera
-              </button>
-              <button id="btn-limpiar-fallidos" class="admin-menu-item admin-menu-peligro">
-                ✕ Eliminar pedidos fallidos
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- Pestañas: separan el trabajo diario (pedidos) de las métricas -->
@@ -230,10 +196,6 @@
         <button class="estado-chip activo" data-estado="todos">Ventas <span>0</span></button>
         <button class="estado-chip chip-pagado" data-estado="pagado">Por despachar <span>0</span></button>
         <button class="estado-chip chip-enviado" data-estado="enviado">Enviados <span>0</span></button>
-        <span class="estado-chips-sep"></span>
-        <button class="estado-chip chip-secundario" data-estado="pendiente" title="Pedidos que nunca completaron el pago">Sin pagar <span>0</span></button>
-        <button class="estado-chip chip-secundario chip-fallido" data-estado="fallido">Fallidos <span>0</span></button>
-        <button class="estado-chip chip-secundario chip-eliminado" data-estado="eliminado">Papelera <span>0</span></button>
       </div>
 
       <!-- Filtros -->
@@ -250,13 +212,15 @@
             class="admin-input"
           >
         </div>
-        <select id="filtro-estado" class="admin-select">
-          <option value="todos">Todos los estados</option>
-          <option value="pendiente">Pendientes</option>
-          <option value="pagado">Pagados</option>
-          <option value="enviado">Enviados</option>
-          <option value="fallido">Fallidos</option>
-          <option value="eliminado">Eliminados (papelera)</option>
+        <!-- Los chips son el filtro visible; este select guarda el estado
+             elegido y por eso conserva sus opciones -->
+        <select id="filtro-estado" hidden>
+          <option value="todos">todos</option>
+          <option value="pagado">pagado</option>
+          <option value="enviado">enviado</option>
+          <option value="pendiente">pendiente</option>
+          <option value="fallido">fallido</option>
+          <option value="eliminado">eliminado</option>
         </select>
         <button id="btn-refrescar" class="btn-refrescar" title="Refrescar">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -324,19 +288,6 @@
   <div id="admin-toasts" class="admin-toasts"></div>
 
   <!-- Modal Editar Catálogo -->
-  <div class="drive-overlay" id="catalogo-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000"></div>
-  <div id="catalogo-modal" style="display:none;position:fixed;inset:0;z-index:1001;align-items:center;justify-content:center">
-    <div style="background:#1a1a2e;border:1px solid #333;border-radius:16px;width:95%;max-width:900px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.5rem;border-bottom:1px solid #333">
-        <h2 style="margin:0;font-size:1.1rem;color:#fff">Editar Catálogo</h2>
-        <button id="catalogo-cerrar" style="background:none;border:none;color:#aaa;font-size:1.5rem;cursor:pointer;line-height:1">&times;</button>
-      </div>
-      <div style="padding:1rem 1.5rem;overflow-y:auto;flex:1">
-        <div id="catalogo-lista" style="display:grid;gap:.75rem"></div>
-      </div>
-    </div>
-  </div>
-
   <script src="js/supabase-client.js?v=3"></script>
   <script src="js/products.js?v=3"></script>
   <script src="js/admin.js?v=3"></script>

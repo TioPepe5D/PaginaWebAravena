@@ -3,7 +3,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 :root {
-  --admin-dorado: #d4af37;
+  --admin-dorado: #8fe3ff;
   --admin-dorado-suave: rgba(212, 175, 55, 0.12);
   --admin-verde: #10b981;
   --admin-verde-suave: rgba(16, 185, 129, 0.12);
@@ -25,14 +25,14 @@
   display: inline-block;
   margin-left: 0.6rem;
   padding: 0.22rem 0.6rem;
-  background: linear-gradient(135deg, #f4c960, #b8941f);
+  background: linear-gradient(135deg, #8fe3ff, #1c9cf0);
   color: #1a1a1a;
   font-size: 0.65rem;
   font-weight: 800;
   letter-spacing: 0.12em;
   border-radius: 4px;
   vertical-align: middle;
-  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.35);
+  box-shadow: 0 2px 8px rgba(143, 227, 255, 0.35);
 }
 
 .admin-email-display {
@@ -238,7 +238,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.65rem 1.1rem;
-  background: linear-gradient(135deg, var(--admin-dorado), #b8941f);
+  background: linear-gradient(135deg, var(--admin-celeste), var(--admin-celeste-fuerte));
   border: none;
   color: #1a1a1a;
   border-radius: 8px;
@@ -247,12 +247,12 @@
   font-family: inherit;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.25);
+  box-shadow: 0 2px 8px rgba(143, 227, 255, 0.25);
 }
 
 .btn-export:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);
+  box-shadow: 0 4px 14px rgba(143, 227, 255, 0.45);
 }
 
 .btn-export:active {
@@ -1758,7 +1758,7 @@
 }
 /* Con pedidos esperando, el badge destaca */
 .admin-tab-badge.con-pendientes {
-  background: #f0b429;
+  background: #8fe3ff;
   color: #1a1a1a;
 }
 
@@ -1801,7 +1801,7 @@
 .estado-chip.activo span { background: rgba(255,255,255,0.25); color: #fff; }
 .estado-chip.vacio { opacity: 0.5; }
 .estado-chip.chip-pagado.activo   { background: #10b981; border-color: #10b981; }
-.estado-chip.chip-pendiente.activo{ background: #f0b429; border-color: #f0b429; color: #1a1a1a; }
+.estado-chip.chip-pendiente.activo{ background: #8fe3ff; border-color: #8fe3ff; color: #1a1a1a; }
 .estado-chip.chip-fallido.activo  { background: #ef4444; border-color: #ef4444; }
 .estado-chip.chip-eliminado.activo{ background: #6b7280; border-color: #6b7280; }
 

@@ -336,24 +336,10 @@ async function iniciarPago() {
     });
   }
 
-  // ── Guardar pedido pendiente en Supabase ──
-  if (typeof db !== 'undefined' && db) {
-    try {
-      const { data: { session } } = await db.auth.getSession();
-      if (session) {
-        const itemsGuardar = carrito.map(i => ({
-          id: i.id, nombre: i.nombre, cantidad: i.cantidad,
-          precio: i.precio, imagen: i.imagen || ''
-        }));
-        const { data: pedido, error } = await db
-          .from('pedidos')
-          .insert({ user_id: session.user.id, items: itemsGuardar, total: totalFinal, estado: 'pendiente' })
-          .select('id').single();
-        if (!error && pedido) localStorage.setItem('pedido_pendiente_id', pedido.id);
-      }
-    } catch (e) { console.warn('[Pedidos] No se pudo guardar:', e); }
-  }
-
+  /* El pedido lo crea /api/crear-preferencia, no el navegador. Antes se
+     insertaba aquí TAMBIÉN y quedaban dos filas por la misma compra: una
+     la confirmaba el webhook y la otra el navegador al volver, así que la
+     venta aparecía duplicada en el panel. */
   const pedidoId = localStorage.getItem('pedido_pendiente_id') || "";
 
   try {

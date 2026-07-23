@@ -255,21 +255,11 @@
     document.getElementById('val-fecha').textContent =
       new Date().toLocaleDateString('es-CL', { day:'2-digit', month:'long', year:'numeric' });
 
-    // Actualizar estado del pedido en Supabase
-    (async () => {
-      const pedidoId = localStorage.getItem('pedido_pendiente_id');
-      if (!pedidoId || typeof db === 'undefined') return;
-      try {
-        const { data: { session } } = await db.auth.getSession();
-        if (session) {
-          await db.from('pedidos')
-            .update({ estado: 'pagado' })
-            .eq('id', pedidoId)
-            .eq('user_id', session.user.id);
-          localStorage.removeItem('pedido_pendiente_id');
-        }
-      } catch (e) { console.warn('No se pudo actualizar el pedido:', e); }
-    })();
+    /* El pedido lo confirma el webhook de MercadoPago, que es quien sabe
+       de verdad si el pago se aprobó. Antes también se marcaba desde aquí
+       y eso duplicaba la venta cuando el id guardado no era el mismo que
+       el del webhook. */
+    localStorage.removeItem('pedido_pendiente_id');
 
     // Vaciar carrito
     localStorage.removeItem('carrito');

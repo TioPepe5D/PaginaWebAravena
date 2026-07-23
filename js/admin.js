@@ -111,8 +111,6 @@ function configurarEventos() {
     setTimeout(() => btn.classList.remove('cargando'), 400);
   });
 
-  document.getElementById('btn-export').addEventListener('click', exportarCSV);
-
   document.getElementById('filtro-busqueda').addEventListener('input', aplicarFiltros);
   document.getElementById('filtro-estado').addEventListener('change', aplicarFiltros);
 
@@ -140,12 +138,6 @@ function configurarEventos() {
     if (e.target.id === 'admin-confirm-overlay') cerrarAdminConfirm();
   });
 
-  // Botón "Eliminar fallidos" — mueve a papelera
-  document.getElementById('btn-limpiar-fallidos')?.addEventListener('click', pedirEliminarFallidos);
-
-  // Botón "Vaciar papelera" — borrado definitivo
-  document.getElementById('btn-vaciar-papelera')?.addEventListener('click', pedirVaciarPapelera);
-
   // Pestañas: pedidos (trabajo diario) vs. ventas y visitas
   document.querySelectorAll('.admin-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -162,19 +154,6 @@ function configurarEventos() {
     });
   });
 
-  // Menú de acciones destructivas
-  const btnMas = document.getElementById('btn-mas-acciones');
-  const menu = document.getElementById('admin-menu');
-  btnMas?.addEventListener('click', e => {
-    e.stopPropagation();
-    const abierto = menu.classList.toggle('abierto');
-    btnMas.setAttribute('aria-expanded', abierto ? 'true' : 'false');
-  });
-  document.addEventListener('click', () => {
-    menu?.classList.remove('abierto');
-    btnMas?.setAttribute('aria-expanded', 'false');
-  });
-
   // Chips de estado: filtran y muestran el conteo
   document.getElementById('estado-chips')?.addEventListener('click', e => {
     const chip = e.target.closest('.estado-chip');
@@ -182,10 +161,7 @@ function configurarEventos() {
     document.getElementById('filtro-estado').value = chip.dataset.estado;
     aplicarFiltros();
   });
-
-  document.getElementById('btn-editar-catalogo')?.addEventListener('click', abrirEditarCatalogo);
-  document.getElementById('catalogo-cerrar')?.addEventListener('click', cerrarEditarCatalogo);
-  document.getElementById('catalogo-overlay')?.addEventListener('click', cerrarEditarCatalogo);}
+}
 
 /* ── Cargar pedidos ──────────────────────── */
 async function cargarPedidos() {
@@ -888,8 +864,8 @@ function renderizarGrafico() {
 
   const ctx = canvas.getContext('2d');
   const gradient = ctx.createLinearGradient(0, 0, 0, 260);
-  gradient.addColorStop(0, 'rgba(212, 175, 55, 0.35)');
-  gradient.addColorStop(1, 'rgba(212, 175, 55, 0.02)');
+  gradient.addColorStop(0, 'rgba(143, 227, 255, 0.35)');
+  gradient.addColorStop(1, 'rgba(143, 227, 255, 0.02)');
 
   graficoVentas = new Chart(ctx, {
     type: 'line',
@@ -898,12 +874,12 @@ function renderizarGrafico() {
       datasets: [{
         label: 'Ingresos',
         data: dataVentas,
-        borderColor: '#d4af37',
+        borderColor: '#8fe3ff',
         backgroundColor: gradient,
         borderWidth: 2.5,
         pointRadius: 3,
         pointHoverRadius: 6,
-        pointBackgroundColor: '#d4af37',
+        pointBackgroundColor: '#8fe3ff',
         pointBorderColor: '#fff',
         pointBorderWidth: 2,
         tension: 0.35,
@@ -920,7 +896,7 @@ function renderizarGrafico() {
           backgroundColor: esDark ? 'rgba(20,20,20,0.95)' : 'rgba(255,255,255,0.98)',
           titleColor: esDark ? '#fff' : '#222',
           bodyColor: esDark ? '#ddd' : '#444',
-          borderColor: '#d4af37',
+          borderColor: '#8fe3ff',
           borderWidth: 1,
           padding: 12,
           displayColors: false,

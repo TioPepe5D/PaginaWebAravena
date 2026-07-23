@@ -687,19 +687,10 @@ async function manejarRetornoPago() {
   const pedidoId = localStorage.getItem('pedido_pendiente_id');
 
   if (pago === 'ok') {
-    // Actualizar estado en Supabase
-    if (pedidoId && typeof db !== 'undefined' && db) {
-      try {
-        const { data: { session } } = await db.auth.getSession();
-        if (session) {
-          await db.from('pedidos')
-            .update({ estado: 'pagado' })
-            .eq('id', pedidoId)
-            .eq('user_id', session.user.id);
-          localStorage.removeItem('pedido_pendiente_id');
-        }
-      } catch (e) { console.warn('[Pedidos] Error al actualizar estado:', e); }
-    }
+    /* Quien confirma el pago es el webhook de MercadoPago. El navegador
+       no debe marcar pedidos como pagados: además de duplicar la venta,
+       permitiría dar por pagado un pedido sin haber pagado. */
+    localStorage.removeItem('pedido_pendiente_id');
 
     // Vaciar carrito
     carrito = [];
