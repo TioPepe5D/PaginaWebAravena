@@ -451,7 +451,8 @@ function renderizarTabla() {
         acciones.push(`<button class="btn-accion btn-accion-copiar" onclick="copiarDatosEnvio('${p.id}', this)" title="Copiar los datos para la empresa de envío">📋 Copiar</button>`);
       }
       acciones.push(`<button class="btn-accion" onclick="verDetalle('${p.id}')">Ver</button>`);
-      acciones.push(`<button class="btn-accion btn-accion-eliminar" onclick="eliminarPedido('${p.id}')" title="Mover a papelera">🗑</button>`);
+      // Con etiqueta: como icono suelto era difícil de encontrar y de acertar
+      acciones.push(`<button class="btn-accion btn-accion-eliminar" onclick="eliminarPedido('${p.id}')" title="Quitar este pedido de la lista">🗑 Eliminar</button>`);
     }
 
     // Intentar mostrar nombre de datos_envio si es pedido de invitado
@@ -701,8 +702,14 @@ async function confirmarEliminarPedido() {
         mostrarToast('Pedido borrado', `#${idCorto} borrado definitivamente`, 'ok');
       } else {
         const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
-        if (pedido) pedido.estado = 'eliminado';
-        mostrarToast('Pedido en papelera', `#${idCorto} movido a papelera. Puedes restaurarlo desde "Eliminados".`, 'ok');
+        if (pedido) {
+          _estadoAntesDeEliminar[pedidoId] = pedido.estado;   // para poder deshacer
+          pedido.estado = 'eliminado';
+        }
+        /* Ya no existe la vista "Eliminados", así que la única forma de
+           recuperarlo es aquí mismo: el aviso trae Deshacer. */
+        mostrarToast('Pedido eliminado', `#${idCorto} salió de la lista`, 'ok',
+          { texto: 'Deshacer', accion: () => restaurarPedido(pedidoId) });
       }
     }
 
@@ -717,15 +724,22 @@ async function confirmarEliminarPedido() {
 }
 
 /* ── Restaurar pedido ────────────────────── */
+/* Al eliminar se guarda el estado que tenía, para que deshacer lo devuelva
+   a como estaba. Antes lo restauraba siempre como "pendiente" y, con los
+   pendientes ocultos, el pedido desaparecía igual. */
+const _estadoAntesDeEliminar = {};
+
 async function restaurarPedido(pedidoId) {
+  const previo = _estadoAntesDeEliminar[pedidoId] || 'pagado';
   try {
-    const { error } = await db.from('pedidos').update({ estado: 'pendiente' }).eq('id', pedidoId);
+    const { error } = await db.from('pedidos').update({ estado: previo }).eq('id', pedidoId);
     if (error) { mostrarToast('Error', error.message, 'error'); return; }
     const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
-    if (pedido) pedido.estado = 'pendiente';
+    if (pedido) pedido.estado = previo;
+    delete _estadoAntesDeEliminar[pedidoId];
     calcularStats();
     aplicarFiltros();
-    mostrarToast('Pedido restaurado', `#${String(pedidoId).slice(0,8).toUpperCase()} restaurado como pendiente`, 'ok');
+    mostrarToast('Pedido restaurado', `#${String(pedidoId).slice(0,8).toUpperCase()} vuelve a la lista`, 'ok');
   } catch (e) {
     mostrarToast('Error', 'No se pudo restaurar.', 'error');
   }

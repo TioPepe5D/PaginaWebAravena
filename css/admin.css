@@ -770,19 +770,19 @@
   color: #0891b2;
 }
 
+/* Antes era casi invisible: sin borde, sin fondo y al 55% de opacidad
+   quedaba en 4.17:1 de contraste, bajo el mínimo legible. */
 .btn-accion-eliminar {
-  border-color: transparent;
-  color: var(--color-texto-suave);
-  padding: 4px 7px;
-  font-size: 0.95rem;
-  opacity: 0.55;
-  transition: opacity 0.15s, color 0.15s, background 0.15s;
+  border-color: rgba(244, 33, 46, 0.4);
+  color: #ff6b74;
+  background: rgba(244, 33, 46, 0.08);
+  opacity: 1;
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
 }
 .btn-accion-eliminar:hover {
-  opacity: 1;
-  color: var(--admin-rojo);
-  background: rgba(244, 33, 46, 0.08);
-  border-color: rgba(244, 33, 46, 0.25);
+  color: #fff;
+  background: var(--admin-rojo);
+  border-color: var(--admin-rojo);
 }
 
 /* ── Modal confirmar eliminar ───────────── */
@@ -2122,4 +2122,13 @@
   background: #25D366;
   border-color: #25D366;
   color: #041018;
+}
+
+/* Las acciones de cada pedido: legibles y con área de clic suficiente.
+   Antes el botón de eliminar era un icono suelto, chico y difícil de dar. */
+@media (min-width: 641px) {
+  .admin-tabla td:last-child { min-width: 210px; }
+  .tabla-acciones { gap: 5px; }
+  .btn-accion { padding: 0.42rem 0.7rem; font-size: 0.76rem; }
+  .btn-accion-eliminar { white-space: nowrap; }
 }
