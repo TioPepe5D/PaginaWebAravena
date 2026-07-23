@@ -2181,3 +2181,61 @@
   background: rgba(4, 16, 24, 0.18);
   color: #041018;
 }
+
+/* Último recurso para copiar cuando el navegador bloquea el portapapeles */
+.copiar-manual-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+}
+.copiar-manual-caja {
+  width: min(440px, 100%);
+  padding: 22px;
+  border-radius: 16px;
+  background: var(--color-fondo-suave);
+  border: 1px solid var(--admin-celeste);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+.copiar-manual-titulo {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--admin-celeste);
+}
+.copiar-manual-ayuda {
+  margin: 0 0 12px;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: #a7adb3;
+}
+.copiar-manual-texto {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--color-borde);
+  background: #0d1117;
+  color: var(--color-texto);
+  font-family: monospace;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  resize: vertical;
+}
+.copiar-manual-cerrar {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px;
+  border: none;
+  border-radius: 999px;
+  background: var(--admin-celeste);
+  color: #041018;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}

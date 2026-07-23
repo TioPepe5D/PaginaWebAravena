@@ -803,7 +803,29 @@ function textoDatosTransferencia() {
 }
 
 // Copia al portapapeles con respaldo para navegadores que no lo permiten
-async function copiarAlPortapapeles(texto, boton) {
+/* Copia con un campo temporal, dentro del mismo gesto del clic. Se intenta
+   antes que navigator.clipboard porque esa promesa, si la ventana no tiene
+   el foco, no resuelve ni falla y el botón se queda sin reaccionar. */
+function _copiarConCampoTemporal(texto) {
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = texto;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "0";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, texto.length);   // iOS necesita el rango explícito
+    const ok = document.execCommand("copy");
+    ta.remove();
+    return ok;
+  } catch (_) {
+    return false;
+  }
+}
+
+function copiarAlPortapapeles(texto, boton) {
   const avisar = ok => {
     const original = boton.dataset.original || boton.textContent;
     boton.dataset.original = original;
@@ -811,23 +833,19 @@ async function copiarAlPortapapeles(texto, boton) {
     boton.classList.toggle("copiado", ok);
     setTimeout(() => { boton.textContent = original; boton.classList.remove("copiado"); }, 2200);
   };
-  try {
-    await navigator.clipboard.writeText(texto);
-    avisar(true);
-  } catch (_) {
-    // Sin permisos de portapapeles: se copia con un campo temporal
-    try {
-      const ta = document.createElement("textarea");
-      ta.value = texto;
-      ta.style.position = "fixed";
-      ta.style.opacity = "0";
-      document.body.appendChild(ta);
-      ta.select();
-      const ok = document.execCommand("copy");
-      ta.remove();
-      avisar(ok);
-    } catch (__) { avisar(false); }
+
+  if (_copiarConCampoTemporal(texto)) { avisar(true); return; }
+
+  /* Con tiempo límite: sin el foco puesto, esta promesa no resuelve ni
+     falla, y el botón se quedaba sin dar ninguna señal. */
+  if (navigator.clipboard?.writeText) {
+    let resuelto = false;
+    const listo = ok => { if (!resuelto) { resuelto = true; avisar(ok); } };
+    navigator.clipboard.writeText(texto).then(() => listo(true)).catch(() => listo(false));
+    setTimeout(() => listo(false), 1200);
+    return;
   }
+  avisar(false);
 }
 
 function abrirModalTransferencia() {

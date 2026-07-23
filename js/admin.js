@@ -537,7 +537,52 @@ function textoEnvioPedido(pedido) {
   return lineas.filter(l => l && String(l).trim()).join('\n');
 }
 
-async function copiarDatosEnvio(pedidoId, boton) {
+/* Copia sincrónica con un campo temporal. Se hace PRIMERO porque ocurre
+   dentro del gesto del clic y nunca se queda esperando: navigator.clipboard
+   devuelve una promesa que, si la ventana no tiene el foco, no resuelve ni
+   falla — el botón se quedaba mudo. */
+function copiarConCampoTemporal(texto) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = texto;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, texto.length);   // iOS necesita el rango explícito
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch (_) {
+    return false;
+  }
+}
+
+/* Último recurso: se muestra el texto ya seleccionado para copiar a mano.
+   Así el dato nunca queda inaccesible, aunque el navegador bloquee todo. */
+function mostrarTextoParaCopiar(texto) {
+  const overlay = document.createElement('div');
+  overlay.className = 'copiar-manual-overlay';
+  overlay.innerHTML = `
+    <div class="copiar-manual-caja">
+      <p class="copiar-manual-titulo">Copia estos datos</p>
+      <p class="copiar-manual-ayuda">Tu navegador bloqueó la copia automática. Selecciona el texto y presiona Ctrl+C.</p>
+      <textarea class="copiar-manual-texto" readonly rows="8"></textarea>
+      <button type="button" class="copiar-manual-cerrar">Cerrar</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  const ta = overlay.querySelector('.copiar-manual-texto');
+  ta.value = texto;
+  ta.focus();
+  ta.select();
+  const cerrar = () => overlay.remove();
+  overlay.querySelector('.copiar-manual-cerrar').addEventListener('click', cerrar);
+  overlay.addEventListener('click', e => { if (e.target === overlay) cerrar(); });
+}
+
+function copiarDatosEnvio(pedidoId, boton) {
   const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
   if (!pedido) return;
   const texto = textoEnvioPedido(pedido);
@@ -551,22 +596,26 @@ async function copiarDatosEnvio(pedidoId, boton) {
     setTimeout(() => { boton.innerHTML = original; boton.classList.remove('copiado'); }, 1800);
   };
 
-  try {
-    await navigator.clipboard.writeText(texto);
-    marcar(true);
-  } catch (_) {
-    // Sin permiso de portapapeles: se copia con un campo temporal
-    try {
-      const ta = document.createElement('textarea');
-      ta.value = texto;
-      ta.style.position = 'fixed';
-      ta.style.opacity = '0';
-      document.body.appendChild(ta);
-      ta.select();
-      marcar(document.execCommand('copy'));
-      ta.remove();
-    } catch (__) { marcar(false); }
+  if (copiarConCampoTemporal(texto)) { marcar(true); return; }
+
+  /* Si el campo temporal no pudo, se prueba la API moderna con un tiempo
+     límite: cuando la ventana no tiene el foco, esa promesa se queda
+     colgada sin resolver ni fallar y el botón quedaba mudo para siempre. */
+  if (navigator.clipboard?.writeText) {
+    let resuelto = false;
+    const listo = ok => {
+      if (resuelto) return;
+      resuelto = true;
+      marcar(ok);
+      if (!ok) mostrarTextoParaCopiar(texto);
+    };
+    navigator.clipboard.writeText(texto).then(() => listo(true)).catch(() => listo(false));
+    setTimeout(() => listo(false), 1200);
+    return;
   }
+
+  marcar(false);
+  mostrarTextoParaCopiar(texto);
 }
 
 /* ── Cambiar estado ──────────────────────── */
@@ -814,7 +863,7 @@ function verDetalle(pedidoId) {
     <div class="modal-envio-section">
       <div class="modal-envio-header">
         <h3>🚚 Datos de envío</h3>
-        <button class="btn-copiar-envio" onclick="copiarDatosEnvio()" title="Copiar datos de envío">
+        <button class="btn-copiar-envio" onclick="copiarDatosEnvio('${pedido.id}', this)" title="Copiar datos de envío">
           📋 Copiar
         </button>
       </div>
@@ -896,57 +945,6 @@ function cerrarModal() {
 }
 
 /* ── Copiar datos de envío ──────────────── */
-function copiarDatosEnvio() {
-  if (!pedidoActual || !pedidoActual.datos_envio) return;
-
-  const d = pedidoActual.datos_envio;
-  const texto = [
-    d.nombre      ? `Nombre: ${d.nombre}`           : null,
-    d.rut         ? `RUT: ${d.rut}`                 : null,
-    d.telefono    ? `Teléfono: ${d.telefono}`        : null,
-    d.correo      ? `Correo: ${d.correo}`            : null,
-    d.empresa     ? `Empresa: ${d.empresa}`          : null,
-    d.preferencia ? `Preferencia: ${d.preferencia}` : null,
-    d.sucursal    ? `Sucursal: ${d.sucursal}`        : null,
-    d.ciudad      ? `Ciudad: ${d.ciudad}`            : null,
-    d.domicilio   ? `Dirección: ${d.domicilio}`      : null,
-  ].filter(Boolean).join('\n');
-
-  const btn = document.querySelector('.btn-copiar-envio');
-
-  function mostrarCopiado() {
-    if (!btn) return;
-    btn.textContent = '✅ Copiado';
-    btn.classList.add('copiado');
-    setTimeout(() => {
-      btn.textContent = '📋 Copiar';
-      btn.classList.remove('copiado');
-    }, 2000);
-  }
-
-  // Método moderno
-  if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(texto).then(mostrarCopiado).catch(() => copiarFallback(texto, mostrarCopiado));
-  } else {
-    copiarFallback(texto, mostrarCopiado);
-  }
-}
-
-function copiarFallback(texto, callback) {
-  const ta = document.createElement('textarea');
-  ta.value = texto;
-  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
-  document.body.appendChild(ta);
-  ta.focus();
-  ta.select();
-  try {
-    document.execCommand('copy');
-    callback();
-  } catch (e) {
-    alert('No se pudo copiar automáticamente.\n\n' + texto);
-  }
-  document.body.removeChild(ta);
-}
 
 /* ── Exportar CSV ───────────────────────── */
 function exportarCSV() {

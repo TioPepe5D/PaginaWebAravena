@@ -149,23 +149,28 @@ module.exports = async (req, res) => {
       if (error) console.warn("[crear-preferencia] Limpieza de pendientes:", error.message);
     });
 
-  /* Reutilizar el pedido si el cliente vuelve a intentar el mismo pago:
-     antes, cada clic en "Realizar pago" creaba una fila nueva y la compra
-     terminaba duplicada si más de una llegaba a confirmarse. */
+  /* Si el mismo cliente reintenta el mismo pago, se reutiliza su pedido
+     pendiente en vez de crear otro.
+
+     Solo aplica a clientes con sesión: ahí el user_id identifica a una
+     persona concreta. Para invitados NO se agrupa, porque la única pista
+     sería "mismo monto y mismos productos" y dos compradores distintos
+     con el carrito igual terminarían compartiendo el mismo pedido: si
+     ambos pagaran, una de las dos ventas se perdería. */
   let pedido = null;
   const desdeReciente = new Date(Date.now() - 30 * 60 * 1000).toISOString();
-  const consultaPrevios = supabase
-    .from("pedidos")
-    .select("id, items")
-    .eq("estado", "pendiente")
-    .eq("total", total)
-    .gte("created_at", desdeReciente)
-    .order("created_at", { ascending: false })
-    .limit(5);
 
   const { data: previos } = userId
-    ? await consultaPrevios.eq("user_id", userId)
-    : await consultaPrevios.is("user_id", null);
+    ? await supabase
+        .from("pedidos")
+        .select("id, items")
+        .eq("estado", "pendiente")
+        .eq("total", total)
+        .eq("user_id", userId)
+        .gte("created_at", desdeReciente)
+        .order("created_at", { ascending: false })
+        .limit(5)
+    : { data: null };
 
   if (previos && previos.length) {
     const huella = JSON.stringify(payload.items.map(i => [String(i.id), i.cantidad]).sort());
