@@ -8,6 +8,11 @@ const ADMIN_EMAILS = [
   'martinmagun2@gmail.com'
 ];
 
+/* Estados que representan una venta real: el pago ya fue confirmado.
+   Todo lo demás (pendiente de pago, fallido, papelera) queda fuera de
+   la vista por defecto. */
+const ESTADOS_CONFIRMADOS = ['pagado', 'enviado'];
+
 let todosLosPedidos = [];
 let pedidoActual = null;
 let pedidosFiltrados = [];
@@ -234,9 +239,10 @@ async function cargarPedidos() {
 
 /* ── Stats ───────────────────────────────── */
 function calcularStats() {
-  const total = todosLosPedidos.length;
-  // "Pagados" incluye también enviados (siguen siendo ingresos confirmados)
-  const pagadosYEnviados = todosLosPedidos.filter(p => p.estado === 'pagado' || p.estado === 'enviado');
+  // Solo cuentan las ventas con pago confirmado; los carritos abandonados
+  // inflaban el total y daban una idea equivocada del negocio.
+  const pagadosYEnviados = todosLosPedidos.filter(p => ESTADOS_CONFIRMADOS.includes(p.estado));
+  const total = pagadosYEnviados.length;
   const enviados = todosLosPedidos.filter(p => p.estado === 'enviado').length;
   const revenue = pagadosYEnviados.reduce((s, p) => s + (Number(p.total) || 0), 0);
 
@@ -274,8 +280,11 @@ function aplicarFiltros() {
   const estado = document.getElementById('filtro-estado').value;
 
   pedidosFiltrados = todosLosPedidos.filter(p => {
-    // "todos" excluye eliminados — hay que elegirlos explícitamente
-    if (estado === 'todos' && p.estado === 'eliminado') return false;
+    /* La vista por defecto muestra solo ventas con el pago confirmado.
+       Un pedido "pendiente" se crea ANTES de ir a la pasarela: si el
+       cliente no completa el pago, queda ahí para siempre y no es una
+       venta. Se sigue pudiendo revisar eligiendo el estado a mano. */
+    if (estado === 'todos' && !ESTADOS_CONFIRMADOS.includes(p.estado)) return false;
     if (estado !== 'todos' && p.estado !== estado) return false;
 
     if (busqueda) {
@@ -300,8 +309,8 @@ function aplicarFiltros() {
 function actualizarChipsEstado() {
   const cuenta = {};
   todosLosPedidos.forEach(p => { cuenta[p.estado] = (cuenta[p.estado] || 0) + 1; });
-  // "Todos" no incluye la papelera
-  cuenta.todos = todosLosPedidos.filter(p => p.estado !== 'eliminado').length;
+  // "Ventas" = solo lo que tiene el pago confirmado
+  cuenta.todos = todosLosPedidos.filter(p => ESTADOS_CONFIRMADOS.includes(p.estado)).length;
 
   const activo = document.getElementById('filtro-estado')?.value || 'todos';
   document.querySelectorAll('.estado-chip').forEach(chip => {
@@ -313,8 +322,8 @@ function actualizarChipsEstado() {
     chip.classList.toggle('vacio', n === 0 && est !== 'todos');
   });
 
-  // Badge de la pestaña: lo que espera acción (pendientes + por despachar)
-  const porAtender = (cuenta.pendiente || 0) + (cuenta.pagado || 0);
+  // Badge de la pestaña: pedidos pagados que aún hay que despachar
+  const porAtender = cuenta.pagado || 0;
   const badge = document.getElementById('tab-badge-pedidos');
   if (badge) {
     badge.textContent = porAtender;
@@ -958,6 +967,11 @@ function suscribirseANuevosPedidos() {
           if (idsConocidos.has(nuevo.id)) return;
           idsConocidos.add(nuevo.id);
 
+          /* Un pedido nace "pendiente" justo antes de mandar al cliente a
+             la pasarela: todavía no es una venta y muchos se abandonan.
+             El aviso se guarda para cuando el pago se confirme (UPDATE). */
+          if (!ESTADOS_CONFIRMADOS.includes(nuevo.estado)) return;
+
           // Recargar para obtener email (RPC)
           await cargarPedidos();
 
@@ -967,11 +981,10 @@ function suscribirseANuevosPedidos() {
             if (fila) fila.classList.add('fila-nueva');
           }, 100);
 
-          // Notificación
           const total = Number(nuevo.total) || 0;
           mostrarToast(
-            '¡Nuevo pedido recibido!',
-            `$${total.toLocaleString('es-CL')} CLP · estado: ${nuevo.estado}`,
+            '¡Nueva venta!',
+            `$${total.toLocaleString('es-CL')} CLP · pago confirmado`,
             'ok',
             true
           );

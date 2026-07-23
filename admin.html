@@ -162,7 +162,7 @@
             </svg>
           </div>
           <div class="stat-content">
-            <p class="stat-label">Total pedidos</p>
+            <p class="stat-label">Ventas confirmadas</p>
             <p class="stat-value" id="stat-total">0</p>
           </div>
         </div>
@@ -227,12 +227,13 @@
 
       <!-- Accesos rápidos por estado, con el conteo a la vista -->
       <div class="estado-chips" id="estado-chips">
-        <button class="estado-chip activo" data-estado="todos">Todos <span>0</span></button>
-        <button class="estado-chip chip-pendiente" data-estado="pendiente">Pendientes <span>0</span></button>
+        <button class="estado-chip activo" data-estado="todos">Ventas <span>0</span></button>
         <button class="estado-chip chip-pagado" data-estado="pagado">Por despachar <span>0</span></button>
         <button class="estado-chip chip-enviado" data-estado="enviado">Enviados <span>0</span></button>
-        <button class="estado-chip chip-fallido" data-estado="fallido">Fallidos <span>0</span></button>
-        <button class="estado-chip chip-eliminado" data-estado="eliminado">Papelera <span>0</span></button>
+        <span class="estado-chips-sep"></span>
+        <button class="estado-chip chip-secundario" data-estado="pendiente" title="Pedidos que nunca completaron el pago">Sin pagar <span>0</span></button>
+        <button class="estado-chip chip-secundario chip-fallido" data-estado="fallido">Fallidos <span>0</span></button>
+        <button class="estado-chip chip-secundario chip-eliminado" data-estado="eliminado">Papelera <span>0</span></button>
       </div>
 
       <!-- Filtros -->

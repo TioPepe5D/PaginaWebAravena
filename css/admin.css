@@ -1923,3 +1923,18 @@
   .admin-filtros { display: grid; grid-template-columns: 1fr; gap: 8px; }
   .filtro-busqueda-wrap { grid-column: 1 / -1; }
 }
+
+/* Separador entre las ventas reales y los estados de repaso */
+.estado-chips-sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 2px 4px;
+  background: var(--color-borde);
+}
+/* Los estados que no son ventas van más discretos */
+.estado-chip.chip-secundario {
+  font-weight: 500;
+  opacity: 0.72;
+}
+.estado-chip.chip-secundario:hover,
+.estado-chip.chip-secundario.activo { opacity: 1; }
