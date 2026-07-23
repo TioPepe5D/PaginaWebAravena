@@ -353,7 +353,31 @@ function aplicarFiltros() {
   });
 
   actualizarChipsEstado();
+  marcarPosiblesDuplicados();
   renderizarTabla();
+}
+
+/* Marca ventas que parecen la misma compra cobrada dos veces: mismo
+   cliente, mismo monto y con poco rato de diferencia. Solo avisa; borrar
+   queda en manos de quien revisa. */
+const MINUTOS_DUPLICADO = 60;
+
+function marcarPosiblesDuplicados() {
+  const ventas = todosLosPedidos.filter(p => ESTADOS_CONFIRMADOS.includes(p.estado));
+  todosLosPedidos.forEach(p => { p._duplicado = false; });
+
+  ventas.forEach((a, i) => {
+    ventas.slice(i + 1).forEach(b => {
+      if (Number(a.total) !== Number(b.total)) return;
+      const mismoCliente =
+        (a.user_id && a.user_id === b.user_id) ||
+        (a.datos_envio?.correo && a.datos_envio.correo === b.datos_envio?.correo) ||
+        (a.datos_envio?.telefono && a.datos_envio.telefono === b.datos_envio?.telefono);
+      if (!mismoCliente) return;
+      const minutos = Math.abs(new Date(a.created_at) - new Date(b.created_at)) / 60000;
+      if (minutos <= MINUTOS_DUPLICADO) { a._duplicado = true; b._duplicado = true; }
+    });
+  });
 }
 
 /* Conteo por estado en los chips y en la pestaña de pedidos */
@@ -423,6 +447,9 @@ function renderizarTabla() {
       } else if (p.estado !== 'enviado') {
         acciones.push(`<button class="btn-accion btn-accion-pagar" onclick="cambiarEstado('${p.id}', 'pagado')">Marcar pagado</button>`);
       }
+      if (p.datos_envio) {
+        acciones.push(`<button class="btn-accion btn-accion-copiar" onclick="copiarDatosEnvio('${p.id}', this)" title="Copiar los datos para la empresa de envío">📋 Copiar</button>`);
+      }
       acciones.push(`<button class="btn-accion" onclick="verDetalle('${p.id}')">Ver</button>`);
       acciones.push(`<button class="btn-accion btn-accion-eliminar" onclick="eliminarPedido('${p.id}')" title="Mover a papelera">🗑</button>`);
     }
@@ -469,9 +496,10 @@ function renderizarTabla() {
     }
 
     return `
-      <tr data-id="${p.id}">
+      <tr data-id="${p.id}"${p._duplicado ? ' class="fila-duplicada"' : ''}>
         <td class="td-pedido" data-label="Pedido">
           <span class="td-id">#${idCorto}</span>
+          ${p._duplicado ? '<span class="aviso-duplicado" title="Mismo cliente y monto que otro pedido cercano. Revisa si es una compra repetida.">⚠ Posible duplicado</span>' : ''}
           <span class="td-fecha-label">Fecha</span>
           <span class="td-fecha">${fecha}</span>
         </td>
@@ -483,6 +511,61 @@ function renderizarTabla() {
       </tr>
     `;
   }).join('');
+}
+
+/* ══════════════════════════════════════════════════════════
+   COPIAR DATOS DE ENVÍO
+   Sale en el orden en que se llenan en Starken, una línea por dato,
+   para pegarlo de corrido sin tener que reordenar nada.
+   ══════════════════════════════════════════════════════════ */
+function textoEnvioPedido(pedido) {
+  const d = pedido.datos_envio || {};
+  const esSucursal = d.preferencia === 'Sucursal';
+
+  const lineas = [
+    [d.empresa, d.preferencia].filter(Boolean).join(' | '),
+    d.nombre,
+    d.telefono,
+    d.rut,
+    [d.ciudad, d.comuna].filter(Boolean).join(', '),
+    d.correo,
+    esSucursal ? d.sucursal : d.domicilio,
+  ];
+
+  // Se omiten los datos que el cliente no llenó (el RUT es opcional)
+  return lineas.filter(l => l && String(l).trim()).join('\n');
+}
+
+async function copiarDatosEnvio(pedidoId, boton) {
+  const pedido = todosLosPedidos.find(p => String(p.id) === String(pedidoId));
+  if (!pedido) return;
+  const texto = textoEnvioPedido(pedido);
+  if (!texto) { mostrarToast('Sin datos', 'Este pedido no tiene datos de envío.', 'info'); return; }
+
+  const marcar = ok => {
+    const original = boton.dataset.original || boton.innerHTML;
+    boton.dataset.original = original;
+    boton.innerHTML = ok ? '✓ Copiado' : '⚠ Error';
+    boton.classList.toggle('copiado', ok);
+    setTimeout(() => { boton.innerHTML = original; boton.classList.remove('copiado'); }, 1800);
+  };
+
+  try {
+    await navigator.clipboard.writeText(texto);
+    marcar(true);
+  } catch (_) {
+    // Sin permiso de portapapeles: se copia con un campo temporal
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = texto;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      marcar(document.execCommand('copy'));
+      ta.remove();
+    } catch (__) { marcar(false); }
+  }
 }
 
 /* ── Cambiar estado ──────────────────────── */

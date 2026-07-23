@@ -4,6 +4,10 @@ const { METAS_REGALO, esRegalo } = require("../js/regalos.js");
 
 const SUPA_URL = 'https://qcaxddxxmrwfihnyepbo.supabase.co';
 
+/* Días que se conserva un pedido sin pagar antes de borrarlo. Un pago por
+   transferencia o un webhook lento pueden tardar, pero no tanto. */
+const DIAS_RETENER_PENDIENTES = 3;
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
@@ -133,15 +137,62 @@ module.exports = async (req, res) => {
   if (userId)    payload.user_id    = userId;
   if (datosEnvio) payload.datos_envio = datosEnvio;
 
-  const { data: pedido, error: pedidoErr } = await supabase
-    .from("pedidos")
-    .insert(payload)
-    .select("id")
-    .single();
+  /* Un pedido sin pagar es solo un carrito abandonado. Se limpian los que
+     ya llevan días para que no se acumulen en la base. Va sin await: si
+     falla no debe frenar la compra de nadie. */
+  const haceDias = n => new Date(Date.now() - n * 86400000).toISOString();
+  supabase.from("pedidos")
+    .delete()
+    .eq("estado", "pendiente")
+    .lt("created_at", haceDias(DIAS_RETENER_PENDIENTES))
+    .then(({ error }) => {
+      if (error) console.warn("[crear-preferencia] Limpieza de pendientes:", error.message);
+    });
 
-  if (pedidoErr || !pedido) {
-    console.error("[crear-preferencia] Error guardando pedido:", pedidoErr);
-    return res.status(500).json({ error: "No se pudo crear el pedido" });
+  /* Reutilizar el pedido si el cliente vuelve a intentar el mismo pago:
+     antes, cada clic en "Realizar pago" creaba una fila nueva y la compra
+     terminaba duplicada si más de una llegaba a confirmarse. */
+  let pedido = null;
+  const desdeReciente = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+  const consultaPrevios = supabase
+    .from("pedidos")
+    .select("id, items")
+    .eq("estado", "pendiente")
+    .eq("total", total)
+    .gte("created_at", desdeReciente)
+    .order("created_at", { ascending: false })
+    .limit(5);
+
+  const { data: previos } = userId
+    ? await consultaPrevios.eq("user_id", userId)
+    : await consultaPrevios.is("user_id", null);
+
+  if (previos && previos.length) {
+    const huella = JSON.stringify(payload.items.map(i => [String(i.id), i.cantidad]).sort());
+    const igual = previos.find(p => {
+      const suyo = Array.isArray(p.items) ? p.items : [];
+      return JSON.stringify(suyo.map(i => [String(i.id), i.cantidad]).sort()) === huella;
+    });
+    if (igual) {
+      pedido = { id: igual.id };
+      // Se refrescan los datos de envío por si los corrigió antes de reintentar
+      await supabase.from("pedidos").update({ datos_envio: datosEnvio || null }).eq("id", igual.id);
+      console.log("[crear-preferencia] Reutiliza pedido pendiente:", igual.id);
+    }
+  }
+
+  if (!pedido) {
+    const { data: nuevo, error: pedidoErr } = await supabase
+      .from("pedidos")
+      .insert(payload)
+      .select("id")
+      .single();
+
+    if (pedidoErr || !nuevo) {
+      console.error("[crear-preferencia] Error guardando pedido:", pedidoErr);
+      return res.status(500).json({ error: "No se pudo crear el pedido" });
+    }
+    pedido = nuevo;
   }
 
   // ── Crear preferencia en MercadoPago con precios reales ──

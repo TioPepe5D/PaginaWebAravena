@@ -2100,3 +2100,26 @@
   .resumen-monto { font-size: 1.7rem; }
   .resumen-valor { font-size: 1.25rem; }
 }
+
+/* Aviso de posible venta repetida */
+.fila-duplicada { background: rgba(240, 180, 41, 0.06); }
+.aviso-duplicado {
+  display: inline-block;
+  margin-top: 5px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(240, 180, 41, 0.16);
+  border: 1px solid rgba(240, 180, 41, 0.45);
+  color: #f0b429;
+  font-size: 0.62rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: help;
+}
+
+/* Botón de copiar datos de envío */
+.btn-accion-copiar.copiado {
+  background: #25D366;
+  border-color: #25D366;
+  color: #041018;
+}

@@ -786,22 +786,20 @@ function textoDatosTransferencia() {
      se exige al menos nombre o teléfono. */
   if (!v("env-nombre-pago") && !numero) return "";
 
-  const campos = [
-    ["Nombre",    v("env-nombre-pago")],
-    ["Teléfono",  numero ? codigo + numero : ""],
-    ["Correo",    v("env-correo-pago")],
-    ["RUT / doc", v("env-rut-pago")],
-    ["Región",    v("env-region-pago")],
-    ["Ciudad",    v("env-ciudad-pago")],
-    ["Comuna",    v("env-comuna-pago")],
-    ["Empresa de envío", v("env-empresa-pago")],
-    ["Entrega",   v("env-preferencia-pago")],
-    ["Domicilio", v("env-domicilio-pago")],
-    ["Sucursal",  v("env-sucursal-pago")],
-  ].filter(([, valor]) => valor);
+  /* Mismo orden que usa la bodega al despachar en Starken, una línea por
+     dato, para que se pueda pegar de corrido. */
+  const esSucursal = v("env-preferencia-pago") === "Sucursal";
+  const lineas = [
+    [v("env-empresa-pago"), v("env-preferencia-pago")].filter(Boolean).join(" | "),
+    v("env-nombre-pago"),
+    numero ? codigo + numero : "",
+    v("env-rut-pago"),
+    [v("env-ciudad-pago"), v("env-comuna-pago")].filter(Boolean).join(", "),
+    v("env-correo-pago"),
+    esSucursal ? v("env-sucursal-pago") : v("env-domicilio-pago"),
+  ];
 
-  if (!campos.length) return "";
-  return ["Mis datos de envío:", "", ...campos.map(([k, val]) => `${k}: ${val}`)].join("\n");
+  return lineas.filter(l => l && l.trim()).join("\n");
 }
 
 // Copia al portapapeles con respaldo para navegadores que no lo permiten
