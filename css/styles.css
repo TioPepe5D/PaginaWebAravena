@@ -983,24 +983,18 @@ img { max-width: 100%; display: block; }
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;     /* no arrastra la página al llegar al borde */
   cursor: grab;
+  /* Difuminado de los extremos. Va como máscara y no como capas encima:
+     dentro de un contenedor con scroll, un elemento position:absolute se
+     desplaza junto al contenido y cruzaba las fotos como una banda. */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 42px, #000 calc(100% - 42px), transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 42px, #000 calc(100% - 42px), transparent);
 }
 .marquee::-webkit-scrollbar { display: none; }
 .marquee.arrastrando { cursor: grabbing; }
 /* Mientras se arrastra no se seleccionan textos ni se arrastran imágenes */
 .marquee.arrastrando * { user-select: none; }
 .marquee img { -webkit-user-drag: none; user-drag: none; }
-/* Difuminado en los extremos */
-.marquee::before,
-.marquee::after {
-  content: "";
-  position: absolute;
-  top: 0; bottom: 0;
-  width: 46px;
-  z-index: 3;
-  pointer-events: none;
-}
-.marquee::before { left: 0;  background: linear-gradient(90deg, var(--color-fondo), transparent); }
-.marquee::after  { right: 0; background: linear-gradient(270deg, var(--color-fondo), transparent); }
+/* El difuminado de los extremos ahora es la máscara de .marquee (arriba) */
 
 .marquee-track {
   display: flex;
