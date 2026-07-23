@@ -18,7 +18,7 @@ let pedidoActual = null;
 let pedidosFiltrados = [];
 let emailsUsuarios = {};      // { user_id: email }
 let graficoVentas = null;
-let diasGrafico = 30;
+// (el período del gráfico ahora lo define rangoActivo)
 let primeraCarga = true;
 let idsConocidos = new Set();
 let realtimeSub = null;
@@ -114,12 +114,31 @@ function configurarEventos() {
   document.getElementById('filtro-busqueda').addEventListener('input', aplicarFiltros);
   document.getElementById('filtro-estado').addEventListener('change', aplicarFiltros);
 
-  // Botones período del gráfico
-  document.querySelectorAll('.btn-periodo').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.btn-periodo').forEach(b => b.classList.remove('activo'));
-      btn.classList.add('activo');
-      diasGrafico = parseInt(btn.dataset.dias, 10);
+  // Rango de fechas: mueve el resumen y el gráfico a la vez
+  document.getElementById('rango-botones')?.addEventListener('click', e => {
+    const btn = e.target.closest('.rango-btn');
+    if (!btn) return;
+    rangoActivo = btn.dataset.rango;
+    rangoDesde = rangoHasta = null;            // manda el botón, no las fechas
+    document.getElementById('rango-desde').value = '';
+    document.getElementById('rango-hasta').value = '';
+    document.querySelectorAll('.rango-btn').forEach(b => b.classList.toggle('activo', b === btn));
+    calcularStats();
+    renderizarGrafico();
+  });
+
+  // Fechas a mano: solo aplican cuando ambas están completas
+  ['rango-desde', 'rango-hasta'].forEach(id => {
+    document.getElementById(id)?.addEventListener('change', () => {
+      const d = document.getElementById('rango-desde').value;
+      const h = document.getElementById('rango-hasta').value;
+      if (!d || !h) return;
+      rangoDesde = new Date(d + 'T00:00:00');
+      rangoHasta = new Date(h + 'T00:00:00');
+      // Si vienen al revés, se ordenan solas
+      if (rangoDesde > rangoHasta) [rangoDesde, rangoHasta] = [rangoHasta, rangoDesde];
+      document.querySelectorAll('.rango-btn').forEach(b => b.classList.remove('activo'));
+      calcularStats();
       renderizarGrafico();
     });
   });
@@ -183,7 +202,7 @@ async function cargarPedidos() {
     if (error) {
       console.error('[Admin] Error cargando pedidos:', error);
       document.getElementById('tabla-pedidos').innerHTML =
-        `<tr><td colspan="7" class="tabla-vacia">Error: ${error.message}</td></tr>`;
+        `<tr><td colspan="6" class="tabla-vacia">Error: ${error.message}</td></tr>`;
       return;
     }
 
@@ -213,19 +232,75 @@ async function cargarPedidos() {
   }
 }
 
-/* ── Stats ───────────────────────────────── */
-function calcularStats() {
-  // Solo cuentan las ventas con pago confirmado; los carritos abandonados
-  // inflaban el total y daban una idea equivocada del negocio.
-  const pagadosYEnviados = todosLosPedidos.filter(p => ESTADOS_CONFIRMADOS.includes(p.estado));
-  const total = pagadosYEnviados.length;
-  const enviados = todosLosPedidos.filter(p => p.estado === 'enviado').length;
-  const revenue = pagadosYEnviados.reduce((s, p) => s + (Number(p.total) || 0), 0);
+/* ── Rango de fechas: manda sobre el resumen y sobre el gráfico ── */
+const RANGOS = {
+  hoy:  { dias: 1,  etiqueta: 'hoy' },
+  '7':  { dias: 7,  etiqueta: 'últimos 7 días' },
+  '30': { dias: 30, etiqueta: 'últimos 30 días' },
+  mes:  { dias: null, etiqueta: 'este mes' },
+  todo: { dias: null, etiqueta: 'todo el historial' },
+};
+let rangoActivo = '30';
+let rangoDesde = null;   // se llenan solo al elegir fechas a mano
+let rangoHasta = null;
 
-  animarContador('stat-total', total);
-  animarContador('stat-pagados', pagadosYEnviados.length);
-  animarContador('stat-enviados', enviados);
-  document.getElementById('stat-revenue').textContent = '$' + revenue.toLocaleString('es-CL');
+function inicioDelDia(d) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+function finDelDia(d)    { const x = new Date(d); x.setHours(23, 59, 59, 999); return x; }
+
+function rangoFechas() {
+  const hoy = new Date();
+  if (rangoDesde && rangoHasta) {
+    const f = d => d.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit' });
+    return { desde: inicioDelDia(rangoDesde), hasta: finDelDia(rangoHasta),
+             etiqueta: `${f(rangoDesde)} a ${f(rangoHasta)}` };
+  }
+  const cfg = RANGOS[rangoActivo] || RANGOS['30'];
+  if (rangoActivo === 'todo') {
+    return { desde: new Date(2000, 0, 1), hasta: finDelDia(hoy), etiqueta: cfg.etiqueta };
+  }
+  if (rangoActivo === 'mes') {
+    return { desde: new Date(hoy.getFullYear(), hoy.getMonth(), 1), hasta: finDelDia(hoy), etiqueta: cfg.etiqueta };
+  }
+  const desde = inicioDelDia(hoy);
+  desde.setDate(desde.getDate() - (cfg.dias - 1));
+  return { desde, hasta: finDelDia(hoy), etiqueta: cfg.etiqueta };
+}
+
+/* Ventas con pago confirmado dentro del rango elegido */
+function ventasDelRango() {
+  const { desde, hasta } = rangoFechas();
+  return todosLosPedidos.filter(p => {
+    if (!ESTADOS_CONFIRMADOS.includes(p.estado)) return false;
+    const f = new Date(p.created_at);
+    return f >= desde && f <= hasta;
+  });
+}
+
+/* ── Resumen de ventas del período ───────── */
+function calcularStats() {
+  const ventas = ventasDelRango();
+  const { etiqueta } = rangoFechas();
+  const monto = ventas.reduce((s, p) => s + (Number(p.total) || 0), 0);
+  const ticket = ventas.length ? Math.round(monto / ventas.length) : 0;
+
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('res-monto', '$' + monto.toLocaleString('es-CL'));
+  set('res-ticket', '$' + ticket.toLocaleString('es-CL'));
+  set('res-rango', etiqueta);
+  animarContador('res-cantidad', ventas.length);
+
+  // Día con más ingresos dentro del período
+  const porDia = {};
+  ventas.forEach(p => {
+    const k = new Date(p.created_at).toLocaleDateString('es-CL');
+    porDia[k] = (porDia[k] || 0) + (Number(p.total) || 0);
+  });
+  const mejor = Object.entries(porDia).sort((a, b) => b[1] - a[1])[0];
+  set('res-mejor', mejor ? mejor[0].slice(0, 5) : '—');
+  set('res-mejor-sub', mejor ? '$' + mejor[1].toLocaleString('es-CL') : 'sin ventas en el período');
+
+  const sub = document.getElementById('chart-subtitulo');
+  if (sub) sub.textContent = 'Ingresos · ' + etiqueta;
 }
 
 function animarContador(id, valorFinal) {
@@ -312,7 +387,7 @@ function renderizarTabla() {
   const tbody = document.getElementById('tabla-pedidos');
 
   if (pedidosFiltrados.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" class="tabla-vacia">No hay pedidos que coincidan con los filtros.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="tabla-vacia">No hay pedidos que coincidan con los filtros.</td></tr>';
     return;
   }
 
@@ -348,9 +423,6 @@ function renderizarTabla() {
       } else if (p.estado !== 'enviado') {
         acciones.push(`<button class="btn-accion btn-accion-pagar" onclick="cambiarEstado('${p.id}', 'pagado')">Marcar pagado</button>`);
       }
-      if (p.estado !== 'fallido' && p.estado !== 'enviado') {
-        acciones.push(`<button class="btn-accion btn-accion-fallar" onclick="cambiarEstado('${p.id}', 'fallido')">Fallido</button>`);
-      }
       acciones.push(`<button class="btn-accion" onclick="verDetalle('${p.id}')">Ver</button>`);
       acciones.push(`<button class="btn-accion btn-accion-eliminar" onclick="eliminarPedido('${p.id}')" title="Mover a papelera">🗑</button>`);
     }
@@ -378,13 +450,20 @@ function renderizarTabla() {
     if (de) {
       // La ubicación se arma de lo más específico a lo más general
       const lugar = [de.comuna, de.ciudad, de.region].filter(Boolean).join(', ');
-      const empresa   = de.empresa    ? `<span class="td-envio-empresa">${de.empresa}</span>` : '';
+      // Empresa y tipo de entrega van juntos: al despachar se leen de una
+      const esSucursal = de.preferencia === 'Sucursal';
+      const entrega = de.preferencia
+        ? `<span class="td-envio-pref">${esSucursal ? '🏪' : '🏠'} ${de.preferencia}</span>` : '';
+      const empresa = (de.empresa || entrega)
+        ? `<span class="td-envio-cab">${de.empresa ? `<span class="td-envio-empresa">${de.empresa}</span>` : ''}${entrega}</span>` : '';
       const nombre    = de.nombre     ? `<span class="td-envio-linea">${de.nombre}</span>` : '';
       const tel       = de.telefono   ? `<a class="td-envio-linea td-envio-tel" href="https://wa.me/${String(de.telefono).replace(/\D/g,'')}" target="_blank" rel="noopener" title="Escribir por WhatsApp">📞 ${de.telefono}</a>` : '';
       const ubic      = lugar         ? `<span class="td-envio-linea">📍 ${lugar}</span>` : '';
-      const pref      = de.preferencia ? `<span class="td-envio-pref">${de.preferencia}${de.sucursal ? ' · ' + de.sucursal : ''}</span>` : '';
-      const domicilio = de.domicilio  ? `<span class="td-envio-domicilio">🏠 ${de.domicilio}</span>` : '';
-      envioHtml = `<div class="td-envio">${empresa}${nombre}${tel}${ubic}${pref}${domicilio}</div>`;
+      // Se muestra el dato que corresponde: sucursal o dirección
+      const destino = esSucursal
+        ? (de.sucursal  ? `<span class="td-envio-domicilio">🏪 ${de.sucursal}</span>` : '')
+        : (de.domicilio ? `<span class="td-envio-domicilio">🏠 ${de.domicilio}</span>` : '');
+      envioHtml = `<div class="td-envio">${empresa}${nombre}${tel}${ubic}${destino}</div>`;
     } else {
       envioHtml = `<span class="td-envio-vacio">—</span>`;
     }
@@ -392,13 +471,13 @@ function renderizarTabla() {
     return `
       <tr data-id="${p.id}">
         <td class="td-pedido" data-label="Pedido">
-          <span class="td-fecha">${fecha}</span>
           <span class="td-id">#${idCorto}</span>
+          <span class="td-fecha-label">Fecha</span>
+          <span class="td-fecha">${fecha}</span>
         </td>
         <td class="td-cliente" data-label="Cliente">${clienteHtml}</td>
         <td class="td-envio-col" data-label="Envío">${envioHtml}</td>
-        <td data-label="Items">${itemsCount} ${itemsCount === 1 ? 'item' : 'items'}${regalosHtml}</td>
-        <td class="td-total" data-label="Total">$${total.toLocaleString('es-CL')}</td>
+        <td class="td-total" data-label="Total">$${total.toLocaleString('es-CL')}${regalosHtml}</td>
         <td data-label="Estado"><span class="estado-badge estado-${p.estado}">${p.estado}</span></td>
         <td><div class="tabla-acciones">${acciones.join('')}</div></td>
       </tr>
@@ -825,31 +904,33 @@ function renderizarGrafico() {
   const canvas = document.getElementById('grafico-ventas');
   if (!canvas || typeof Chart === 'undefined') return;
 
-  // Construir dataset por día
-  const ahora = new Date();
+  /* El gráfico usa el MISMO rango que el resumen: al cambiar las fechas
+     arriba, las barras se mueven con él. */
+  const { desde, hasta } = rangoFechas();
   const labels = [];
   const dataVentas = [];
   const dataCantidad = [];
   const buckets = {};
 
-  for (let i = diasGrafico - 1; i >= 0; i--) {
-    const d = new Date(ahora);
+  // Una columna por día, con tope para que el eje no se sature
+  const totalDias = Math.max(1, Math.round((hasta - desde) / 86400000) + 1);
+  const dias = Math.min(totalDias, 120);
+  for (let i = dias - 1; i >= 0; i--) {
+    const d = new Date(hasta);
     d.setDate(d.getDate() - i);
     const key = d.toISOString().slice(0, 10);
     buckets[key] = { ventas: 0, cantidad: 0 };
     labels.push(d.toLocaleDateString('es-CL', { day: '2-digit', month: 'short' }));
   }
 
-  // Agregar pagados al bucket correspondiente
-  todosLosPedidos
-    .filter(p => p.estado === 'pagado')
-    .forEach(p => {
-      const key = new Date(p.created_at).toISOString().slice(0, 10);
-      if (buckets[key]) {
-        buckets[key].ventas += Number(p.total) || 0;
-        buckets[key].cantidad += 1;
-      }
-    });
+  // Cuentan también las ya despachadas: siguen siendo ingresos
+  ventasDelRango().forEach(p => {
+    const key = new Date(p.created_at).toISOString().slice(0, 10);
+    if (buckets[key]) {
+      buckets[key].ventas += Number(p.total) || 0;
+      buckets[key].cantidad += 1;
+    }
+  });
 
   Object.keys(buckets).sort().forEach(k => {
     dataVentas.push(buckets[k].ventas);

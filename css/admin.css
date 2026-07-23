@@ -1938,3 +1938,165 @@
 }
 .estado-chip.chip-secundario:hover,
 .estado-chip.chip-secundario.activo { opacity: 1; }
+
+/* ═══════════════════════════════════════════════════════════
+   MÉTRICAS: visitas compactas, rango de fechas y resumen
+   ═══════════════════════════════════════════════════════════ */
+
+/* Antes eran 4 tarjetas grandes para 4 números: ahora una sola línea */
+.visitas-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.3rem;
+  padding: 0.7rem 1.1rem;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  background: var(--color-fondo-suave);
+  border: 1px solid var(--color-borde);
+  font-size: 0.85rem;
+  color: var(--color-texto-suave);
+}
+.visitas-vivo { display: inline-flex; align-items: center; gap: 0.45rem; }
+.visitas-sep { width: 1px; height: 18px; background: var(--color-borde); }
+.visitas-dato b,
+.visitas-vivo b {
+  margin-left: 0.35rem;
+  font-family: var(--fuente-monto, inherit);
+  font-variant-numeric: tabular-nums;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--admin-celeste);
+}
+
+/* Rango de fechas */
+.rango-barra {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-bottom: 1.1rem;
+}
+.rango-botones { display: flex; gap: 6px; flex-wrap: wrap; }
+.rango-btn {
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--color-borde);
+  background: transparent;
+  color: var(--color-texto-suave);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.rango-btn:hover { color: var(--admin-celeste); border-color: var(--admin-celeste); }
+.rango-btn.activo {
+  background: var(--admin-celeste);
+  border-color: var(--admin-celeste);
+  color: #041018;
+}
+.rango-fechas { display: flex; align-items: center; gap: 6px; }
+.rango-a { font-size: 0.78rem; color: var(--color-texto-suave); }
+.rango-input {
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-borde);
+  background: var(--color-fondo-suave);
+  color: var(--color-texto);
+  font-family: inherit;
+  font-size: 0.8rem;
+}
+.rango-input:focus { outline: none; border-color: var(--admin-celeste); }
+/* El icono del calendario es negro por defecto y se pierde en el tema oscuro */
+.rango-input::-webkit-calendar-picker-indicator { filter: invert(0.7); cursor: pointer; }
+
+/* Resumen de ventas */
+.resumen-ventas {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+.resumen-card {
+  padding: 1.1rem 1.3rem;
+  border-radius: 12px;
+  background: var(--color-fondo-suave);
+  border: 1px solid var(--color-borde);
+}
+.resumen-principal {
+  background: linear-gradient(140deg, rgba(143,227,255,0.1), transparent 65%), var(--color-fondo-suave);
+  border-color: rgba(143,227,255,0.35);
+}
+.resumen-label {
+  margin: 0 0 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+.resumen-monto,
+.resumen-valor {
+  margin: 0;
+  font-family: var(--fuente-monto, inherit);
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--admin-celeste);
+}
+.resumen-monto { font-size: 2.1rem; }
+.resumen-valor { font-size: 1.5rem; }
+.resumen-sub {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  color: var(--color-texto-suave);
+}
+.resumen-sub b { color: var(--color-texto); font-variant-numeric: tabular-nums; }
+
+/* Columna "Pedido": número arriba, fecha etiquetada debajo */
+.td-fecha-label {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+.td-pedido .td-id { font-size: 0.82rem; color: var(--color-texto); }
+
+/* Empresa de envío y tipo de entrega en la misma línea */
+.td-envio-cab {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.td-envio-cab .td-envio-pref {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(143,227,255,0.14);
+  color: var(--admin-celeste);
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .resumen-ventas { grid-template-columns: 1fr 1fr; }
+  .resumen-principal { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .visitas-bar { gap: 0.4rem 0.9rem; padding: 0.6rem 0.8rem; font-size: 0.8rem; }
+  .visitas-sep { display: none; }
+  .rango-barra { flex-direction: column; align-items: stretch; }
+  .rango-botones { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+  .rango-botones::-webkit-scrollbar { display: none; }
+  .rango-btn { flex: 0 0 auto; }
+  .rango-fechas { justify-content: space-between; }
+  .rango-input { flex: 1; min-width: 0; }
+  .resumen-monto { font-size: 1.7rem; }
+  .resumen-valor { font-size: 1.25rem; }
+}

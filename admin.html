@@ -86,100 +86,57 @@
 
       <div class="admin-tabpanel" id="panel-metricas" hidden>
 
-      <!-- Visitantes en tiempo real -->
-      <div class="realtime-bar" id="realtime-bar">
-        <div class="realtime-dot"></div>
-        <span class="realtime-label">Ahora:</span>
-        <span class="realtime-count" id="realtime-count">—</span>
+      <!-- Visitas: una sola línea compacta en vez de 4 tarjetas grandes -->
+      <div class="visitas-bar">
+        <span class="visitas-vivo"><span class="realtime-dot"></span> Ahora <b id="realtime-count">—</b></span>
+        <span class="visitas-sep"></span>
+        <span class="visitas-dato">Hoy <b id="uau-dia">—</b></span>
+        <span class="visitas-dato">Semana <b id="uau-semana">—</b></span>
+        <span class="visitas-dato">Mes <b id="uau-mes">—</b></span>
         <div class="realtime-paginas" id="realtime-paginas"></div>
       </div>
 
-      <!-- Usuarios activos históricos -->
-      <div class="uau-grid">
-        <div class="uau-card">
-          <p class="uau-label">Hoy</p>
-          <p class="uau-valor" id="uau-dia">—</p>
-          <p class="uau-sub">usuarios únicos</p>
+      <!-- Rango de fechas: manda sobre las cifras y sobre el gráfico -->
+      <div class="rango-barra">
+        <div class="rango-botones" id="rango-botones">
+          <button class="rango-btn" data-rango="hoy">Hoy</button>
+          <button class="rango-btn" data-rango="7">7 días</button>
+          <button class="rango-btn activo" data-rango="30">30 días</button>
+          <button class="rango-btn" data-rango="mes">Este mes</button>
+          <button class="rango-btn" data-rango="todo">Todo</button>
         </div>
-        <div class="uau-card">
-          <p class="uau-label">Esta semana</p>
-          <p class="uau-valor" id="uau-semana">—</p>
-          <p class="uau-sub">usuarios únicos</p>
-        </div>
-        <div class="uau-card">
-          <p class="uau-label">Este mes</p>
-          <p class="uau-valor" id="uau-mes">—</p>
-          <p class="uau-sub">usuarios únicos</p>
-        </div>
-        <div class="uau-card">
-          <p class="uau-label">Página más visitada</p>
-          <p class="uau-valor uau-pagina" id="uau-top-pagina">—</p>
-          <p class="uau-sub" id="uau-top-sub">hoy</p>
+        <div class="rango-fechas">
+          <input type="date" id="rango-desde" class="rango-input" aria-label="Desde">
+          <span class="rango-a">a</span>
+          <input type="date" id="rango-hasta" class="rango-input" aria-label="Hasta">
         </div>
       </div>
 
-      <!-- Tarjetas de estadísticas -->
-      <section class="admin-stats">
-        <div class="stat-card stat-total">
-          <div class="stat-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4"/>
-              <rect x="9" y="3" width="6" height="8" rx="1"/>
-            </svg>
-          </div>
-          <div class="stat-content">
-            <p class="stat-label">Ventas confirmadas</p>
-            <p class="stat-value" id="stat-total">0</p>
-          </div>
+      <!-- Resumen de ventas del rango elegido -->
+      <section class="resumen-ventas">
+        <div class="resumen-card resumen-principal">
+          <p class="resumen-label">Ventas totales</p>
+          <p class="resumen-monto" id="res-monto">$0</p>
+          <p class="resumen-sub"><b id="res-cantidad">0</b> ventas · <span id="res-rango">últimos 30 días</span></p>
         </div>
-        <div class="stat-card stat-pagado">
-          <div class="stat-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-              <polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
-          </div>
-          <div class="stat-content">
-            <p class="stat-label">Pagados</p>
-            <p class="stat-value" id="stat-pagados">0</p>
-          </div>
+        <div class="resumen-card">
+          <p class="resumen-label">Ticket promedio</p>
+          <p class="resumen-valor" id="res-ticket">$0</p>
+          <p class="resumen-sub">por venta</p>
         </div>
-        <div class="stat-card stat-enviado">
-          <div class="stat-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M3 16v5h5"/><path d="M16 21h5v-5"/>
-              <rect x="7" y="7" width="10" height="10" rx="1"/>
-            </svg>
-          </div>
-          <div class="stat-content">
-            <p class="stat-label">Enviados</p>
-            <p class="stat-value" id="stat-enviados">0</p>
-          </div>
-        </div>
-        <div class="stat-card stat-revenue">
-          <div class="stat-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="12" y1="1" x2="12" y2="23"/>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-            </svg>
-          </div>
-          <div class="stat-content">
-            <p class="stat-label">Ingresos totales</p>
-            <p class="stat-value" id="stat-revenue">$0</p>
-          </div>
+        <div class="resumen-card">
+          <p class="resumen-label">Mejor día</p>
+          <p class="resumen-valor" id="res-mejor">—</p>
+          <p class="resumen-sub" id="res-mejor-sub">sin datos</p>
         </div>
       </section>
 
-      <!-- Gráfico de ventas -->
+      <!-- Gráfico: sigue el mismo rango -->
       <section class="admin-chart-wrap">
         <div class="chart-header">
           <div>
-            <h2 class="chart-title">Ventas recientes</h2>
-            <p class="chart-subtitle">Ingresos de los últimos 30 días (solo pedidos pagados)</p>
-          </div>
-          <div class="chart-periodo">
-            <button class="btn-periodo activo" data-dias="30">30 días</button>
-            <button class="btn-periodo" data-dias="7">7 días</button>
+            <h2 class="chart-title">Ventas en el período</h2>
+            <p class="chart-subtitle" id="chart-subtitulo">Ingresos de los últimos 30 días</p>
           </div>
         </div>
         <div class="chart-container">
@@ -240,7 +197,6 @@
               <th>Pedido</th>
               <th>Cliente</th>
               <th>Datos de Envío</th>
-              <th>Items</th>
               <th>Total</th>
               <th>Estado</th>
               <th>Acciones</th>
@@ -290,7 +246,7 @@
   <!-- Modal Editar Catálogo -->
   <script src="js/supabase-client.js?v=3"></script>
   <script src="js/products.js?v=3"></script>
-  <script src="js/admin.js?v=3"></script>
+  <script src="js/admin.js?v=4"></script>
 
 </body>
 
