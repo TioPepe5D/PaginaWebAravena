@@ -476,10 +476,12 @@ function _bindRestricciones() {
   get('env-ciudad-pago')?.addEventListener('change', e =>
     _poblarComunas(get('env-region-pago').value, e.target.value));
 
-  // RUT: formateo automático
+  /* RUT: se formatea solo si lo escrito parece un RUT chileno (dígitos con
+     dígito verificador). Un pasaporte tipo "AB123456" se deja intacto. */
   const rutEl = get('env-rut-pago');
   if (rutEl) rutEl.addEventListener('input', () => {
-    rutEl.value = _formatearRut(rutEl.value);
+    const limpio = rutEl.value.replace(/[.\-\s]/g, '');
+    if (/^[0-9]{1,8}[0-9kK]?$/.test(limpio)) rutEl.value = _formatearRut(rutEl.value);
   });
 
   // Marcador para no aplicar dos veces
@@ -562,7 +564,7 @@ function confirmarEnvioYPagar() {
   const errEl = document.getElementById('env-form-error');
   const fail = msg => { errEl.textContent = msg; errEl.style.display = 'block'; };
 
-  if (!nombre || !telNumero || !rut || !region || !ciudad || !comuna || !correo || !empresa) {
+  if (!nombre || !telNumero || !region || !ciudad || !comuna || !correo || !empresa) {
     return fail('Por favor completa todos los campos obligatorios (*)');
   }
   if (nombre.length < 3 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) {
@@ -572,8 +574,11 @@ function confirmarEnvioYPagar() {
   if (!new RegExp(`^[0-9]{${pais.digitos}}$`).test(telNumero)) {
     return fail(`Teléfono inválido. Para ${pais.pais} son exactamente ${pais.digitos} dígitos (ej: ${pais.ejemplo}).`);
   }
-  if (!_validarRut(rut)) {
-    return fail('RUT inválido. Verifica el dígito verificador (ej: 12.345.678-9).');
+  /* El RUT es opcional (hay clientes con documento extranjero). Solo se
+     valida el dígito verificador cuando parece un RUT chileno; cualquier
+     otro documento se acepta tal cual. */
+  if (rut && /^[0-9.]+-?[0-9kK]$/.test(rut) && !_validarRut(rut)) {
+    return fail('El RUT no es válido. Revisa el dígito verificador (ej: 12.345.678-9) o déjalo en blanco.');
   }
   if (!_validarCorreo(correo)) {
     return fail('Correo electrónico inválido.');
@@ -753,6 +758,118 @@ function mostrarBannerPago(texto, tipo, linkTexto = '', linkUrl = '') {
   main.prepend(banner);
 }
 
+/* =============================================
+   PAGO POR TRANSFERENCIA
+   No se confirma el pedido en la web: se coordina por WhatsApp en 3
+   pasos. Aquí se arma el texto para que el cliente lo copie y pegue
+   sin tener que escribirlo todo de nuevo.
+   ============================================= */
+const WSP_NUMERO = "56966497904";
+
+function textoPedidoTransferencia() {
+  if (carrito.length === 0) return "";
+  const lineas = carrito
+    .filter(i => !esRegalo(i))
+    .map(i => `• ${i.nombre} — x${i.cantidad} — $${(i.precio * i.cantidad).toLocaleString("es-CL")}`);
+
+  const subtotal = subtotalPagado(carrito);
+  const regalos = carrito.filter(i => esRegalo(i)).map(i => `🎁 ${i.nombre}`);
+
+  return [
+    "Hola 👋 Quiero pagar por transferencia. Mi pedido:",
+    "",
+    ...lineas,
+    ...(regalos.length ? ["", ...regalos] : []),
+    "",
+    `Total productos: $${subtotal.toLocaleString("es-CL")}`,
+  ].join("\n");
+}
+
+function textoDatosTransferencia() {
+  const v = id => (document.getElementById(id)?.value || "").trim();
+  const codigo = v("env-tel-codigo");
+  const numero = v("env-telefono-pago");
+
+  /* Los selectores traen valores por defecto (empresa, tipo de entrega),
+     así que no bastan para decir que el cliente "ya llenó sus datos":
+     se exige al menos nombre o teléfono. */
+  if (!v("env-nombre-pago") && !numero) return "";
+
+  const campos = [
+    ["Nombre",    v("env-nombre-pago")],
+    ["Teléfono",  numero ? codigo + numero : ""],
+    ["Correo",    v("env-correo-pago")],
+    ["RUT / doc", v("env-rut-pago")],
+    ["Región",    v("env-region-pago")],
+    ["Ciudad",    v("env-ciudad-pago")],
+    ["Comuna",    v("env-comuna-pago")],
+    ["Empresa de envío", v("env-empresa-pago")],
+    ["Entrega",   v("env-preferencia-pago")],
+    ["Domicilio", v("env-domicilio-pago")],
+    ["Sucursal",  v("env-sucursal-pago")],
+  ].filter(([, valor]) => valor);
+
+  if (!campos.length) return "";
+  return ["Mis datos de envío:", "", ...campos.map(([k, val]) => `${k}: ${val}`)].join("\n");
+}
+
+// Copia al portapapeles con respaldo para navegadores que no lo permiten
+async function copiarAlPortapapeles(texto, boton) {
+  const avisar = ok => {
+    const original = boton.dataset.original || boton.textContent;
+    boton.dataset.original = original;
+    boton.textContent = ok ? "✅ Copiado" : "⚠ No se pudo copiar";
+    boton.classList.toggle("copiado", ok);
+    setTimeout(() => { boton.textContent = original; boton.classList.remove("copiado"); }, 2200);
+  };
+  try {
+    await navigator.clipboard.writeText(texto);
+    avisar(true);
+  } catch (_) {
+    // Sin permisos de portapapeles: se copia con un campo temporal
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = texto;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      ta.remove();
+      avisar(ok);
+    } catch (__) { avisar(false); }
+  }
+}
+
+function abrirModalTransferencia() {
+  const overlay = document.getElementById("modal-transf-overlay");
+  if (!overlay) return;
+
+  const pedido = textoPedidoTransferencia();
+  const enlace = `https://wa.me/${WSP_NUMERO}?text=${encodeURIComponent(pedido || "Hola 👋 Quiero pagar por transferencia.")}`;
+  const wspPedido = document.getElementById("transf-wsp-pedido");
+  const wspPrincipal = document.getElementById("transf-wsp-principal");
+  if (wspPedido)    wspPedido.href = enlace;
+  if (wspPrincipal) wspPrincipal.href = enlace;
+
+  // Aviso si todavía no completó el formulario de envío
+  const nota = document.getElementById("transf-nota-datos");
+  const btnDatos = document.getElementById("transf-copiar-datos");
+  const hayDatos = !!textoDatosTransferencia();
+  if (nota) {
+    nota.textContent = hayDatos
+      ? ""
+      : "Aún no has llenado tus datos. Puedes escribirlos en el formulario de envío y volver aquí, o mandárnoslos por WhatsApp.";
+  }
+  if (btnDatos) btnDatos.disabled = !hayDatos;
+
+  overlay.classList.add("activo");
+}
+
+function cerrarModalTransferencia() {
+  document.getElementById("modal-transf-overlay")?.classList.remove("activo");
+}
+
 /* ── Configurar botones ── */
 function configurarPago() {
   const btn = document.getElementById("btn-pagar");
@@ -770,6 +887,17 @@ function configurarPago() {
   if (overlayEnvio)   overlayEnvio.addEventListener("click", e => {
     if (e.target === overlayEnvio) cerrarFormularioEnvio();
   });
+
+  // Transferencia: se explica el proceso en vez de confirmar el pedido aquí
+  document.getElementById("btn-transferencia")?.addEventListener("click", abrirModalTransferencia);
+  document.getElementById("modal-transf-cerrar")?.addEventListener("click", cerrarModalTransferencia);
+  document.getElementById("modal-transf-overlay")?.addEventListener("click", e => {
+    if (e.target.id === "modal-transf-overlay") cerrarModalTransferencia();
+  });
+  document.getElementById("transf-copiar-pedido")?.addEventListener("click", e =>
+    copiarAlPortapapeles(textoPedidoTransferencia(), e.currentTarget));
+  document.getElementById("transf-copiar-datos")?.addEventListener("click", e =>
+    copiarAlPortapapeles(textoDatosTransferencia(), e.currentTarget));
 
   // Los hitos se repintan seguido: se escucha en el contenedor
   document.getElementById("metas-hitos")?.addEventListener("click", e => {

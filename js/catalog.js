@@ -7,6 +7,9 @@ const CATEGORIA_PAGINA = /categoria/.test(location.pathname)
   ? (location.hash.replace('#','') || new URLSearchParams(location.search).get('c') || '')
   : '';
 
+// Orden por precio en las páginas de categoría: "" | "asc" | "desc"
+let ordenPrecio = "";
+
 // Paginación "Ver más" (grilla de búsqueda / página de categoría)
 const PRODUCTOS_POR_TANDA = 12;
 let productosVisibles = PRODUCTOS_POR_TANDA;
@@ -22,11 +25,23 @@ const CATEGORIAS_META = [
   { key: "colgantes",   label: "Colgantes" },
   { key: "conjuntos",   label: "Conjuntos" },
   { key: "anillos",     label: "Anillos" },
+  // Esta agrupa por material, no por tipo de joya
+  { key: "oro-gf",      label: "Oro GF 18K", material: "oro-goldfit" },
   { key: "exhibidores", label: "Insumos" },
 ];
 
 function etiquetaCategoria(key) {
   return (CATEGORIAS_META.find(c => c.key === key) || {}).label || key;
+}
+
+/* Devuelve los productos de una categoría. Algunas agrupan por material
+   (Oro GF 18K) en vez de por tipo de joya. */
+function productosDeCategoria(key, fuente) {
+  const lista = fuente || productosActivos;
+  if (!key || key === "todos") return [...lista];
+  const meta = CATEGORIAS_META.find(c => c.key === key);
+  if (meta && meta.material) return lista.filter(p => p.material === meta.material);
+  return lista.filter(p => p.categoria === key);
 }
 
 // Barajado Fisher–Yates: orden aleatorio en cada visita
@@ -120,7 +135,7 @@ function renderizarFilas() {
     // "todos": muestra del catálogo completo (16 al azar); su página lo trae entero
     const items = cat.key === 'todos'
       ? productosActivos.slice(0, 16)
-      : productosActivos.filter(p => p.categoria === cat.key);
+      : productosDeCategoria(cat.key);
     if (!items.length) return '';
     // Dirección alternada: Collares →, Pulseras ←, Aros →, ...
     const dir = i % 2 === 0 ? 'marquee-izq' : 'marquee-der';
@@ -147,6 +162,7 @@ function renderizarFilas() {
 
   activarClickTarjetas(cont);
   cont.dataset.listo = "1";
+  if (typeof inicializarCarruseles === "function") inicializarCarruseles(cont);
   // Las filas aparecen con fade-up
   setTimeout(() => cont.querySelectorAll(".animar").forEach(el => el.classList.add("visible")), 50);
 }
@@ -194,11 +210,20 @@ function renderizarProductos() {
   grid.hidden = false;
   if (verMasWrap) verMasWrap.hidden = false;
 
-  let filtrados = [...productosActivos];
-  if (CATEGORIA_PAGINA && CATEGORIA_PAGINA !== 'todos') {
-    filtrados = filtrados.filter(p => p.categoria === CATEGORIA_PAGINA);
-  }
+  let filtrados = CATEGORIA_PAGINA
+    ? productosDeCategoria(CATEGORIA_PAGINA)
+    : [...productosActivos];
   if (busqueda) filtrados = filtrados.filter(p => p.nombre.toLowerCase().includes(busqueda));
+
+  // Orden por precio (solo en las páginas de categoría). Los productos sin
+  // precio quedan al final en ambos sentidos: no aportan a la comparación.
+  if (ordenPrecio) {
+    filtrados.sort((a, b) => {
+      if (!a.precio) return 1;
+      if (!b.precio) return -1;
+      return ordenPrecio === "asc" ? a.precio - b.precio : b.precio - a.precio;
+    });
+  }
 
   if (filtrados.length === 0) {
     grid.innerHTML = "<p style='text-align:center;color:#888;padding:3rem 0'>No se encontraron productos.</p>";
@@ -386,6 +411,7 @@ function renderizarTestimonios() {
       <p class="testi-pedido">🛍️ Compró: <strong>${t.pedido}</strong></p>
     </div>`).join("");
   track.innerHTML = tarjetas + tarjetas;
+  if (typeof inicializarCarruseles === "function") inicializarCarruseles(track.parentElement);
 }
 
 function inicializarFiltros() {
@@ -394,9 +420,26 @@ function inicializarFiltros() {
     reiniciarPaginacion();
     renderizarProductos();
   });
+
+  // Orden por precio (páginas de categoría)
+  document.getElementById("orden-botones")?.addEventListener("click", e => {
+    const btn = e.target.closest(".orden-btn");
+    if (!btn) return;
+    ordenPrecio = btn.dataset.orden;
+    document.querySelectorAll(".orden-btn").forEach(b => b.classList.toggle("activo", b === btn));
+    reiniciarPaginacion();
+    renderizarProductos();
+  });
 }
 
 async function inicializarCatalogo() {
+  /* Los navegadores restauran el texto de los formularios al volver atrás
+     (y a veces al recargar). Si el buscador arranca con texto, la portada
+     muestra la grilla de resultados y esconde TODAS las categorías: ese
+     era el bug intermitente en celular. Se limpia antes de pintar. */
+  const buscador = document.getElementById("filtro-nombre");
+  if (buscador && buscador.value) buscador.value = "";
+
   // Página de categoría: título según ?c=
   if (CATEGORIA_PAGINA) {
     const titulo = document.getElementById("catalogo-titulo");
@@ -412,4 +455,13 @@ async function inicializarCatalogo() {
 
   document.getElementById("producto-detalle-overlay")?.addEventListener("click", cerrarDetalleProducto);
   document.getElementById("producto-detalle-cerrar")?.addEventListener("click",  cerrarDetalleProducto);
+
+  /* Al volver con el botón "atrás" la página sale de la caché sin volver a
+     inicializarse: hay que limpiar el buscador y repintar a mano. */
+  window.addEventListener("pageshow", e => {
+    if (!e.persisted) return;
+    const inp = document.getElementById("filtro-nombre");
+    if (inp && inp.value) { inp.value = ""; reiniciarPaginacion(); }
+    renderizarProductos();
+  });
 }

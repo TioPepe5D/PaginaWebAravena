@@ -87,6 +87,16 @@
   <section class="catalogo" id="catalogo">
     <h2 id="catalogo-titulo" class="animar">Categoría</h2>
 
+    <!-- Orden por precio -->
+    <div class="orden-barra animar">
+      <span class="orden-label">Ordenar por precio</span>
+      <div class="orden-botones" id="orden-botones">
+        <button type="button" class="orden-btn activo" data-orden="">Destacados</button>
+        <button type="button" class="orden-btn" data-orden="asc">Menor a mayor ↑</button>
+        <button type="button" class="orden-btn" data-orden="desc">Mayor a menor ↓</button>
+      </div>
+    </div>
+
     <div class="productos-grid" id="productos-grid"></div>
     <div class="ver-mas-wrap" id="ver-mas-wrap"></div>
 
@@ -340,6 +350,7 @@
   <script src="js/regalos.js"></script>
   <script src="js/products.js"></script>
   <script src="js/cart.js"></script>
+  <script src="js/carrusel.js"></script>
   <script src="js/catalog.js?v=2"></script>
   <script src="js/animations.js?v=2"></script>
   <script src="js/effects.js"></script>

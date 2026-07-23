@@ -973,9 +973,22 @@ img { max-width: 100%; display: block; }
 /* Carrusel continuo: el contenido va duplicado, se desplaza la mitad */
 .marquee {
   position: relative;
-  overflow: hidden;
+  /* Scroll real: permite arrastrar con el dedo o el mouse. El movimiento
+     automático lo lleva js/carrusel.js moviendo scrollLeft. */
+  overflow-x: auto;
+  overflow-y: hidden;
   padding: 6px 0 10px;   /* aire para la sombra/hover de las tarjetas */
+  scrollbar-width: none;              /* Firefox */
+  -ms-overflow-style: none;           /* Edge antiguo */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;     /* no arrastra la página al llegar al borde */
+  cursor: grab;
 }
+.marquee::-webkit-scrollbar { display: none; }
+.marquee.arrastrando { cursor: grabbing; }
+/* Mientras se arrastra no se seleccionan textos ni se arrastran imágenes */
+.marquee.arrastrando * { user-select: none; }
+.marquee img { -webkit-user-drag: none; user-drag: none; }
 /* Difuminado en los extremos */
 .marquee::before,
 .marquee::after {
@@ -999,6 +1012,7 @@ img { max-width: 100%; display: block; }
   flex: 0 0 auto;
   margin-right: 20px;   /* margen (no gap) para que el bucle -50% calce exacto */
 }
+/* Respaldo: si js/carrusel.js no carga, el carrusel igual se mueve */
 .marquee-izq { animation: marqueeIzq linear infinite; }
 .marquee-der { animation: marqueeDer linear infinite; }
 @keyframes marqueeIzq { from { transform: translateX(0); }    to { transform: translateX(-50%); } }
@@ -2775,4 +2789,56 @@ img { max-width: 100%; display: block; }
   text-transform: uppercase;
   color: #041018;
   background: var(--color-diamante);
+}
+
+/* =============================================
+   ORDEN POR PRECIO (páginas de categoría)
+   ============================================= */
+.orden-barra {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: -8px 0 30px;
+}
+.orden-label {
+  font-family: var(--fuente-secundaria);
+  font-size: 0.7rem;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+.orden-botones {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.orden-btn {
+  padding: 9px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.3);
+  background: transparent;
+  color: var(--color-texto-suave);
+  font-family: var(--fuente-secundaria);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.22s ease;
+}
+.orden-btn:hover {
+  color: var(--color-diamante);
+  border-color: rgba(var(--color-diamante-rgb), 0.6);
+}
+.orden-btn.activo {
+  color: #041018;
+  background: var(--color-diamante);
+  border-color: var(--color-diamante);
+  box-shadow: 0 0 14px rgba(var(--color-diamante-rgb), 0.45);
+}
+@media (max-width: 600px) {
+  .orden-barra { gap: 8px; margin-bottom: 24px; }
+  .orden-label { width: 100%; text-align: center; font-size: 0.64rem; }
+  .orden-btn { padding: 8px 13px; font-size: 0.71rem; }
 }

@@ -146,13 +146,12 @@
           </button>
           <div class="btn-mp-estado" id="btn-mp-estado"></div>
 
-          <a href="https://wa.me/56966497904?text=Hola%20%F0%9F%91%8B%2C%20me%20gustar%C3%ADa%20pagar%20mi%20pedido%20por%20transferencia%20bancaria.%20%C2%BFMe%20pueden%20enviar%20los%20datos%3F"
-             class="btn-transferencia" target="_blank" rel="noopener">
+          <button type="button" class="btn-transferencia" id="btn-transferencia">
             <svg viewBox="0 0 32 32" width="18" height="18" fill="currentColor" aria-hidden="true">
               <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.678 4.797 1.856 6.785L2 30l7.43-1.82A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm6.29 19.366c-.344-.172-2.036-1.004-2.352-1.118-.316-.116-.546-.172-.776.172-.23.344-.892 1.118-1.094 1.348-.2.23-.402.258-.746.086-.344-.172-1.452-.536-2.766-1.706-1.022-.912-1.712-2.036-1.912-2.38-.2-.344-.022-.53.15-.702.154-.154.344-.402.516-.602.172-.2.23-.344.344-.574.116-.23.058-.43-.028-.602-.086-.172-.776-1.87-1.064-2.562-.28-.674-.564-.582-.776-.594-.2-.01-.43-.012-.66-.012s-.602.086-.918.43c-.316.344-1.204 1.176-1.204 2.868s1.232 3.326 1.404 3.556c.172.23 2.426 3.706 5.878 5.198.822.354 1.464.566 1.964.724.826.262 1.578.226 2.172.138.662-.1 2.036-.832 2.322-1.634.288-.802.288-1.49.202-1.634-.086-.144-.316-.23-.66-.402z"/>
             </svg>
             Pagar por transferencia
-          </a>
+          </button>
 
           <a href="index.html#catalogo" class="btn-seguir">← Seguir comprando</a>
         </div>
@@ -268,6 +267,75 @@
 
 
 
+  <!-- MODAL: Pago por transferencia (se coordina por WhatsApp, no aquí) -->
+  <div class="modal-transferencia-overlay" id="modal-transf-overlay">
+    <div class="modal-transferencia modal-transf">
+      <div class="modal-transferencia-header">
+        <div class="modal-transferencia-titulo">
+          <svg viewBox="0 0 32 32" width="20" height="20" fill="currentColor" aria-hidden="true">
+            <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.678 4.797 1.856 6.785L2 30l7.43-1.82A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm6.29 19.366c-.344-.172-2.036-1.004-2.352-1.118-.316-.116-.546-.172-.776.172-.23.344-.892 1.118-1.094 1.348-.2.23-.402.258-.746.086-.344-.172-1.452-.536-2.766-1.706-1.022-.912-1.712-2.036-1.912-2.38-.2-.344-.022-.53.15-.702.154-.154.344-.402.516-.602.172-.2.23-.344.344-.574.116-.23.058-.43-.028-.602-.086-.172-.776-1.87-1.064-2.562-.28-.674-.564-.582-.776-.594-.2-.01-.43-.012-.66-.012s-.602.086-.918.43c-.316.344-1.204 1.176-1.204 2.868s1.232 3.326 1.404 3.556c.172.23 2.426 3.706 5.878 5.198.822.354 1.464.566 1.964.724.826.262 1.578.226 2.172.138.662-.1 2.036-.832 2.322-1.634.288-.802.288-1.49.202-1.634-.086-.144-.316-.23-.66-.402z"/>
+          </svg>
+          Pagar por transferencia
+        </div>
+        <button class="modal-transferencia-cerrar" id="modal-transf-cerrar">&times;</button>
+      </div>
+
+      <p class="modal-envio-subtitulo">
+        La transferencia se coordina por WhatsApp, no se confirma aquí.
+        Son 3 pasos y te acompañamos en cada uno 👇
+      </p>
+
+      <ol class="transf-pasos">
+        <li class="transf-paso">
+          <span class="transf-num">1</span>
+          <div class="transf-cuerpo">
+            <h4>Envíanos tu pedido</h4>
+            <p>Mándanos por WhatsApp los pantallazos de los productos que quieres.
+               Te confirmamos stock y el total a transferir.</p>
+            <div class="transf-acciones">
+              <button type="button" class="transf-btn transf-btn-copiar" id="transf-copiar-pedido">
+                📋 Copiar mi pedido
+              </button>
+              <a class="transf-btn transf-btn-wsp" id="transf-wsp-pedido" target="_blank" rel="noopener">
+                Abrir WhatsApp →
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <li class="transf-paso">
+          <span class="transf-num">2</span>
+          <div class="transf-cuerpo">
+            <h4>Envía el comprobante</h4>
+            <p>Te pasamos los datos bancarios. Una vez transferido,
+               envíanos el comprobante de pago por el mismo WhatsApp.</p>
+          </div>
+        </li>
+
+        <li class="transf-paso">
+          <span class="transf-num">3</span>
+          <div class="transf-cuerpo">
+            <h4>Envíanos tus datos de envío</h4>
+            <p>Con el comprobante recibido, mándanos tus datos y despachamos tu pedido.</p>
+            <div class="transf-acciones">
+              <button type="button" class="transf-btn transf-btn-copiar" id="transf-copiar-datos">
+                📋 Copiar mis datos de envío
+              </button>
+            </div>
+            <p class="transf-nota" id="transf-nota-datos"></p>
+          </div>
+        </li>
+      </ol>
+
+      <a class="btn-transferencia transf-principal" id="transf-wsp-principal" target="_blank" rel="noopener">
+        <svg viewBox="0 0 32 32" width="18" height="18" fill="currentColor" aria-hidden="true">
+          <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.678 4.797 1.856 6.785L2 30l7.43-1.82A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm6.29 19.366c-.344-.172-2.036-1.004-2.352-1.118-.316-.116-.546-.172-.776.172-.23.344-.892 1.118-1.094 1.348-.2.23-.402.258-.746.086-.344-.172-1.452-.536-2.766-1.706-1.022-.912-1.712-2.036-1.912-2.38-.2-.344-.022-.53.15-.702.154-.154.344-.402.516-.602.172-.2.23-.344.344-.574.116-.23.058-.43-.028-.602-.086-.172-.776-1.87-1.064-2.562-.28-.674-.564-.582-.776-.594-.2-.01-.43-.012-.66-.012s-.602.086-.918.43c-.316.344-1.204 1.176-1.204 2.868s1.232 3.326 1.404 3.556c.172.23 2.426 3.706 5.878 5.198.822.354 1.464.566 1.964.724.826.262 1.578.226 2.172.138.662-.1 2.036-.832 2.322-1.634.288-.802.288-1.49.202-1.634-.086-.144-.316-.23-.66-.402z"/>
+        </svg>
+        Escribirnos por WhatsApp
+      </a>
+    </div>
+  </div>
+
   <!-- MODAL: Confirmar eliminar producto del carrito -->
   <div class="modal-confirm-overlay" id="modal-confirm-overlay">
     <div class="modal-confirm">
@@ -331,8 +399,9 @@
           </div>
 
           <div class="envio-field">
-            <label>RUT *</label>
-            <input type="text" id="env-rut-pago" placeholder="12.345.678-9" autocomplete="off" maxlength="12" minlength="9" pattern="[0-9.\-kK]{9,12}" title="Formato: 12.345.678-9" required>
+            <label>RUT o documento</label>
+            <input type="text" id="env-rut-pago" placeholder="12.345.678-9 (opcional)" autocomplete="off" maxlength="20" title="RUT chileno o documento extranjero">
+            <small class="envio-hint">Opcional · si es extranjero, escríbelo tal cual</small>
           </div>
 
           <div class="envio-field campo-completo">

@@ -1203,3 +1203,111 @@ body > .footer { margin-top: auto; }
   /* La barra de pago fija tapa el aviso */
   .aviso-regalo { bottom: 88px; }
 }
+
+/* =============================================
+   PAGO POR TRANSFERENCIA — pasos a seguir
+   ============================================= */
+.modal-transf { max-width: 560px; }
+
+.transf-pasos {
+  list-style: none;
+  margin: 20px 0 22px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.transf-paso {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 15px;
+  border-radius: 14px;
+  background: rgba(var(--color-diamante-rgb), 0.05);
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.2);
+}
+.transf-num {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primario), var(--color-primario-oscuro));
+  color: #fff;
+  font-family: var(--fuente-monto);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+.transf-cuerpo { min-width: 0; flex: 1; }
+.transf-cuerpo h4 {
+  margin: 2px 0 5px;
+  font-size: 0.94rem;
+  font-weight: 600;
+  color: var(--color-texto);
+}
+.transf-cuerpo p {
+  margin: 0;
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: var(--color-texto-suave);
+}
+.transf-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 11px;
+}
+.transf-btn {
+  padding: 9px 15px;
+  border-radius: 999px;
+  font-family: var(--fuente-secundaria);
+  font-size: 0.77rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.transf-btn-copiar {
+  border: 1px solid rgba(var(--color-diamante-rgb), 0.45);
+  background: transparent;
+  color: var(--color-diamante);
+}
+.transf-btn-copiar:hover:not(:disabled) {
+  background: var(--color-diamante);
+  color: #041018;
+}
+.transf-btn-copiar:disabled { opacity: 0.4; cursor: not-allowed; }
+.transf-btn-copiar.copiado {
+  background: #25D366;
+  border-color: #25D366;
+  color: #041018;
+}
+.transf-btn-wsp {
+  border: 1px solid rgba(37, 211, 102, 0.55);
+  background: rgba(37, 211, 102, 0.12);
+  color: #4ade80;
+  display: inline-flex;
+  align-items: center;
+}
+.transf-btn-wsp:hover {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: #fff;
+}
+.transf-nota {
+  margin-top: 9px !important;
+  font-size: 0.76rem !important;
+  color: #f0b429 !important;
+  line-height: 1.45;
+}
+.transf-nota:empty { display: none; }
+.transf-principal { margin-top: 0; }
+
+@media (max-width: 600px) {
+  .transf-paso { padding: 13px; gap: 11px; }
+  .transf-num { width: 26px; height: 26px; font-size: 0.78rem; }
+  .transf-cuerpo h4 { font-size: 0.88rem; }
+  .transf-cuerpo p { font-size: 0.79rem; }
+  .transf-btn { width: 100%; text-align: center; justify-content: center; }
+}
