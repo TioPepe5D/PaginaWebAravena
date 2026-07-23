@@ -1,5 +1,6 @@
 const { MercadoPagoConfig, Preference } = require("mercadopago");
 const { createClient } = require("@supabase/supabase-js");
+const { METAS_REGALO, esRegalo } = require("../js/regalos.js");
 
 const SUPA_URL = 'https://qcaxddxxmrwfihnyepbo.supabase.co';
 
@@ -29,7 +30,20 @@ module.exports = async (req, res) => {
     } catch (_) {}
   }
 
-  // Cargar catálogo desde Supabase para validar precios server-side
+  /* ── Catálogo de referencia para validar precios server-side ──
+     La fuente de verdad es js/products.js: es exactamente lo que ve el
+     cliente en la tienda. La tabla `catalogo` de Supabase solo se usa
+     para sobrescribir filas que tengan un precio válido; hoy quedó con
+     todos los precios en 0 y, si se tomara tal cual, MercadoPago
+     rechazaría la compra con "unit_price invalid". */
+  let porId = new Map();
+  try {
+    const productosEstaticos = require("../js/products.js");
+    porId = new Map(productosEstaticos.map(p => [String(p.id), p]));
+  } catch (e) {
+    console.error("[crear-preferencia] No se pudo leer products.js:", e.message);
+  }
+
   const ids = itemsInput.map(it => String(it.id));
   const { data: catalogoRows, error: catalogoErr } = await supabase
     .from('catalogo')
@@ -37,24 +51,28 @@ module.exports = async (req, res) => {
     .in('id', ids)
     .eq('activo', true);
 
-  // Fallback: leer products.js estático si Supabase no tiene el catálogo aún
-  let porId;
-  if (!catalogoErr && catalogoRows && catalogoRows.length > 0) {
-    porId = new Map(catalogoRows.map(p => [String(p.id), {
-      id: p.id, nombre: p.nombre, precio: p.precio, imagen: p.imagen_url
-    }]));
-  } else {
-    try {
-      const productosEstaticos = require("../js/products.js");
-      porId = new Map(productosEstaticos.map(p => [String(p.id), p]));
-    } catch (_) {
-      porId = new Map();
-    }
+  if (!catalogoErr && Array.isArray(catalogoRows)) {
+    catalogoRows.forEach(row => {
+      const precio = Number(row.precio);
+      if (!Number.isFinite(precio) || precio <= 0) return;   // fila sin precio útil
+      const base = porId.get(String(row.id)) || {};
+      porId.set(String(row.id), {
+        id:     row.id,
+        nombre: row.nombre || base.nombre || `Producto ${row.id}`,
+        precio,
+        imagen: row.imagen_url || base.imagen || ""
+      });
+    });
   }
 
   // ── Validar precios SERVER-SIDE contra el catálogo real ──
+  // Los regalos por monto no están en el catálogo: se ignoran aquí y el
+  // servidor los vuelve a calcular más abajo según el subtotal real. Así
+  // nadie puede reclamar un regalo que no corresponde.
   const itemsValidados = [];
   for (const it of itemsInput) {
+    if (esRegalo(it.id)) continue;
+
     const p = porId.get(String(it.id));
     if (!p) {
       return res.status(400).json({ error: `Producto no encontrado: ${it.id}` });
@@ -63,21 +81,55 @@ module.exports = async (req, res) => {
     if (qty < 1) {
       return res.status(400).json({ error: `Cantidad inválida para ${p.nombre}` });
     }
+
+    // MercadoPago rechaza montos que no sean enteros positivos (CLP sin
+    // decimales). Se corta acá con un mensaje claro en vez de dejar que
+    // falle después con "unit_price invalid".
+    const precio = Math.round(Number(p.precio));
+    if (!Number.isFinite(precio) || precio <= 0) {
+      console.error("[crear-preferencia] Precio inválido:", p.id, p.nombre, p.precio);
+      return res.status(400).json({
+        error: `El producto "${p.nombre || p.id}" no tiene precio disponible. Escríbenos por WhatsApp para completar tu compra.`
+      });
+    }
+
     itemsValidados.push({
       id:       String(p.id),
       nombre:   p.nombre,
       cantidad: qty,
-      precio:   Number(p.precio),   // ← precio real del servidor
+      precio,                        // ← precio real del servidor
       imagen:   p.imagen || ""
     });
   }
 
+  if (itemsValidados.length === 0) {
+    return res.status(400).json({ error: "El carrito no tiene productos" });
+  }
+
   const subtotal = itemsValidados.reduce((s, i) => s + i.precio * i.cantidad, 0);
-  const comision = Math.round(subtotal * 0.05);
+
+  // Regalos que corresponden según el subtotal verificado en el servidor
+  const regalosGanados = METAS_REGALO.filter(m => subtotal >= m.monto).map(m => ({
+    id:       m.id,
+    nombre:   m.nombre,
+    cantidad: 1,
+    precio:   0,
+    imagen:   "",
+    regalo:   true
+  }));
+
+  // 3%: debe coincidir con lo que se le mostró al cliente en el carrito
+  const comision = Math.round(subtotal * 0.03);
   const total    = subtotal + comision;
 
   // ── Guardar pedido con total verificado ──
-  const payload = { items: itemsValidados, total, estado: "pendiente" };
+  // Los regalos se guardan junto a los productos para que en bodega
+  // aparezcan en la lista de lo que hay que despachar.
+  const payload = {
+    items: [...itemsValidados, ...regalosGanados],
+    total,
+    estado: "pendiente"
+  };
   if (userId)    payload.user_id    = userId;
   if (datosEnvio) payload.datos_envio = datosEnvio;
 

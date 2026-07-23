@@ -11,8 +11,10 @@ const METAS_REGALO = [
   { id: "regalo-250", monto: 250000, emoji: "💎", nombre: "Regalo sorpresa por compra sobre $250.000" },
 ];
 
+// Acepta el producto completo o solo su id
 function esRegalo(item) {
-  return METAS_REGALO.some(m => m.id === String(item.id));
+  const id = (item && typeof item === "object") ? item.id : item;
+  return METAS_REGALO.some(m => m.id === String(id));
 }
 
 function metaDeRegalo(item) {
@@ -48,4 +50,10 @@ function ajustarRegalos(lista) {
   });
 
   return { lista: resultado, cambio, nuevos };
+}
+
+// La API de pago reutiliza estas mismas definiciones (Node), para que los
+// montos de los regalos no puedan quedar desincronizados entre las dos partes.
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = { METAS_REGALO, esRegalo, subtotalPagado, ajustarRegalos };
 }
