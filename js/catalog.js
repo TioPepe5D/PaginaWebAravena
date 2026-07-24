@@ -284,22 +284,24 @@ function verMas() {
    aportaba nada. Se arma con la información real de cada material
    (la misma del FAQ) para que el cliente sepa qué está comprando.
    ============================================= */
+/* Argumento de venta por material: por qué le conviene al revendedor,
+   en vez de la ficha técnica. */
 const MATERIALES_INFO = {
   'plata-italiana': {
     etiqueta: 'Plata Italiana 925',
-    texto: '92,5% de plata sólida de alta pureza, importada desde Italia. Es fundible y tiene garantía de por vida.',
+    gancho: 'Nuestra línea premium: brillo y peso real que se notan en la mano y justifican un precio más alto.',
   },
   'plata-nacional': {
     etiqueta: 'Plata Nacional SL 925',
-    texto: 'Laminado en plata con sello «SL 925» sobre base de alpaca o latón, con barniz diamante protector para más brillo y duración. Garantía de 1 año.',
+    gancho: 'La línea más vendida: la mejor relación precio-calidad y la que más rápido rota.',
   },
   'oro-goldfit': {
-    etiqueta: 'Oro Laminado GF 18K',
-    texto: 'Laminado de oro italiano 18K con sello «GF 18K» sobre base de latón. Garantía de 2 años.',
+    etiqueta: 'Oro Goldfield 18K',
+    gancho: 'Look de oro a precio accesible. De los más pedidos por las clientas.',
   },
   accesorio: {
     etiqueta: 'Insumo',
-    texto: 'Complemento para exhibir, guardar o presentar tus joyas.',
+    gancho: 'Para exhibir y presentar tus joyas: una buena presentación vende más.',
   },
 };
 
@@ -318,45 +320,22 @@ function descripcionProducto(p) {
   const esLote = /lote|set|pack/i.test(p.nombre);
 
   const partes = [];
-  if (esLote) {
-    partes.push(`Lote de ${cat}${mat ? ' en ' + mat.etiqueta : ''}, pensado para revender con buen margen: recibes varias piezas a precio mayorista en una sola compra.`);
-  } else if (mat) {
-    partes.push(`${p.nombre}, elaborado en ${mat.etiqueta}.`);
-  }
-  if (mat) partes.push(mat.texto);
+  if (esLote) partes.push(`Varias piezas en una sola compra: llenas tu vitrina de ${cat} con un solo pedido.`);
+  if (mat) partes.push(mat.gancho);
 
   return partes.join(' ');
 }
 
-/* Lo que la empresa entrega junto al producto. Reemplaza a los tres
-   badges sueltos ("Envíos a todo Chile / Joyería mayorista / Precio de
-   lote"), que repetían lo mismo sin decir nada concreto. */
-function beneficiosProducto(p) {
-  const mat = MATERIALES_INFO[p.material];
-  const garantias = {
-    'plata-italiana': 'Garantía de por vida contra fallas de fábrica',
-    'plata-nacional': 'Garantía de 1 año contra fallas de fábrica',
-    'oro-goldfit':    'Garantía de 2 años contra fallas de fábrica',
-  };
-
-  const items = [];
-  if (garantias[p.material]) {
-    items.push({ icono: '🛡️', titulo: garantias[p.material],
-                 detalle: 'Broche suelto, oscurecimiento o corte en el conector' });
-  }
-  items.push(
-    { icono: '💰', titulo: 'Precio mayorista real',
-      detalle: 'El mismo valor que en bodega, sin intermediarios' },
-    { icono: '🚚', titulo: 'Despachamos a todo Chile',
-      detalle: 'Martes, jueves y sábado · llega en 1 a 3 días hábiles' },
-    { icono: '🎁', titulo: 'Regalos desde $50.000',
-      detalle: 'Se suman solos a tu carrito al llegar al monto' },
-    { icono: '💳', titulo: 'Paga con débito, crédito o transferencia',
-      detalle: 'Compra mínima: 1 lote' },
-    { icono: '🏬', titulo: 'También puedes retirar en bodega',
-      detalle: 'Fidel Oteiza 1921, Of. 1003 · Metro Pedro de Valdivia' },
-  );
-  return items;
+/* Lo que gana el cliente al comprar aquí. Corto y concreto: reemplaza a
+   los tres badges sueltos que repetían lo mismo sin decir nada. */
+function beneficiosProducto() {
+  return [
+    { icono: '💰', titulo: 'Precio mayorista, sin intermediarios' },
+    { icono: '🚚', titulo: 'Despacho a todo Chile en 1 a 3 días' },
+    { icono: '🎁', titulo: 'Regalos desde $50.000' },
+    { icono: '💳', titulo: 'Débito, crédito o transferencia' },
+    { icono: '🏬', titulo: 'O retíralo en bodega, Providencia' },
+  ];
 }
 
 function abrirDetalleProducto(id) {
@@ -399,14 +378,10 @@ function abrirDetalleProducto(id) {
         </button>` : ''}
       </div>
       <div class="detalle-beneficios">
-        <p class="detalle-beneficios-titulo">Comprando en Joyería Aravena</p>
-        ${beneficiosProducto(producto).map(b => `
+        ${beneficiosProducto().map(b => `
         <div class="detalle-beneficio">
           <span class="detalle-beneficio-icono">${b.icono}</span>
-          <span class="detalle-beneficio-txt">
-            <strong>${b.titulo}</strong>
-            <small>${b.detalle}</small>
-          </span>
+          <span class="detalle-beneficio-txt">${b.titulo}</span>
         </div>`).join('')}
       </div>
     </div>

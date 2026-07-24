@@ -1262,36 +1262,30 @@ function iniciarPresenciaRealtime() {
       const visitantes = data.filter(r => r.pagina !== 'Admin');
       countEl.textContent = visitantes.length;
 
-      // Agrupar por sección, de la más concurrida a la menos
-      const grupos = {};
+      /* Solo interesan tres momentos: mirando la tienda, con el carrito
+         armado, y en la pasarela de pago. El resto de páginas se suma a
+         "Navegando" para no llenar la vista de datos que no se usan. */
+      let enCarrito = 0, pagando = 0, navegando = 0;
       visitantes.forEach(r => {
-        const nombre = r.pagina || 'Otra página';
-        grupos[nombre] = (grupos[nombre] || 0) + 1;
+        const p = r.pagina || '';
+        if (p === 'Carrito') enCarrito++;
+        else if (p.startsWith('Pago')) pagando++;
+        else navegando++;
       });
 
-      const ordenadas = Object.entries(grupos).sort((a, b) => b[1] - a[1]);
+      const grupos = [
+        { nombre: 'Navegando', icono: '🏠', n: navegando },
+        { nombre: 'En el carrito', icono: '🛒', n: enCarrito, destacar: enCarrito > 0 },
+        { nombre: 'Pagando', icono: '💳', n: pagando, destacar: pagando > 0 },
+      ];
 
-      if (!ordenadas.length) {
-        paginasEl.innerHTML = '<p class="ahora-vacio">Nadie navegando en este momento</p>';
-        return;
-      }
-
-      // El carrito se destaca: ahí es donde conviene estar atento
-      const ICONOS = {
-        'Inicio': '🏠', 'Carrito': '🛒', 'Producto': '💎', 'Categoría': '📂',
-        'Mi perfil': '👤', 'Contacto': '✉️', 'Preguntas frecuentes': '❓',
-        'Pago exitoso': '✅', 'Pago pendiente': '⏳', 'Pago fallido': '⚠️',
-      };
-
-      paginasEl.innerHTML = ordenadas.map(([pag, n]) => {
-        const destacar = pag === 'Carrito' || pag.startsWith('Pago');
-        return `
-          <div class="ahora-seccion${destacar ? ' ahora-destacada' : ''}">
-            <span class="ahora-icono">${ICONOS[pag] || '📄'}</span>
-            <span class="ahora-nombre">${pag}</span>
-            <span class="ahora-conteo">${n}</span>
-          </div>`;
-      }).join('');
+      // Se muestran siempre las tres: "Carrito 0" también es información
+      paginasEl.innerHTML = grupos.map(g => `
+        <div class="ahora-seccion${g.destacar ? ' ahora-destacada' : ''}${g.n === 0 ? ' ahora-cero' : ''}">
+          <span class="ahora-icono">${g.icono}</span>
+          <span class="ahora-nombre">${g.nombre}</span>
+          <span class="ahora-conteo">${g.n}</span>
+        </div>`).join('');
 
     } catch (_) {}
   }

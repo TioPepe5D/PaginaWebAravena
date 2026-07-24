@@ -2269,8 +2269,14 @@
 .ahora-nota { font-size: 0.7rem; color: #a7adb3; }
 .ahora-secciones {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+}
+/* Sin nadie en esa etapa, la tarjeta se atenúa */
+.ahora-seccion.ahora-cero { opacity: 0.55; }
+.ahora-seccion.ahora-cero .ahora-conteo {
+  background: rgba(255,255,255,0.12);
+  color: #a7adb3;
 }
 .ahora-seccion {
   display: flex;
@@ -2317,7 +2323,8 @@
 }
 @media (max-width: 640px) {
   .ahora-panel { padding: 0.85rem 1rem 1rem; }
-  .ahora-secciones { grid-template-columns: 1fr 1fr; gap: 7px; }
+  .ahora-secciones { grid-template-columns: 1fr; gap: 6px; }
+  .ahora-cab { flex-direction: column; align-items: flex-start; gap: 2px; }
   .ahora-seccion { padding: 0.5rem 0.6rem; gap: 7px; }
   .ahora-nombre { font-size: 0.76rem; }
 }
