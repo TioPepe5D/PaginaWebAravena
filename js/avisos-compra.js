@@ -86,22 +86,46 @@ function siguienteAviso() {
   }
 }
 
+/* Mezcla las ventas reales con las de ejemplo. Las reales van siempre
+   primero y cada una desplaza a una de ejemplo, así la lista se va
+   volviendo real sola a medida que la tienda vende. Cuando hay
+   suficientes reales, las de ejemplo dejan de usarse por completo. */
+function armarListaAvisos(reales) {
+  const hayEjemplo = typeof ventasEjemploConFecha === 'function';
+  const umbral = (typeof VENTAS_REALES_SUFICIENTES !== 'undefined') ? VENTAS_REALES_SUFICIENTES : 15;
+
+  if (!hayEjemplo || reales.length >= umbral) return barajarAvisos(reales);
+
+  // Se completa hasta el umbral, sin repetir a alguien que ya vendió
+  const nombresReales = new Set(reales.map(v => v.nombre.toLowerCase()));
+  const relleno = ventasEjemploConFecha()
+    .filter(v => !nombresReales.has(v.nombre.toLowerCase()))
+    .slice(0, Math.max(0, umbral - reales.length));
+
+  return barajarAvisos([...reales, ...relleno]);
+}
+
 async function inicializarAvisosCompra() {
   // Solo en la portada
   const ruta = location.pathname.split('/').pop() || 'index.html';
   if (ruta !== 'index.html' && ruta !== '') return;
 
+  let reales = [];
   try {
     const res = await fetch('/api/ventas-recientes');
-    if (!res.ok) return;
-    const { ventas } = await res.json();
-    if (!Array.isArray(ventas) || ventas.length < 3) return;   // muy pocas: no vale la pena
-
-    _ventasAvisos = barajarAvisos(ventas);
-    _timerAviso = setTimeout(siguienteAviso, AVISO_PRIMERO_MS);
+    if (res.ok) {
+      const datos = await res.json();
+      if (Array.isArray(datos.ventas)) reales = datos.ventas;
+    }
   } catch (_) {
-    // Sin conexión con la API simplemente no se muestran avisos
+    // Sin conexión con la API se sigue con lo que haya
   }
+
+  const lista = armarListaAvisos(reales);
+  if (lista.length < 3) return;   // muy pocas: no vale la pena
+
+  _ventasAvisos = lista;
+  _timerAviso = setTimeout(siguienteAviso, AVISO_PRIMERO_MS);
 }
 
 document.addEventListener('DOMContentLoaded', inicializarAvisosCompra);
