@@ -284,44 +284,81 @@ function verMas() {
    aportaba nada. Se arma con la información real de cada material
    (la misma del FAQ) para que el cliente sepa qué está comprando.
    ============================================= */
-/* Argumento de venta por material: por qué le conviene al revendedor,
-   en vez de la ficha técnica. */
-const MATERIALES_INFO = {
-  'plata-italiana': {
-    etiqueta: 'Plata Italiana 925',
-    gancho: 'Nuestra línea premium: brillo y peso real que se notan en la mano y justifican un precio más alto.',
-  },
-  'plata-nacional': {
-    etiqueta: 'Plata Nacional SL 925',
-    gancho: 'La línea más vendida: la mejor relación precio-calidad y la que más rápido rota.',
-  },
-  'oro-goldfit': {
-    etiqueta: 'Oro Goldfield 18K',
-    gancho: 'Look de oro a precio accesible. De los más pedidos por las clientas.',
-  },
-  accesorio: {
-    etiqueta: 'Insumo',
-    gancho: 'Para exhibir y presentar tus joyas: una buena presentación vende más.',
-  },
+/* Qué es cada producto, para qué se usa y por qué se revende bien.
+   Se busca en el nombre de lo más específico a lo más general: así
+   "Lote de Argollas" y "Lote de Rosarios" no dicen lo mismo. */
+const TIPOS_PRODUCTO = [
+  { re: /compromiso/i,
+    texto: 'Anillos de compromiso: venta de ticket alto y muy buscada. Una sola pieza puede pagarte varias del resto del lote.' },
+  { re: /argolla/i,
+    texto: 'Argollas para uso diario: la clienta se las pone y no se las saca. Reposición constante durante todo el año.' },
+  { re: /arito|pelotita/i,
+    texto: 'Aros pequeños de uso diario: livianos, cómodos y fáciles de combinar. Salen rápido y a buen margen.' },
+  { re: /rosario/i,
+    texto: 'Rosarios: pieza de regalo por excelencia. Suben mucho en primeras comuniones, bautizos y fechas religiosas.' },
+  { re: /charm|disney/i,
+    texto: 'Charms para pulseras: compra por impulso y muy fácil de sumar a un pedido ya hecho. Ideal para subir el ticket.' },
+  { re: /van cleef/i,
+    texto: 'Diseño Van Cleef, uno de los más pedidos por las clientas. Se vende prácticamente solo por el modelo.' },
+  { re: /tourbillon/i,
+    texto: 'Cadena gruesa con eslabón tourbillon. Pieza de presencia: se luce sola y sostiene un precio alto.' },
+  { re: /hombre|caballero/i,
+    texto: 'Línea de hombre: menos competencia que la de mujer y clientes que repiten. Buen nicho para diferenciarte.' },
+  { re: /medidor/i,
+    texto: 'Incluye medidor de anillos: puedes tomar la talla exacta y evitar cambios por tamaño.' },
+  { re: /niñ|infantil/i,
+    texto: 'Línea infantil: muy pedida para regalos de bautizo, cumpleaños y primeras comuniones.' },
+  { re: /maleta|medio kilo|kilo mixto/i,
+    texto: 'Surtido grande para partir o reponer de una sola vez: variedad inmediata sin armar el pedido pieza por pieza.' },
+  { re: /limpiador|silver shine/i,
+    texto: 'Devuelve el brillo a las piezas que llevan tiempo en vitrina. Una joya limpia se vende mucho mejor.' },
+  { re: /exhibidor|manga|joyero/i,
+    texto: 'Para exhibir y ordenar tus piezas. Una buena presentación sube el valor percibido y ayuda a cerrar la venta.' },
+];
+
+// Si el nombre no da pistas, se describe por el tipo de joya
+const CATEGORIA_TEXTO = {
+  collares:   'Collares de distintos largos y modelos: la pieza que más se busca y la que abre la mayoría de las ventas.',
+  pulseras:   'Pulseras variadas: fáciles de combinar y de las que la clienta suele llevar más de una.',
+  aros:       'Aros surtidos: el complemento de uso diario, con la rotación más rápida del catálogo.',
+  colgantes:  'Colgantes para combinar con cadenas: te permiten armar conjuntos y vender dos piezas en vez de una.',
+  conjuntos:  'Conjunto listo para vender: llega armado y se entrega como set, que deja mejor margen que la pieza suelta.',
+  anillos:    'Anillos surtidos: buenos para vitrina y para venta por impulso en ferias.',
+  exhibidores:'Insumo para tu negocio: mejora cómo presentas y cuidas tus piezas.',
 };
 
-const CATEGORIA_SINGULAR = {
-  collares: 'collares', pulseras: 'pulseras', aros: 'aros',
-  colgantes: 'colgantes', conjuntos: 'conjuntos', anillos: 'anillos',
-  exhibidores: 'insumos',
+const MATERIAL_CORTO = {
+  'plata-italiana': 'En Plata Italiana 925, la línea premium.',
+  'plata-nacional': 'En Plata Nacional SL 925, la más vendida.',
+  'oro-goldfit':    'En Oro Goldfield 18K, look de oro accesible.',
 };
+
+// Cantidades escritas en el nombre: "(145 productos)", "20 Colgantes"
+function piezasDelNombre(nombre) {
+  const par = nombre.match(/\((\d+)\s*(?:productos|unidades|piezas)\)/i);
+  if (par) return par[1];
+  const suelto = nombre.match(/^(\d{2,3})\s+[A-Za-zÁÉÍÓÚáéíóúÑñ]/);
+  if (suelto) return suelto[1];
+  return null;
+}
 
 function descripcionProducto(p) {
   // Si algún día hay una descripción escrita a mano, esa manda
   if (p.descripcion && p.descripcion.trim() !== p.nombre.trim()) return p.descripcion;
 
-  const mat = MATERIALES_INFO[p.material];
-  const cat = CATEGORIA_SINGULAR[p.categoria] || 'joyas';
-  const esLote = /lote|set|pack/i.test(p.nombre);
-
   const partes = [];
-  if (esLote) partes.push(`Varias piezas en una sola compra: llenas tu vitrina de ${cat} con un solo pedido.`);
-  if (mat) partes.push(mat.gancho);
+
+  // Medidas del nombre: "60cm x 8mm"
+  const medida = p.nombre.match(/(\d+)\s*cm\s*x\s*(\d+)\s*mm/i);
+  if (medida) partes.push(`Mide ${medida[1]} cm de largo por ${medida[2]} mm de grosor.`);
+
+  const piezas = piezasDelNombre(p.nombre);
+  if (piezas) partes.push(`Trae ${piezas} piezas surtidas.`);
+
+  const tipo = TIPOS_PRODUCTO.find(t => t.re.test(p.nombre));
+  partes.push(tipo ? tipo.texto : (CATEGORIA_TEXTO[p.categoria] || 'Pieza de joyería para revender.'));
+
+  if (MATERIAL_CORTO[p.material]) partes.push(MATERIAL_CORTO[p.material]);
 
   return partes.join(' ');
 }

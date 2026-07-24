@@ -146,6 +146,21 @@
       <span class="ticker-sep">✦</span>
     </div>
   </div>
+
+  <!-- Mecha de regalos: avanza con lo que lleva el carrito y va marcando
+       los montos. Queda fija bajo la cinta al desplazar la página. -->
+  <a class="mecha" id="mecha" href="carrito.html" aria-label="Progreso hacia tus regalos">
+    <span class="mecha-texto" id="mecha-texto">🎁 Suma $50.000 y tu primer regalo va incluido</span>
+    <span class="mecha-pista">
+      <span class="mecha-llena" id="mecha-llena">
+        <span class="mecha-chispa" id="mecha-chispa">✨</span>
+      </span>
+      <span class="mecha-hito" style="left:20%"  data-monto="50000"><i>🎁</i><em>$50k</em></span>
+      <span class="mecha-hito" style="left:40%"  data-monto="100000"><i>🎀</i><em>$100k</em></span>
+      <span class="mecha-hito" style="left:100%" data-monto="250000"><i>💎</i><em>$250k</em></span>
+    </span>
+  </a>
+
   <!-- BUSCADOR (oculto por defecto) -->
   <div class="buscador-overlay" id="buscador-overlay">
     <div class="buscador-container">
@@ -522,6 +537,8 @@
 
   <script src="js/fecha-chile.js"></script>
 
+  <script src="js/mecha-regalos.js"></script>
+  <script src="js/avisos-compra.js"></script>
   <script src="js/presencia.js"></script>
 </body>
 
