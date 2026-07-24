@@ -278,6 +278,87 @@ function verMas() {
 /* =============================================
    PANEL DE DETALLE
    ============================================= */
+/* =============================================
+   DESCRIPCIÓN DEL PRODUCTO
+   En el catálogo la descripción venía igual al nombre, así que no
+   aportaba nada. Se arma con la información real de cada material
+   (la misma del FAQ) para que el cliente sepa qué está comprando.
+   ============================================= */
+const MATERIALES_INFO = {
+  'plata-italiana': {
+    etiqueta: 'Plata Italiana 925',
+    texto: '92,5% de plata sólida de alta pureza, importada desde Italia. Es fundible y tiene garantía de por vida.',
+  },
+  'plata-nacional': {
+    etiqueta: 'Plata Nacional SL 925',
+    texto: 'Laminado en plata con sello «SL 925» sobre base de alpaca o latón, con barniz diamante protector para más brillo y duración. Garantía de 1 año.',
+  },
+  'oro-goldfit': {
+    etiqueta: 'Oro Laminado GF 18K',
+    texto: 'Laminado de oro italiano 18K con sello «GF 18K» sobre base de latón. Garantía de 2 años.',
+  },
+  accesorio: {
+    etiqueta: 'Insumo',
+    texto: 'Complemento para exhibir, guardar o presentar tus joyas.',
+  },
+};
+
+const CATEGORIA_SINGULAR = {
+  collares: 'collares', pulseras: 'pulseras', aros: 'aros',
+  colgantes: 'colgantes', conjuntos: 'conjuntos', anillos: 'anillos',
+  exhibidores: 'insumos',
+};
+
+function descripcionProducto(p) {
+  // Si algún día hay una descripción escrita a mano, esa manda
+  if (p.descripcion && p.descripcion.trim() !== p.nombre.trim()) return p.descripcion;
+
+  const mat = MATERIALES_INFO[p.material];
+  const cat = CATEGORIA_SINGULAR[p.categoria] || 'joyas';
+  const esLote = /lote|set|pack/i.test(p.nombre);
+
+  const partes = [];
+  if (esLote) {
+    partes.push(`Lote de ${cat}${mat ? ' en ' + mat.etiqueta : ''}, pensado para revender con buen margen: recibes varias piezas a precio mayorista en una sola compra.`);
+  } else if (mat) {
+    partes.push(`${p.nombre}, elaborado en ${mat.etiqueta}.`);
+  }
+  if (mat) partes.push(mat.texto);
+
+  return partes.join(' ');
+}
+
+/* Lo que la empresa entrega junto al producto. Reemplaza a los tres
+   badges sueltos ("Envíos a todo Chile / Joyería mayorista / Precio de
+   lote"), que repetían lo mismo sin decir nada concreto. */
+function beneficiosProducto(p) {
+  const mat = MATERIALES_INFO[p.material];
+  const garantias = {
+    'plata-italiana': 'Garantía de por vida contra fallas de fábrica',
+    'plata-nacional': 'Garantía de 1 año contra fallas de fábrica',
+    'oro-goldfit':    'Garantía de 2 años contra fallas de fábrica',
+  };
+
+  const items = [];
+  if (garantias[p.material]) {
+    items.push({ icono: '🛡️', titulo: garantias[p.material],
+                 detalle: 'Broche suelto, oscurecimiento o corte en el conector' });
+  }
+  items.push(
+    { icono: '💰', titulo: 'Precio mayorista real',
+      detalle: 'El mismo valor que en bodega, sin intermediarios' },
+    { icono: '🚚', titulo: 'Despachamos a todo Chile',
+      detalle: 'Martes, jueves y sábado · llega en 1 a 3 días hábiles' },
+    { icono: '🎁', titulo: 'Regalos desde $50.000',
+      detalle: 'Se suman solos a tu carrito al llegar al monto' },
+    { icono: '💳', titulo: 'Paga con débito, crédito o transferencia',
+      detalle: 'Compra mínima: 1 lote' },
+    { icono: '🏬', titulo: 'También puedes retirar en bodega',
+      detalle: 'Fidel Oteiza 1921, Of. 1003 · Metro Pedro de Valdivia' },
+  );
+  return items;
+}
+
 function abrirDetalleProducto(id) {
   const producto = productosActivos.find(p => p.id === id);
   if (!producto) return;
@@ -286,22 +367,13 @@ function abrirDetalleProducto(id) {
   const overlay  = document.getElementById("producto-detalle-overlay");
   const contenido = document.getElementById("producto-detalle-contenido");
 
-  const precioTexto = producto.precio > 0 ? `$${producto.precio.toLocaleString("es-CL")} CLP` : 'Consultar precio';
-  const imagenUrl = producto.imagen.startsWith('http')
-    ? producto.imagen
-    : `https://joyasaravena.cl/${producto.imagen.replace(/^\//, '')}`;
-  const msgWsp = encodeURIComponent(
-    `Hola! Me interesa el *${producto.nombre}* (${precioTexto}). ¿Tiene disponibilidad?\n\n📸 ${imagenUrl}`
-  );
-  const linkWsp = `https://wa.me/56966497904?text=${msgWsp}`;
-
   contenido.innerHTML = `
     <img src="${producto.imagen}" alt="${producto.nombre}" class="detalle-imagen">
     <div class="detalle-info">
       <p class="detalle-categoria">${etiquetaCategoria(producto.categoria)}</p>
       <h2 class="detalle-nombre">${producto.nombre}</h2>
       <p class="detalle-precio">${producto.precio > 0 ? '$' + producto.precio.toLocaleString("es-CL") + ' CLP' : '<span class="precio-consultar">Consultar precio</span>'}</p>
-      <p class="detalle-descripcion">${producto.descripcion}</p>
+      <p class="detalle-descripcion">${descripcionProducto(producto)}</p>
       <div class="detalle-cantidad-wrap">
         <span class="detalle-cantidad-label">Cantidad</span>
         <div class="cantidad-selector">
@@ -326,16 +398,16 @@ function abrirDetalleProducto(id) {
           </svg>
         </button>` : ''}
       </div>
-      <a class="btn-detalle-wsp" href="${linkWsp}" target="_blank" rel="noopener">
-        <svg width="18" height="18" viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M16 2C8.268 2 2 8.268 2 16c0 2.478.678 4.797 1.856 6.785L2 30l7.43-1.82A13.94 13.94 0 0 0 16 30c7.732 0 14-6.268 14-14S23.732 2 16 2zm0 25.5a11.44 11.44 0 0 1-5.826-1.594l-.418-.248-4.33 1.062 1.094-4.212-.272-.432A11.467 11.467 0 0 1 4.5 16C4.5 9.596 9.596 4.5 16 4.5S27.5 9.596 27.5 16 22.404 27.5 16 27.5zm6.29-8.634c-.344-.172-2.036-1.004-2.352-1.118-.316-.116-.546-.172-.776.172-.23.344-.892 1.118-1.094 1.348-.2.23-.402.258-.746.086-.344-.172-1.452-.536-2.766-1.706-1.022-.912-1.712-2.036-1.912-2.38-.2-.344-.022-.53.15-.702.154-.154.344-.402.516-.602.172-.2.23-.344.344-.574.116-.23.058-.43-.028-.602-.086-.172-.776-1.87-1.064-2.562-.28-.674-.564-.582-.776-.594-.2-.01-.43-.012-.66-.012s-.602.086-.918.43c-.316.344-1.204 1.176-1.204 2.868s1.232 3.326 1.404 3.556c.172.23 2.426 3.706 5.878 5.198.822.354 1.464.566 1.964.724.826.262 1.578.226 2.172.138.662-.1 2.036-.832 2.322-1.634.288-.802.288-1.49.202-1.634-.086-.144-.316-.23-.66-.402z"/>
-        </svg>
-        Consultar por WhatsApp
-      </a>
-      <div class="detalle-badges">
-        <span>🚚 Envíos a todo Chile</span>
-        <span>💎 Joyería mayorista</span>
-        <span>📦 Precio de lote</span>
+      <div class="detalle-beneficios">
+        <p class="detalle-beneficios-titulo">Comprando en Joyería Aravena</p>
+        ${beneficiosProducto(producto).map(b => `
+        <div class="detalle-beneficio">
+          <span class="detalle-beneficio-icono">${b.icono}</span>
+          <span class="detalle-beneficio-txt">
+            <strong>${b.titulo}</strong>
+            <small>${b.detalle}</small>
+          </span>
+        </div>`).join('')}
       </div>
     </div>
   `;

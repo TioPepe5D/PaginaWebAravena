@@ -1719,40 +1719,43 @@ img { max-width: 100%; display: block; }
   transform: translateY(-1px);
 }
 
-.btn-detalle-wsp {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: 14px;
-  margin-top: 12px;
-  background: linear-gradient(135deg, #25D366, #1aab52);
-  color: #fff;
-  border: none;
-  border-radius: 999px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 0 20px rgba(37,211,102,0.3);
-}
-.btn-detalle-wsp:hover {
-  box-shadow: 0 0 35px rgba(37,211,102,0.55);
-  transform: translateY(-1px);
-  color: #fff;
-}
-
-.detalle-badges {
+/* Beneficios de comprar: reemplazan al botón de WhatsApp y a los tres
+   badges sueltos que repetían lo mismo sin decir nada concreto */
+.detalle-beneficios {
+  border-top: 1px solid var(--color-borde);
+  padding-top: 18px;
+  margin-top: 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  border-top: 1px solid var(--color-borde);
-  padding-top: 16px;
-  margin-top: 16px;
+  gap: 11px;
 }
-.detalle-badges span { font-size: 0.82rem; color: var(--color-texto-suave); }
+.detalle-beneficios-titulo {
+  margin: 0 0 3px;
+  font-family: var(--fuente-secundaria);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--color-diamante);
+}
+.detalle-beneficio {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+.detalle-beneficio-icono { font-size: 1.05rem; flex: 0 0 auto; line-height: 1.3; }
+.detalle-beneficio-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.detalle-beneficio-txt strong {
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-texto);
+}
+.detalle-beneficio-txt small {
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: var(--color-texto-suave);
+}
 
 /* =============================================
    CARRITO - PANEL LATERAL

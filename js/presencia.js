@@ -12,6 +12,8 @@
     'carrito.html':      'Carrito',
     'perfil.html':       'Mi perfil',
     'contacto.html':     'Contacto',
+    'categoria.html':    'Categoría',
+    'faq.html':          'Preguntas frecuentes',
     'pago-exitoso.html': 'Pago exitoso',
     'pago-fallido.html': 'Pago fallido',
     'pago-pendiente.html':'Pago pendiente',
@@ -29,7 +31,7 @@
   }
 
   // Marcar que ya registramos la visita hoy (para no duplicar)
-  const claveVisita = '_visita_' + new Date().toISOString().slice(0, 10);
+  const claveVisita = '_visita_' + fechaChile();
   const visitaYaRegistrada = sessionStorage.getItem(claveVisita);
 
   async function ping() {
@@ -47,7 +49,7 @@
     if (visitaYaRegistrada) return; // ya contada hoy
     try {
       await db.from('visitas').upsert(
-        { session_id: sessionId, fecha: new Date().toISOString().slice(0, 10), pagina },
+        { session_id: sessionId, fecha: fechaChile(), pagina },
         { onConflict: 'session_id,fecha' }
       );
       sessionStorage.setItem(claveVisita, '1');

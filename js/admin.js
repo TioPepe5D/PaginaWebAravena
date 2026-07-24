@@ -1262,15 +1262,36 @@ function iniciarPresenciaRealtime() {
       const visitantes = data.filter(r => r.pagina !== 'Admin');
       countEl.textContent = visitantes.length;
 
-      // Agrupar por página
+      // Agrupar por sección, de la más concurrida a la menos
       const grupos = {};
       visitantes.forEach(r => {
-        grupos[r.pagina] = (grupos[r.pagina] || 0) + 1;
+        const nombre = r.pagina || 'Otra página';
+        grupos[nombre] = (grupos[nombre] || 0) + 1;
       });
 
-      paginasEl.innerHTML = Object.entries(grupos)
-        .map(([pag, n]) => `<span class="realtime-pag">${pag} <b>${n}</b></span>`)
-        .join('');
+      const ordenadas = Object.entries(grupos).sort((a, b) => b[1] - a[1]);
+
+      if (!ordenadas.length) {
+        paginasEl.innerHTML = '<p class="ahora-vacio">Nadie navegando en este momento</p>';
+        return;
+      }
+
+      // El carrito se destaca: ahí es donde conviene estar atento
+      const ICONOS = {
+        'Inicio': '🏠', 'Carrito': '🛒', 'Producto': '💎', 'Categoría': '📂',
+        'Mi perfil': '👤', 'Contacto': '✉️', 'Preguntas frecuentes': '❓',
+        'Pago exitoso': '✅', 'Pago pendiente': '⏳', 'Pago fallido': '⚠️',
+      };
+
+      paginasEl.innerHTML = ordenadas.map(([pag, n]) => {
+        const destacar = pag === 'Carrito' || pag.startsWith('Pago');
+        return `
+          <div class="ahora-seccion${destacar ? ' ahora-destacada' : ''}">
+            <span class="ahora-icono">${ICONOS[pag] || '📄'}</span>
+            <span class="ahora-nombre">${pag}</span>
+            <span class="ahora-conteo">${n}</span>
+          </div>`;
+      }).join('');
 
     } catch (_) {}
   }
@@ -1294,24 +1315,20 @@ function iniciarPresenciaRealtime() {
 /* ── Usuarios activos DAU / WAU / MAU ───────────────── */
 async function cargarUsuariosActivos() {
   try {
-    const hoy      = new Date();
-    const diaStr   = hoy.toISOString().slice(0, 10);
-    const lunesStr = (() => {
-      const d = new Date(hoy);
-      d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-      return d.toISOString().slice(0, 10);
-    })();
-    const mes1Str  = new Date(hoy.getFullYear(), hoy.getMonth(), 1)
-      .toISOString().slice(0, 10);
+    /* Todo en hora de Chile. Con toISOString() el "día" cambiaba a las
+       20:00 (UTC-4) y el contador de hoy se reiniciaba esa noche; además
+       el primer día del mes caía en el último día del mes anterior. */
+    const diaStr   = fechaChile();
+    const lunesStr = lunesChile();
+    const mes1Str  = primerDiaMesChile();
 
-    const [resDia, resSemana, resMes, resTopPag] = await Promise.all([
+    const [resDia, resSemana, resMes] = await Promise.all([
       db.from('visitas').select('session_id', { count: 'exact', head: true })
         .eq('fecha', diaStr),
       db.from('visitas').select('session_id', { count: 'exact', head: true })
         .gte('fecha', lunesStr),
       db.from('visitas').select('session_id', { count: 'exact', head: true })
         .gte('fecha', mes1Str),
-      db.from('visitas').select('pagina').eq('fecha', diaStr),
     ]);
 
     const set = (id, val) => {
@@ -1323,19 +1340,6 @@ async function cargarUsuariosActivos() {
     set('uau-semana', resSemana.count ?? 0);
     set('uau-mes',    resMes.count    ?? 0);
 
-    // Página más visitada hoy
-    if (resTopPag.data?.length) {
-      const freq = {};
-      resTopPag.data.forEach(r => {
-        if (r.pagina && r.pagina !== 'Admin')
-          freq[r.pagina] = (freq[r.pagina] || 0) + 1;
-      });
-      const top = Object.entries(freq).sort((a, b) => b[1] - a[1])[0];
-      if (top) {
-        set('uau-top-pagina', top[0]);
-        set('uau-top-sub', `${top[1]} visita${top[1] !== 1 ? 's' : ''} hoy`);
-      }
-    }
   } catch (e) {
     console.warn('[Admin] Error cargando UAU:', e.message);
   }

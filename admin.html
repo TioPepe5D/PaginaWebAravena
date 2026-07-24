@@ -7,7 +7,7 @@
   <title>Admin — Joyería Aravena</title>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/auth.css">
-  <link rel="stylesheet" href="css/admin.css?v=6">
+  <link rel="stylesheet" href="css/admin.css?v=7">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
@@ -93,8 +93,18 @@
         <span class="visitas-dato">Hoy <b id="uau-dia">—</b></span>
         <span class="visitas-dato">Semana <b id="uau-semana">—</b></span>
         <span class="visitas-dato">Mes <b id="uau-mes">—</b></span>
-        <div class="realtime-paginas" id="realtime-paginas"></div>
       </div>
+
+      <!-- En qué sección está cada visitante ahora mismo -->
+      <section class="ahora-panel">
+        <div class="ahora-cab">
+          <h2 class="ahora-titulo"><span class="realtime-dot"></span> Quién está navegando ahora</h2>
+          <span class="ahora-nota">se actualiza solo</span>
+        </div>
+        <div class="ahora-secciones" id="realtime-paginas">
+          <p class="ahora-vacio">Nadie navegando en este momento</p>
+        </div>
+      </section>
 
       <!-- Rango de fechas: manda sobre las cifras y sobre el gráfico -->
       <div class="rango-barra">
@@ -244,9 +254,10 @@
   <div id="admin-toasts" class="admin-toasts"></div>
 
   <!-- Modal Editar Catálogo -->
+  <script src="js/fecha-chile.js"></script>
   <script src="js/supabase-client.js?v=3"></script>
   <script src="js/products.js?v=3"></script>
-  <script src="js/admin.js?v=11"></script>
+  <script src="js/admin.js?v=12"></script>
 
 </body>
 
