@@ -61,6 +61,9 @@ module.exports = async (req, res) => {
       if (!Number.isFinite(precio) || precio <= 0) return;   // fila sin precio útil
       const base = porId.get(String(row.id)) || {};
       porId.set(String(row.id), {
+        // Se parte del producto del catálogo para no perder campos que
+        // esta tabla no tiene, como la categoría
+        ...base,
         id:     row.id,
         nombre: row.nombre || base.nombre || `Producto ${row.id}`,
         precio,
@@ -98,11 +101,12 @@ module.exports = async (req, res) => {
     }
 
     itemsValidados.push({
-      id:       String(p.id),
-      nombre:   p.nombre,
-      cantidad: qty,
-      precio,                        // ← precio real del servidor
-      imagen:   p.imagen || ""
+      id:        String(p.id),
+      nombre:    p.nombre,
+      cantidad:  qty,
+      precio,                          // ← precio real del servidor
+      imagen:    p.imagen || "",
+      categoria: p.categoria || ""     // la usan el panel y los avisos de compra
     });
   }
 
