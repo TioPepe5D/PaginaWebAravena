@@ -1306,7 +1306,11 @@ function iniciarPresenciaRealtime() {
   setInterval(actualizarConteo, 30_000);
 }
 
-/* ── Usuarios activos DAU / WAU / MAU ───────────────── */
+/* ── Visitantes por etapa: histórico día / semana / mes ─────────
+   La tabla `visitas` guarda una fila por sesión y día con la etapa más
+   profunda que alcanzó: 'navegando', 'carrito' o 'pagando' (lo escribe
+   presencia.js). El embudo es acumulativo: quien pagó también navegó y
+   pasó por el carrito, así que cada etapa incluye a las siguientes. */
 async function cargarUsuariosActivos() {
   try {
     /* Todo en hora de Chile. Con toISOString() el "día" cambiaba a las
@@ -1316,26 +1320,50 @@ async function cargarUsuariosActivos() {
     const lunesStr = lunesChile();
     const mes1Str  = primerDiaMesChile();
 
-    const [resDia, resSemana, resMes] = await Promise.all([
-      db.from('visitas').select('session_id', { count: 'exact', head: true })
-        .eq('fecha', diaStr),
-      db.from('visitas').select('session_id', { count: 'exact', head: true })
-        .gte('fecha', lunesStr),
-      db.from('visitas').select('session_id', { count: 'exact', head: true })
-        .gte('fecha', mes1Str),
-    ]);
+    // Acota una consulta al período elegido
+    const porPeriodo = {
+      dia:    q => q.eq('fecha', diaStr),
+      semana: q => q.gte('fecha', lunesStr),
+      mes:    q => q.gte('fecha', mes1Str),
+    };
+    // Acota una consulta a quienes alcanzaron (al menos) esa etapa
+    const porEtapa = {
+      navegando: q => q,                                  // todos los que entraron
+      carrito:   q => q.in('pagina', ['carrito', 'pagando']),
+      pagando:   q => q.eq('pagina', 'pagando'),
+    };
+
+    const cuenta = (periodo, etapa) => {
+      let q = db.from('visitas').select('session_id', { count: 'exact', head: true });
+      q = porPeriodo[periodo](q);
+      q = porEtapa[etapa](q);
+      return q;
+    };
+
+    const periodos = ['dia', 'semana', 'mes'];
+    const etapas   = ['navegando', 'carrito', 'pagando'];
+
+    // Todas las combinaciones período × etapa en paralelo
+    const tareas = [];
+    periodos.forEach(p => etapas.forEach(e => tareas.push({ p, e, req: cuenta(p, e) })));
+    const resultados = await Promise.all(tareas.map(t => t.req));
 
     const set = (id, val) => {
       const el = document.getElementById(id);
       if (el) el.textContent = val ?? '—';
     };
 
-    set('uau-dia',    resDia.count    ?? 0);
-    set('uau-semana', resSemana.count ?? 0);
-    set('uau-mes',    resMes.count    ?? 0);
+    tareas.forEach((t, i) => {
+      const n = resultados[i].count ?? 0;
+      set(`emb-${t.p}-${t.e}`, n);
+      // La barra superior sigue mostrando el total (= etapa "navegando")
+      if (t.e === 'navegando') {
+        set({ dia: 'uau-dia', semana: 'uau-semana', mes: 'uau-mes' }[t.p], n);
+      }
+    });
 
   } catch (e) {
-    console.warn('[Admin] Error cargando UAU:', e.message);
+    console.warn('[Admin] Error cargando visitas por etapa:', e.message);
   }
 }
 

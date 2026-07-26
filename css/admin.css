@@ -2328,3 +2328,52 @@
   .ahora-seccion { padding: 0.5rem 0.6rem; gap: 7px; }
   .ahora-nombre { font-size: 0.76rem; }
 }
+
+/* ── Embudo histórico: navegando / carrito / pagando por período ── */
+.embudo-panel {
+  margin-bottom: 1.2rem;
+  padding: 1rem 1.2rem 1.1rem;
+  border-radius: 12px;
+  background: var(--color-fondo-suave);
+  border: 1px solid var(--color-borde);
+}
+.embudo-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.embudo-tabla th,
+.embudo-tabla td { padding: 0.55rem 0.5rem; text-align: center; }
+.embudo-tabla thead th {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #a7adb3;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--color-borde);
+}
+.embudo-tabla .embudo-periodo-col { width: 4.5rem; }
+.embudo-tabla tbody .embudo-periodo {
+  text-align: left;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #d5d9dd;
+}
+.embudo-tabla tbody td {
+  font-family: var(--fuente-monto, inherit);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #eef1f4;
+}
+.embudo-tabla tbody tr + tr th,
+.embudo-tabla tbody tr + tr td {
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+/* Las dos columnas que conviene mirar se resaltan suave */
+.embudo-tabla tbody td:nth-child(3) { color: #bfe9ff; }
+.embudo-tabla tbody td:nth-child(4) { color: #8fe3ff; }
+@media (max-width: 640px) {
+  .embudo-panel { padding: 0.85rem 0.9rem 1rem; }
+  .embudo-tabla thead th { font-size: 0.68rem; }
+  .embudo-tabla tbody td { font-size: 0.95rem; }
+  .embudo-tabla th, .embudo-tabla td { padding: 0.5rem 0.3rem; }
+}

@@ -20,8 +20,23 @@
     'admin.html':        'Admin',
   };
 
-  const ruta    = window.location.pathname.split('/').pop() || 'index.html';
+  /* El servidor sirve URLs "limpias" (/carrito) y también las clásicas
+     (/carrito.html). Se normaliza a nombre de archivo para que el mapa de
+     páginas y las etapas del embudo funcionen igual en ambos casos. */
+  let ruta = window.location.pathname.split('/').pop() || 'index.html';
+  if (ruta && !ruta.includes('.')) ruta += '.html';
   const pagina  = PAGINAS[ruta] || ruta || 'Inicio';
+
+  /* Etapa del embudo a la que llega esta página. Es lo que se guarda en el
+     historial (tabla `visitas`) para poder ver cuánta gente llegó a navegar,
+     a armar el carrito y a pagar, por día / semana / mes. */
+  const ETAPA_RANGO = { navegando: 1, carrito: 2, pagando: 3 };
+  function etapaDeRuta(r) {
+    if (r === 'carrito.html')   return 'carrito';
+    if (r.startsWith('pago-'))  return 'pagando';   // pago-exitoso/fallido/pendiente
+    return 'navegando';
+  }
+  const etapa = etapaDeRuta(ruta);
 
   // ID único por pestaña
   let sessionId = sessionStorage.getItem('_presencia_id');
@@ -30,9 +45,9 @@
     sessionStorage.setItem('_presencia_id', sessionId);
   }
 
-  // Marcar que ya registramos la visita hoy (para no duplicar)
-  const claveVisita = '_visita_' + fechaChile();
-  const visitaYaRegistrada = sessionStorage.getItem(claveVisita);
+  // Etapa más profunda ya registrada hoy por esta pestaña (para no repetir
+  // ni retroceder: si ya llegó al carrito, volver al inicio no la rebaja)
+  const claveEtapa = '_etapa_' + fechaChile();
 
   async function ping() {
     if (typeof db === 'undefined' || !db) return;
@@ -46,13 +61,20 @@
 
   async function registrarVisita() {
     if (typeof db === 'undefined' || !db) return;
-    if (visitaYaRegistrada) return; // ya contada hoy
+
+    /* Se escribe una fila por sesión y día, guardando la etapa alcanzada.
+       Solo se actualiza si esta página es una etapa MÁS profunda que la ya
+       anotada: así "navegando → carrito → pagando" avanza pero nunca vuelve
+       atrás. Cada pestaña tiene su propio session_id, así que no se pisan. */
+    const anotada = sessionStorage.getItem(claveEtapa);
+    if (anotada && ETAPA_RANGO[etapa] <= ETAPA_RANGO[anotada]) return;
+
     try {
       await db.from('visitas').upsert(
-        { session_id: sessionId, fecha: fechaChile(), pagina },
+        { session_id: sessionId, fecha: fechaChile(), pagina: etapa },
         { onConflict: 'session_id,fecha' }
       );
-      sessionStorage.setItem(claveVisita, '1');
+      sessionStorage.setItem(claveEtapa, etapa);
     } catch (_) {}
   }
 

@@ -1,9 +1,15 @@
 // Fuente de productos activa — se baraja al cargar para que el orden sea aleatorio
 let productosActivos = typeof productos !== 'undefined' ? barajar([...productos]) : [];
 
-// Página de categoría: categoria.html#collares (el hash sobrevive a las
-// redirecciones "clean URL" del servidor, que descartan ?c=)
-const CATEGORIA_PAGINA = /categoria/.test(location.pathname)
+// ¿Estamos en la página de categorías? (categoria.html, con o sin hash).
+// En ella se muestran TODAS las fotos; la paginación "Ver más" queda solo
+// para los resultados de búsqueda de la portada.
+const EN_PAGINA_CATEGORIA = /categoria/.test(location.pathname);
+
+// Categoría concreta: categoria.html#collares (el hash sobrevive a las
+// redirecciones "clean URL" del servidor, que descartan ?c=). Si se llega
+// sin categoría, queda "" y la página muestra el catálogo completo.
+const CATEGORIA_PAGINA = EN_PAGINA_CATEGORIA
   ? (location.hash.replace('#','') || new URLSearchParams(location.search).get('c') || '')
   : '';
 
@@ -232,8 +238,10 @@ function renderizarProductos() {
   }
 
   const total = filtrados.length;
-  // En las páginas de categoría se ven TODAS las fotos de una (sin "Ver más")
-  const mostrados = CATEGORIA_PAGINA ? total : Math.min(productosVisibles, total);
+  // En la página de categorías se ven TODAS las fotos (sin "Ver más"),
+  // aunque no se haya elegido una categoría concreta. La paginación queda
+  // solo para los resultados de búsqueda de la portada.
+  const mostrados = EN_PAGINA_CATEGORIA ? total : Math.min(productosVisibles, total);
   const inicioNuevo = esVerMas ? Math.max(0, mostrados - PRODUCTOS_POR_TANDA) : 0;
 
   grid.innerHTML = filtrados.slice(0, mostrados).map((p, i) => {

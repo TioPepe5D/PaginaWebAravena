@@ -101,8 +101,46 @@
           <h2 class="ahora-titulo"><span class="realtime-dot"></span> Quién está navegando ahora</h2>
         </div>
         <div class="ahora-secciones" id="realtime-paginas">
-          
+
         </div>
+      </section>
+
+      <!-- Recorrido histórico: cuánta gente llegó a cada etapa por período -->
+      <section class="embudo-panel">
+        <div class="ahora-cab">
+          <h2 class="ahora-titulo">📊 Recorrido de los visitantes</h2>
+          <span class="ahora-nota">Personas que llegaron a cada etapa</span>
+        </div>
+        <table class="embudo-tabla">
+          <thead>
+            <tr>
+              <th class="embudo-periodo-col"></th>
+              <th>🏠 Navegando</th>
+              <th>🛒 Carrito</th>
+              <th>💳 Pagando</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th class="embudo-periodo">Hoy</th>
+              <td id="emb-dia-navegando">—</td>
+              <td id="emb-dia-carrito">—</td>
+              <td id="emb-dia-pagando">—</td>
+            </tr>
+            <tr>
+              <th class="embudo-periodo">Semana</th>
+              <td id="emb-semana-navegando">—</td>
+              <td id="emb-semana-carrito">—</td>
+              <td id="emb-semana-pagando">—</td>
+            </tr>
+            <tr>
+              <th class="embudo-periodo">Mes</th>
+              <td id="emb-mes-navegando">—</td>
+              <td id="emb-mes-carrito">—</td>
+              <td id="emb-mes-pagando">—</td>
+            </tr>
+          </tbody>
+        </table>
       </section>
 
       <!-- Rango de fechas: manda sobre las cifras y sobre el gráfico -->
