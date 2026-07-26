@@ -250,10 +250,14 @@ module.exports = async (req, res) => {
         // Algunos flujos de MP requieren un payer válido para checkout web
         // — vacío fuerza al usuario a ingresar sus datos en MP
       },
+      /* URLs "limpias" (sin .html) a propósito: el servidor redirige
+         /pago-exitoso.html → /pago-exitoso y ese salto puede descartar los
+         parámetros que agrega MercadoPago (external_reference, etc.). Al
+         apuntar directo, el nº de pedido llega intacto al botón de aviso. */
       back_urls: {
-        success: `${siteUrl}/pago-exitoso.html`,
-        failure: `${siteUrl}/pago-fallido.html`,
-        pending: `${siteUrl}/pago-pendiente.html`
+        success: `${siteUrl}/pago-exitoso`,
+        failure: `${siteUrl}/pago-fallido`,
+        pending: `${siteUrl}/pago-pendiente`
       },
       auto_return:          "approved",
       statement_descriptor: "JoyeriaAravena",
