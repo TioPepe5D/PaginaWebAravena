@@ -1,15 +1,6 @@
 const productos = [
 
   {
-    id: 1,
-    nombre: "Lote de Collares Plata Italiana 925",
-    categoria: "collares",
-    material: "plata-italiana",
-    precio: 194900,
-    imagen: "img/263e9c13-6d3d-4155-930a-055a566f0b86.jpg",
-    descripcion: "Lote de Collares Plata Italiana 925"
-  },
-  {
     id: 2,
     nombre: "Lote de Collares en Plata Italiana 925",
     categoria: "collares",
@@ -208,15 +199,6 @@ const productos = [
     descripcion: "Lote Amor Pink"
   },
   {
-    id: 24,
-    nombre: "Lote Feliz Día Mamá",
-    categoria: "collares",
-    material: "plata-nacional",
-    precio: 25990,
-    imagen: "img/d8fd19c4-dcc8-446a-b51d-a7bab0001a3c.jpg",
-    descripcion: "Lote Feliz Día Mamá"
-  },
-  {
     id: 25,
     nombre: "Lote Love Pink",
     categoria: "collares",
@@ -233,15 +215,6 @@ const productos = [
     precio: 24990,
     imagen: "img/b0bcf38a-a48e-41dc-b1e0-969d6972e0d3.jpg",
     descripcion: "Lote de Rosarios"
-  },
-  {
-    id: 27,
-    nombre: "Lote Minnie Red",
-    categoria: "collares",
-    material: "plata-nacional",
-    precio: 23990,
-    imagen: "img/5b0f37c5-06df-4753-8703-a7e861806138.jpg",
-    descripcion: "Lote Minnie Red"
   },
   {
     id: 28,
@@ -271,15 +244,6 @@ const productos = [
     descripcion: "Lote Pink Disney"
   },
   {
-    id: 31,
-    nombre: "Lote Pink Pink",
-    categoria: "collares",
-    material: "plata-nacional",
-    precio: 22990,
-    imagen: "img/42397f3d-6d12-4e30-b641-9b8038fbfe66.jpg",
-    descripcion: "Lote Pink Pink"
-  },
-  {
     id: 32,
     nombre: "Lote de Girls Bendecidas",
     categoria: "collares",
@@ -287,24 +251,6 @@ const productos = [
     precio: 22990,
     imagen: "img/85d01ff0-bcc5-4db6-a1f1-5921c69f1113.jpg",
     descripcion: "Lote de Girls Bendecidas"
-  },
-  {
-    id: 33,
-    nombre: "Lote Pink",
-    categoria: "collares",
-    material: "plata-nacional",
-    precio: 20990,
-    imagen: "img/95977f42-9c23-4c67-a4d2-606ffcba60f4.jpg",
-    descripcion: "Lote Pink"
-  },
-  {
-    id: 34,
-    nombre: "Lote Nudo de Bruja",
-    categoria: "collares",
-    material: "plata-nacional",
-    precio: 20990,
-    imagen: "img/e41baf5a-2717-4a57-8b63-798692afd2b2.jpg",
-    descripcion: "Lote Nudo de Bruja"
   },
   {
     id: 35,
@@ -334,15 +280,6 @@ const productos = [
     descripcion: "Lote de Collares Full Pink"
   },
   {
-    id: 38,
-    nombre: "Lote Love Red",
-    categoria: "collares",
-    material: "plata-nacional",
-    precio: 20000,
-    imagen: "img/71f16007-436b-47d7-8bd6-146376d2a37b.jpg",
-    descripcion: "Lote Love Red"
-  },
-  {
     id: 39,
     nombre: "Lote Puntos de Luz (6 unidades)",
     categoria: "collares",
@@ -361,33 +298,6 @@ const productos = [
     descripcion: "Lote de los Tres Más Grandes"
   },
   {
-    id: 41,
-    nombre: "Lote de Collares de Hombre",
-    categoria: "collares",
-    material: "plata-nacional",
-    precio: 20000,
-    imagen: "img/e7ab6d24-14a9-4279-b038-0c1c98770f51.jpg",
-    descripcion: "Lote de Collares de Hombre"
-  },
-  {
-    id: 42,
-    nombre: "Lote Minnie Red",
-    categoria: "collares",
-    material: "plata-nacional",
-    precio: 19990,
-    imagen: "img/2ee06692-1245-4805-b26f-2bf908c1d1f9.jpg",
-    descripcion: "Lote Minnie Red"
-  },
-  {
-    id: 43,
-    nombre: "Lote de Collares",
-    categoria: "collares",
-    material: "plata-nacional",
-    precio: 19990,
-    imagen: "img/3c36d23c-242f-4e1b-96f3-6d06659497b0.jpg",
-    descripcion: "Lote de Collares"
-  },
-  {
     id: 44,
     nombre: "Lote de Rosarios",
     categoria: "collares",
@@ -395,15 +305,6 @@ const productos = [
     precio: 19990,
     imagen: "img/ccfbf970-101f-4d09-abf4-11926cf259f2.jpg",
     descripcion: "Lote de Rosarios"
-  },
-  {
-    id: 45,
-    nombre: "Lote de Puntos de Luz",
-    categoria: "collares",
-    material: "plata-nacional",
-    precio: 19990,
-    imagen: "img/d501f1d4-319b-4817-97cf-df31b818c953.jpg",
-    descripcion: "Lote de Puntos de Luz"
   },
   {
     id: 46,
@@ -469,15 +370,6 @@ const productos = [
     descripcion: "Lote Pulseras Exclusiva"
   },
   {
-    id: 53,
-    nombre: "Lote Pulseras Hombre",
-    categoria: "pulseras",
-    material: "plata-nacional",
-    precio: 39000,
-    imagen: "img/616ef037-7e09-43ae-bfa4-3920eb993c03.jpg",
-    descripcion: "Lote Pulseras Hombre"
-  },
-  {
     id: 54,
     nombre: "Lote de Pulseras Goldfield 18K Italiano",
     categoria: "pulseras",
@@ -485,15 +377,6 @@ const productos = [
     precio: 37990,
     imagen: "img/2be3c2c1-92ac-4b56-ae49-7c8cce0e5769.jpg",
     descripcion: "Lote de Pulseras Goldfield 18K Italiano"
-  },
-  {
-    id: 55,
-    nombre: "Lote Pulseras",
-    categoria: "pulseras",
-    material: "plata-nacional",
-    precio: 36900,
-    imagen: "img/08b4c6be-4f82-43d0-a151-2b15d013c461.jpg",
-    descripcion: "Lote Pulseras"
   },
   {
     id: 56,
@@ -532,15 +415,6 @@ const productos = [
     descripcion: "Lote de Pulseras"
   },
   {
-    id: 60,
-    nombre: "Lote de Pulseras + Argollas",
-    categoria: "pulseras",
-    material: "plata-nacional",
-    precio: 24990,
-    imagen: "img/286d8bbe-fc95-46c1-b185-371c995e9c8e.jpg",
-    descripcion: "Lote de Pulseras + Argollas"
-  },
-  {
     id: 61,
     nombre: "Lote de Pulseras",
     categoria: "pulseras",
@@ -548,15 +422,6 @@ const productos = [
     precio: 24990,
     imagen: "img/a0ebdee6-223a-4907-a3c8-7c41caab8873.jpg",
     descripcion: "Lote de Pulseras"
-  },
-  {
-    id: 62,
-    nombre: "Lote de Pulseras de Hombre",
-    categoria: "pulseras",
-    material: "plata-nacional",
-    precio: 24990,
-    imagen: "img/f933ef64-4b0e-45db-9b43-ff70039af36d.jpg",
-    descripcion: "Lote de Pulseras de Hombre"
   },
   {
     id: 63,
@@ -640,15 +505,6 @@ const productos = [
     descripcion: "Lote de Pulseras Cadenas Finas"
   },
   {
-    id: 72,
-    nombre: "Lote de Argollas",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 52990,
-    imagen: "img/d9fe1818-7b20-4f8f-8fdb-4ad34e75de29.jpg",
-    descripcion: "Lote de Argollas"
-  },
-  {
     id: 73,
     nombre: "Super Lote de Argollas",
     categoria: "aros",
@@ -667,24 +523,6 @@ const productos = [
     descripcion: "Lote de Argollas y Anillos + Medidor"
   },
   {
-    id: 75,
-    nombre: "Lote de Aritos Goldfield Italiano 18K",
-    categoria: "aros",
-    material: "oro-goldfit",
-    precio: 25990,
-    imagen: "img/577b43be-c471-4265-9350-b85556835607.jpg",
-    descripcion: "Lote de Aritos Goldfield Italiano 18K"
-  },
-  {
-    id: 76,
-    nombre: "Lote de Argollas",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 25990,
-    imagen: "img/fb3adde9-121f-4e01-8627-8c302c172d13.jpg",
-    descripcion: "Lote de Argollas"
-  },
-  {
     id: 77,
     nombre: "Lote de Pelotitas Goldfield Italiano 18K",
     categoria: "aros",
@@ -692,33 +530,6 @@ const productos = [
     precio: 24999,
     imagen: "img/e79f4258-cf77-484c-b40a-c582c0728ef4.jpg",
     descripcion: "Lote de Pelotitas Goldfield Italiano 18K"
-  },
-  {
-    id: 78,
-    nombre: "Lote de Argollas",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 24990,
-    imagen: "img/4b553512-c873-4d1a-95b1-59cc9919b07b.jpg",
-    descripcion: "Lote de Argollas"
-  },
-  {
-    id: 79,
-    nombre: "Lote Argollas",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 22900,
-    imagen: "img/2294de2b-d703-48f2-ab60-ee3ac5d12b17.jpg",
-    descripcion: "Lote Argollas"
-  },
-  {
-    id: 80,
-    nombre: "Lote de Argollas",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 22900,
-    imagen: "img/50f39a34-000b-4c09-bb85-df268f9d7632.jpg",
-    descripcion: "Lote de Argollas"
   },
   {
     id: 81,
@@ -739,15 +550,6 @@ const productos = [
     descripcion: "Lote de Argollas"
   },
   {
-    id: 83,
-    nombre: "Lote de Argollas",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 20900,
-    imagen: "img/27b866e7-6711-4c69-b8ff-9e74be732078.jpg",
-    descripcion: "Lote de Argollas"
-  },
-  {
     id: 84,
     nombre: "Lote de Argollas Enroscadas",
     categoria: "aros",
@@ -755,15 +557,6 @@ const productos = [
     precio: 20900,
     imagen: "img/c026b5dd-341d-4b0d-98d5-ddd3cb2ce48a.jpg",
     descripcion: "Lote de Argollas Enroscadas"
-  },
-  {
-    id: 85,
-    nombre: "Lote de Argollas",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 20000,
-    imagen: "img/b80ffc01-2854-479a-9ac2-6aa3bafad51b.jpg",
-    descripcion: "Lote de Argollas"
   },
   {
     id: 86,
@@ -775,24 +568,6 @@ const productos = [
     descripcion: "Lote de Argollas"
   },
   {
-    id: 87,
-    nombre: "Lote de Aritos Blue",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 17990,
-    imagen: "img/f9f9d08b-ea3c-400e-81e2-3e3db45b1ce9.jpg",
-    descripcion: "Lote de Aritos Blue"
-  },
-  {
-    id: 88,
-    nombre: "Lote de Aritos Animados",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 16990,
-    imagen: "img/5009a848-9ce9-4612-a579-d3d4b22e3b72.jpg",
-    descripcion: "Lote de Aritos Animados"
-  },
-  {
     id: 89,
     nombre: "Lote de Aritos Celestes",
     categoria: "aros",
@@ -802,33 +577,6 @@ const productos = [
     descripcion: "Lote de Aritos Celestes"
   },
   {
-    id: 90,
-    nombre: "Lote de Aritos Blue",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 16900,
-    imagen: "img/aff8fd92-3a52-42d6-8918-8c0056060741.jpg",
-    descripcion: "Lote de Aritos Blue"
-  },
-  {
-    id: 91,
-    nombre: "Lote de Aritos Goldfield Italiano 18K",
-    categoria: "aros",
-    material: "oro-goldfit",
-    precio: 14990,
-    imagen: "img/85570ec7-efec-419f-815a-9a40171be9ad.jpg",
-    descripcion: "Lote de Aritos Goldfield Italiano 18K"
-  },
-  {
-    id: 92,
-    nombre: "Mini Lote de Argollas",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 10900,
-    imagen: "img/992dd9cc-c8a1-4683-ac98-084e1aa7861b.jpg",
-    descripcion: "Mini Lote de Argollas"
-  },
-  {
     id: 93,
     nombre: "Lote de Aros Pegados",
     categoria: "aros",
@@ -836,15 +584,6 @@ const productos = [
     precio: 10000,
     imagen: "img/02e6cc66-7b62-4abb-8a1e-06cfcd247f88.jpg",
     descripcion: "Lote de Aros Pegados"
-  },
-  {
-    id: 94,
-    nombre: "Lote de Aritos",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 10000,
-    imagen: "img/0c30f05a-410a-4cd8-998e-2046e05c2f8c.jpg",
-    descripcion: "Lote de Aritos"
   },
   {
     id: 95,
@@ -862,15 +601,6 @@ const productos = [
     material: "plata-nacional",
     precio: 10000,
     imagen: "img/570e0822-732b-4bfe-ac20-af1cf96783c7.jpg",
-    descripcion: "Mini Lote de Argollas"
-  },
-  {
-    id: 97,
-    nombre: "Mini Lote de Argollas",
-    categoria: "aros",
-    material: "plata-nacional",
-    precio: 10000,
-    imagen: "img/8473aebb-24d6-4619-a941-4a3544649e99.jpg",
     descripcion: "Mini Lote de Argollas"
   },
   {
@@ -1027,15 +757,6 @@ const productos = [
     descripcion: "Lote Conjuntos Día del Padre (10 conjuntos)"
   },
   {
-    id: 115,
-    nombre: "Lote de Conjuntos de Collares (11 Collares + 11 Colgantes)",
-    categoria: "conjuntos",
-    material: "plata-nacional",
-    precio: 39990,
-    imagen: "img/c9621c1b-ea8d-4295-908d-15a368375ef0.jpg",
-    descripcion: "Lote de Conjuntos de Collares (11 Collares + 11 Colgantes)"
-  },
-  {
     id: 116,
     nombre: "Lote de Conjuntos Oro Goldfield Italiano 18K",
     categoria: "conjuntos",
@@ -1052,15 +773,6 @@ const productos = [
     precio: 33990,
     imagen: "img/506ffb04-af38-4560-a05e-a506649f9063.jpg",
     descripcion: "Lote de Conjuntos Goldfield y Plata"
-  },
-  {
-    id: 118,
-    nombre: "Mini Joyero Amor",
-    categoria: "conjuntos",
-    material: "plata-nacional",
-    precio: 33990,
-    imagen: "img/ae622011-59ab-45fa-a904-bf47df07af3f.jpg",
-    descripcion: "Mini Joyero Amor"
   },
   {
     id: 119,
@@ -1106,15 +818,6 @@ const productos = [
     precio: 29990,
     imagen: "img/46eb373a-c934-4c3c-b339-44b8fa2e4e5a.jpg",
     descripcion: "Arma tu Lote: 5 Collares Singapur + 5 Colgantes"
-  },
-  {
-    id: 124,
-    nombre: "Mini Joyero Pink (13 productos)",
-    categoria: "conjuntos",
-    material: "plata-nacional",
-    precio: 29990,
-    imagen: "img/61157ff3-452a-4cd6-9302-3f28330d971d.jpg",
-    descripcion: "Mini Joyero Pink (13 productos)"
   },
   {
     id: 125,
@@ -1171,15 +874,6 @@ const productos = [
     descripcion: "Mini Joyero Pink"
   },
   {
-    id: 131,
-    nombre: "Lote de Conjuntos",
-    categoria: "conjuntos",
-    material: "plata-nacional",
-    precio: 26900,
-    imagen: "img/18ea86a0-bf95-4d16-b127-3f978d97d2d0.jpg",
-    descripcion: "Lote de Conjuntos"
-  },
-  {
     id: 132,
     nombre: "Lote de Rosarios + Aros + Anillos",
     categoria: "conjuntos",
@@ -1198,15 +892,6 @@ const productos = [
     descripcion: "Lote Conjuntos Letras (6 unidades)"
   },
   {
-    id: 134,
-    nombre: "Lote de Conjuntos Lady Pink",
-    categoria: "conjuntos",
-    material: "plata-nacional",
-    precio: 24990,
-    imagen: "img/26f73a88-8ffb-4021-adb1-3bc3ac7fce00.jpg",
-    descripcion: "Lote de Conjuntos Lady Pink"
-  },
-  {
     id: 135,
     nombre: "Lote de Conjuntos Animados",
     categoria: "conjuntos",
@@ -1223,24 +908,6 @@ const productos = [
     precio: 23990,
     imagen: "img/50a41ff1-f971-4ea2-adfd-1c557601fd24.jpg",
     descripcion: "Lote de Conjuntos Ojo Turco"
-  },
-  {
-    id: 137,
-    nombre: "Lote de Conjuntos Pink",
-    categoria: "conjuntos",
-    material: "plata-nacional",
-    precio: 20990,
-    imagen: "img/24abaea3-f79c-49b8-a0b4-7b9e4b42f4d5.jpg",
-    descripcion: "Lote de Conjuntos Pink"
-  },
-  {
-    id: 138,
-    nombre: "Conjuntos Pink",
-    categoria: "conjuntos",
-    material: "plata-nacional",
-    precio: 20990,
-    imagen: "img/ebf5a98a-f83c-4de7-9c6a-b35b50266504.jpg",
-    descripcion: "Conjuntos Pink"
   },
   {
     id: 139,
@@ -1270,15 +937,6 @@ const productos = [
     descripcion: "Lote de Anillos Plata Italiana 925"
   },
   {
-    id: 142,
-    nombre: "Lote de Anillos Pink",
-    categoria: "anillos",
-    material: "plata-nacional",
-    precio: 21990,
-    imagen: "img/1cddfed5-70f4-4003-af40-7526f8129c07.jpg",
-    descripcion: "Lote de Anillos Pink"
-  },
-  {
     id: 143,
     nombre: "Lote de Anillos Red",
     categoria: "anillos",
@@ -1295,15 +953,6 @@ const productos = [
     precio: 20000,
     imagen: "img/1b364bb2-53b7-43ca-8966-f66cf5b77e89.jpg",
     descripcion: "Lote de Anillos Green"
-  },
-  {
-    id: 145,
-    nombre: "Anillos de Compromiso Plata Italiana 925",
-    categoria: "anillos",
-    material: "plata-italiana",
-    precio: 8490,
-    imagen: "img/994d95e8-1d17-409d-96c8-f480008e252a.jpg",
-    descripcion: "Anillos de Compromiso Plata Italiana 925"
   },
   {
     id: 146,
@@ -1331,6 +980,618 @@ const productos = [
     precio: 3000,
     imagen: "img/37fcca64-4bc1-4a0e-9744-0eca08ae1e4e.jpg",
     descripcion: "Mini Joyero"
+  },
+  {
+    id: 149,
+    nombre: "Colgante Rostro de Cristo",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 11700,
+    imagen: "img/01c2fe28-f71e-437c-b569-355e4e35de7c_8158FC93-0A4F-4646-8BA3-C30295CB0077.jpg",
+    descripcion: "Colgante Rostro de Cristo"
+  },
+  {
+    id: 150,
+    nombre: "Exhibidor Mini Joyero",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 3000,
+    imagen: "img/03E2357D-6181-4E68-8598-3F74418C5C60.jpg",
+    descripcion: "Exhibidor Mini Joyero"
+  },
+  {
+    id: 151,
+    nombre: "Lote Aros Mixtos",
+    categoria: "aros",
+    material: "plata-nacional",
+    precio: 29900,
+    imagen: "img/03ef3842-7024-4635-969e-de907cabdafa.jpg",
+    descripcion: "Lote Aros Mixtos"
+  },
+  {
+    id: 152,
+    nombre: "Lote 7 Cruces",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 13990,
+    imagen: "img/13efb23d-7a16-459f-902d-2fa2c2e5a7b3.jpg",
+    descripcion: "Lote 7 Cruces"
+  },
+  {
+    id: 153,
+    nombre: "Lote de Pulseras Black",
+    categoria: "pulseras",
+    material: "plata-nacional",
+    precio: 24990,
+    imagen: "img/1869bbb7-2592-4fa7-a79f-f084adb44872.jpg",
+    descripcion: "Lote de Pulseras Black"
+  },
+  {
+    id: 154,
+    nombre: "Remate de Colgantes (13 unidades)",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 10000,
+    imagen: "img/19856217-9f49-4af0-bf8d-9c5997d8f071.jpg",
+    descripcion: "Remate de Colgantes (13 unidades)"
+  },
+  {
+    id: 155,
+    nombre: "Gramera 300 Gramos",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 8500,
+    imagen: "img/19978DE0-476C-4DB1-A962-0965C6A185B4.jpg",
+    descripcion: "Gramera 300 Gramos"
+  },
+  {
+    id: 156,
+    nombre: "Lote de Pulseras Exclusivas",
+    categoria: "pulseras",
+    material: "plata-nacional",
+    precio: 32900,
+    imagen: "img/1E345D2F-4FC1-401C-92D9-12AC728ABB0E.jpg",
+    descripcion: "Lote de Pulseras Exclusivas"
+  },
+  {
+    id: 157,
+    nombre: "Lote Inicia Tu Negocio",
+    categoria: "conjuntos",
+    material: "plata-nacional",
+    precio: 5900,
+    imagen: "img/1EDD5F1A-858C-49B9-9A56-B0402CB6A98D_4CFB2FE1-474A-44C3-AA94-F24E42AC611F.jpg",
+    descripcion: "Lote Inicia Tu Negocio"
+  },
+  {
+    id: 158,
+    nombre: "Lote de Conjuntos",
+    categoria: "conjuntos",
+    material: "plata-nacional",
+    precio: 28990,
+    imagen: "img/1c684df9-031b-47f0-9366-59001aeb413d.jpg",
+    descripcion: "Lote de Conjuntos"
+  },
+  {
+    id: 159,
+    nombre: "Lote Collares Gruesos",
+    categoria: "collares",
+    material: "plata-nacional",
+    precio: 110000,
+    imagen: "img/1cd97616-f72a-4e0b-bda3-a525ecfa3a10.jpg",
+    descripcion: "Lote Collares Gruesos"
+  },
+  {
+    id: 160,
+    nombre: "Lote Conjuntos",
+    categoria: "conjuntos",
+    material: "plata-nacional",
+    precio: 24900,
+    imagen: "img/22ce4572-6784-460f-9652-847e85422a30.jpg",
+    descripcion: "Lote Conjuntos"
+  },
+  {
+    id: 161,
+    nombre: "Cuello Exhibidor de Cuero 18cm",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 8000,
+    imagen: "img/34FF7BC6-B67D-4EF9-8BFF-89EF35E63EDF.jpg",
+    descripcion: "Cuello Exhibidor de Cuero 18cm"
+  },
+  {
+    id: 162,
+    nombre: "Exhibidor Maleta Mediana",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 12000,
+    imagen: "img/3F191541-314B-43A1-A7CC-A727C03CCD9C.jpg",
+    descripcion: "Exhibidor Maleta Mediana"
+  },
+  {
+    id: 163,
+    nombre: "Remate de Colgantes (17 unidades)",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 10000,
+    imagen: "img/3d61a4fe-a504-4eca-bdbd-f3a969e17d37.jpg",
+    descripcion: "Remate de Colgantes (17 unidades)"
+  },
+  {
+    id: 164,
+    nombre: "Lote 6 Cruces",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 12900,
+    imagen: "img/45b74a59-ce0e-4cd1-8c4c-c5d9adba41cf.jpg",
+    descripcion: "Lote 6 Cruces"
+  },
+  {
+    id: 165,
+    nombre: "Lote de Conjuntos Lucky",
+    categoria: "conjuntos",
+    material: "plata-nacional",
+    precio: 26990,
+    imagen: "img/460eb72d-bc6f-40f3-8139-056efee0f6d1.jpg",
+    descripcion: "Lote de Conjuntos Lucky"
+  },
+  {
+    id: 166,
+    nombre: "Colgante Tony Montana",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 10000,
+    imagen: "img/47DA4048-B8B4-4CE1-AD22-D9C1C44C4A21_85E53293-2ECB-4458-9E7D-7CEC512D25FB.jpg",
+    descripcion: "Colgante Tony Montana"
+  },
+  {
+    id: 167,
+    nombre: "Lote de Pulseras Love Blue",
+    categoria: "pulseras",
+    material: "oro-goldfit",
+    precio: 34990,
+    imagen: "img/4dc7af85-b8fd-4392-96e1-da2f2c85e4d6.jpg",
+    descripcion: "Lote de Pulseras Love Blue"
+  },
+  {
+    id: 168,
+    nombre: "Exhibidor de Anillos y Aros 21x13cm",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 5000,
+    imagen: "img/5067D638-10F1-4D7F-9904-D1EF87EF0842.jpg",
+    descripcion: "Exhibidor de Anillos y Aros 21x13cm"
+  },
+  {
+    id: 169,
+    nombre: "Etiquetas de Precio (100 unidades)",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 3000,
+    imagen: "img/51CEC53F-E671-4DF4-82BE-45C7264109DF.jpg",
+    descripcion: "Etiquetas de Precio (100 unidades)"
+  },
+  {
+    id: 170,
+    nombre: "Lote de Pulseras Love Pink",
+    categoria: "pulseras",
+    material: "plata-nacional",
+    precio: 26990,
+    imagen: "img/55bf0f61-77b1-43f4-8f8e-d9c93f0b0258.jpg",
+    descripcion: "Lote de Pulseras Love Pink"
+  },
+  {
+    id: 171,
+    nombre: "Lote Mixto de Collares",
+    categoria: "collares",
+    material: "plata-nacional",
+    precio: 69990,
+    imagen: "img/5636012e-70e3-4f0a-8bb4-09fe1fa55148.jpg",
+    descripcion: "Lote Mixto de Collares"
+  },
+  {
+    id: 172,
+    nombre: "5 Colgantes Grandes de Cruz",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 24900,
+    imagen: "img/57F9BCE3-AFC1-4FE9-A648-E990B22B9547_65015A54-A5CD-4CD0-9801-2876EEC903DD.jpg",
+    descripcion: "5 Colgantes Grandes de Cruz"
+  },
+  {
+    id: 173,
+    nombre: "Gramera Estilo Libro 500 Gramos",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 12000,
+    imagen: "img/5B5E75CE-C961-49D8-93B1-7DD22D873D77.jpg",
+    descripcion: "Gramera Estilo Libro 500 Gramos"
+  },
+  {
+    id: 174,
+    nombre: "Medio Kilo Surtido de Joyas (129 productos)",
+    categoria: "conjuntos",
+    material: "plata-nacional",
+    precio: 340000,
+    imagen: "img/60fe5392-196a-4a89-87bc-a05c7c75b78c.jpg",
+    descripcion: "Medio Kilo Surtido de Joyas (129 productos)"
+  },
+  {
+    id: 175,
+    nombre: "Medidor de Anillos",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 5000,
+    imagen: "img/6C217B0D-183D-44E7-A75E-C70A0DB2DB66.jpg",
+    descripcion: "Medidor de Anillos"
+  },
+  {
+    id: 176,
+    nombre: "Paños de Pulir Alta Calidad (12 unidades)",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 5000,
+    imagen: "img/6DB22004-301F-4EB3-B7E7-E60600581D6F.jpg",
+    descripcion: "Paños de Pulir Alta Calidad (12 unidades)"
+  },
+  {
+    id: 177,
+    nombre: "Maleta Emprendedora",
+    categoria: "conjuntos",
+    material: "plata-nacional",
+    precio: 59990,
+    imagen: "img/6f836f65-3d92-4c95-86f0-37916f364b5e.jpg",
+    descripcion: "Maleta Emprendedora"
+  },
+  {
+    id: 178,
+    nombre: "Colgante Cara de Cristo Grande",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 8900,
+    imagen: "img/786C226C-4C1B-4DBC-B141-EAB64264BB24_F4BFC11D-F575-48CA-BFC1-99C42B391A88.jpg",
+    descripcion: "Colgante Cara de Cristo Grande"
+  },
+  {
+    id: 179,
+    nombre: "Lote de Argollas",
+    categoria: "aros",
+    material: "plata-nacional",
+    precio: 20900,
+    imagen: "img/79b3417f-0bb2-4f16-a2cf-6a1fd456e0b6.jpg",
+    descripcion: "Lote de Argollas"
+  },
+  {
+    id: 180,
+    nombre: "Cuello Exhibidor de Terciopelo 25cm",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 5900,
+    imagen: "img/7C6F6F39-C66B-4C83-A3BC-E301A2E35C61.jpg",
+    descripcion: "Cuello Exhibidor de Terciopelo 25cm"
+  },
+  {
+    id: 181,
+    nombre: "Pack Básico Emprendedor",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 6500,
+    imagen: "img/7E743069-0FEA-4A91-9A89-9B3F9C03707B_A6440329-8444-42E0-BB53-01FDDFE838BD.jpg",
+    descripcion: "Pack Básico Emprendedor"
+  },
+  {
+    id: 182,
+    nombre: "Lote Full Pink",
+    categoria: "conjuntos",
+    material: "plata-nacional",
+    precio: 26990,
+    imagen: "img/7e0f1731-a9b2-4ac5-b4d1-5fb1ea8e1255.jpg",
+    descripcion: "Lote Full Pink"
+  },
+  {
+    id: 183,
+    nombre: "10 Tobilleras Surtidas",
+    categoria: "pulseras",
+    material: "plata-nacional",
+    precio: 19890,
+    imagen: "img/81a8e7c5-2c32-4b29-bed1-97415338d78a.jpg",
+    descripcion: "10 Tobilleras Surtidas"
+  },
+  {
+    id: 184,
+    nombre: "6 Colgantes BullAlbo Pequeños",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 10000,
+    imagen: "img/82D9C467-2EC2-4274-B04A-1B62B0F5CB22_6D4D5B71-79F5-43FE-BEBE-50FD43AFB2CD.jpg",
+    descripcion: "6 Colgantes BullAlbo Pequeños"
+  },
+  {
+    id: 185,
+    nombre: "Lote Principal Love",
+    categoria: "conjuntos",
+    material: "oro-goldfit",
+    precio: 27500,
+    imagen: "img/86a5e214-8192-48d0-a90c-70f706eacec2.jpg",
+    descripcion: "Lote Principal Love"
+  },
+  {
+    id: 186,
+    nombre: "Lote de Conjuntos Oro Goldfield Italiano 18k",
+    categoria: "conjuntos",
+    material: "oro-goldfit",
+    precio: 45900,
+    imagen: "img/8b668028-0fcb-4ba7-ae2f-5545ff19ea64.jpg",
+    descripcion: "Lote de Conjuntos Oro Goldfield Italiano 18k"
+  },
+  {
+    id: 187,
+    nombre: "Lote de Pulseras Oro Goldfield 18k",
+    categoria: "pulseras",
+    material: "oro-goldfit",
+    precio: 32990,
+    imagen: "img/8b9dc60e-0671-4955-a5d6-1b9a68b7a1f6.jpg",
+    descripcion: "Lote de Pulseras Oro Goldfield 18k"
+  },
+  {
+    id: 188,
+    nombre: "5 Tobilleras Surtidas",
+    categoria: "pulseras",
+    material: "plata-nacional",
+    precio: 12900,
+    imagen: "img/8cc954f7-a3a6-4de3-8f4b-ba3e0b922882.jpg",
+    descripcion: "5 Tobilleras Surtidas"
+  },
+  {
+    id: 189,
+    nombre: "Lote de Pulseras Van Cleef Black",
+    categoria: "pulseras",
+    material: "oro-goldfit",
+    precio: 36990,
+    imagen: "img/912cb3c1-3e0a-4a56-91ee-623aa1aa3373.jpg",
+    descripcion: "Lote de Pulseras Van Cleef Black"
+  },
+  {
+    id: 190,
+    nombre: "Conjuntos Oro Goldfield Italiano 18k (Cruces)",
+    categoria: "conjuntos",
+    material: "oro-goldfit",
+    precio: 43990,
+    imagen: "img/96606cbd-9144-4674-b5b4-0f89733b6541.jpg",
+    descripcion: "Conjuntos Oro Goldfield Italiano 18k (Cruces)"
+  },
+  {
+    id: 191,
+    nombre: "Cajas de Regalo para Conjuntos (12 unidades)",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 5000,
+    imagen: "img/971F3FBC-86DE-4A2A-B714-99B9F5FE6DF3.jpg",
+    descripcion: "Cajas de Regalo para Conjuntos (12 unidades)"
+  },
+  {
+    id: 192,
+    nombre: "Exhibidor de Aros y Conjuntos",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 5000,
+    imagen: "img/9EBBA6AE-9B95-47B0-920D-B4CE74011CF2.jpg",
+    descripcion: "Exhibidor de Aros y Conjuntos"
+  },
+  {
+    id: 193,
+    nombre: "3 Colgantes Colo Colo",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 8900,
+    imagen: "img/A77C0FF8-5C2E-4502-ACFE-43F29679AFB4_2A234DCB-F8D5-405C-9570-1943BEE0577A.jpg",
+    descripcion: "3 Colgantes Colo Colo"
+  },
+  {
+    id: 194,
+    nombre: "Rosarios de Plata (varios modelos)",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 5890,
+    imagen: "img/AD95114A-700A-4857-A7B9-B47FC126ECED.jpg",
+    descripcion: "Rosarios de Plata (varios modelos)"
+  },
+  {
+    id: 195,
+    nombre: "Exhibidor Aros Pegados",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 1500,
+    imagen: "img/AF02EB76-F206-431D-8EF2-789CD46B3D77.jpg",
+    descripcion: "Exhibidor Aros Pegados"
+  },
+  {
+    id: 196,
+    nombre: "Lote 12 Colgantes Religiosos",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 22900,
+    imagen: "img/C12314BD-AC70-4C30-8C56-9681DDA0CE57_29D5C9BB-B5EB-4945-8D92-086FD7EEB122.jpg",
+    descripcion: "Lote 12 Colgantes Religiosos"
+  },
+  {
+    id: 197,
+    nombre: "Medidor de Dedos",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 5000,
+    imagen: "img/C535DC7D-274D-40C3-AA6E-1C11E0A4000A.jpg",
+    descripcion: "Medidor de Dedos"
+  },
+  {
+    id: 198,
+    nombre: "3 Colgantes U de Chile",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 10900,
+    imagen: "img/CAA5F30F-C304-4227-9BAB-D6430407D381_C1040729-826F-4007-8B61-A481453B075F.jpg",
+    descripcion: "3 Colgantes U de Chile"
+  },
+  {
+    id: 199,
+    nombre: "Bolsas de Organza (50 unidades)",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 5000,
+    imagen: "img/CEC72ED4-6576-4E84-AFE2-F206F6A5A0AD.jpg",
+    descripcion: "Bolsas de Organza (50 unidades)"
+  },
+  {
+    id: 200,
+    nombre: "Exhibidor de Pulseras",
+    categoria: "exhibidores",
+    material: "accesorio",
+    precio: 5900,
+    imagen: "img/E582907D-A8DD-43CF-85BA-3A0121B63B4B.jpg",
+    descripcion: "Exhibidor de Pulseras"
+  },
+  {
+    id: 201,
+    nombre: "Lote 17 Par de Argollas",
+    categoria: "aros",
+    material: "plata-nacional",
+    precio: 52900,
+    imagen: "img/EE17C893-9BA9-48D1-B6D2-7D74AAB00AC4_D4C0C4DF-AC8E-43E6-95B5-462FA82D4AF2.jpg",
+    descripcion: "Lote 17 Par de Argollas"
+  },
+  {
+    id: 202,
+    nombre: "Lote de Argollas Surtidas",
+    categoria: "aros",
+    material: "plata-nacional",
+    precio: 21900,
+    imagen: "img/a1242304-d588-4013-8bf0-ecc8f1a4b0d6.jpg",
+    descripcion: "Lote de Argollas Surtidas"
+  },
+  {
+    id: 203,
+    nombre: "Lote Conjuntos Surtidos",
+    categoria: "conjuntos",
+    material: "plata-nacional",
+    precio: 32900,
+    imagen: "img/a8dfbd75-eb46-4598-ace9-c8d0d22ee356.jpg",
+    descripcion: "Lote Conjuntos Surtidos"
+  },
+  {
+    id: 204,
+    nombre: "Lote Anillos",
+    categoria: "anillos",
+    material: "plata-nacional",
+    precio: 21990,
+    imagen: "img/ab012294-6d3f-416c-b2e8-735018b47bb9.jpg",
+    descripcion: "Lote Anillos"
+  },
+  {
+    id: 205,
+    nombre: "7 Tobilleras Surtidas",
+    categoria: "pulseras",
+    material: "plata-nacional",
+    precio: 14900,
+    imagen: "img/bdaaa52e-d13b-43c3-8901-2716778b6a17.jpg",
+    descripcion: "7 Tobilleras Surtidas"
+  },
+  {
+    id: 206,
+    nombre: "Lote Mixto de Cadenas con Colgante",
+    categoria: "collares",
+    material: "plata-nacional",
+    precio: 27800,
+    imagen: "img/bed915b9-5c52-46ff-b26f-0fd3c2cf0eab.jpg",
+    descripcion: "Lote Mixto de Cadenas con Colgante"
+  },
+  {
+    id: 207,
+    nombre: "Lote de Pulseras Pink",
+    categoria: "pulseras",
+    material: "plata-nacional",
+    precio: 24990,
+    imagen: "img/d70a1793-2055-46f2-8099-0a35324c710f.jpg",
+    descripcion: "Lote de Pulseras Pink"
+  },
+  {
+    id: 208,
+    nombre: "Lote Pulseras Económico",
+    categoria: "pulseras",
+    material: "plata-nacional",
+    precio: 19990,
+    imagen: "img/d7e043fa-f8a4-4302-94d5-7de50462d346.jpg",
+    descripcion: "Lote Pulseras Económico"
+  },
+  {
+    id: 209,
+    nombre: "Conjuntos Oro Goldfield Italiano 18k (Cristo)",
+    categoria: "conjuntos",
+    material: "oro-goldfit",
+    precio: 42990,
+    imagen: "img/e979b339-eb86-4da6-aa0c-1dce47b5e09e.jpg",
+    descripcion: "Conjuntos Oro Goldfield Italiano 18k (Cristo)"
+  },
+  {
+    id: 210,
+    nombre: "Remate de Colgantes (14 unidades)",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 10000,
+    imagen: "img/eeffdd89-a659-4159-a635-074a02194874.jpg",
+    descripcion: "Remate de Colgantes (14 unidades)"
+  },
+  {
+    id: 211,
+    nombre: "Letras de Microzircón (3 unidades)",
+    categoria: "colgantes",
+    material: "plata-nacional",
+    precio: 5900,
+    imagen: "img/f38950bf-bbcf-4bf4-a688-344fd49cc19b.jpg",
+    descripcion: "Letras de Microzircón (3 unidades)"
+  },
+  {
+    id: 212,
+    nombre: "Lote Conjuntos Trébol",
+    categoria: "conjuntos",
+    material: "plata-nacional",
+    precio: 27900,
+    imagen: "img/f83c7b1d-aaaf-40d0-bee6-a202be26ac5e.jpg",
+    descripcion: "Lote Conjuntos Trébol"
+  },
+  {
+    id: 213,
+    nombre: "Lote de Pulseras Luxury",
+    categoria: "pulseras",
+    material: "plata-nacional",
+    precio: 44900,
+    imagen: "img/027e812a-9bcc-4d3b-9f76-52bfeb6ed3c6.jpg",
+    descripcion: "Lote de Pulseras Luxury"
+  },
+  {
+    id: 214,
+    nombre: "Lote Nudo de Bruja",
+    categoria: "conjuntos",
+    material: "plata-nacional",
+    precio: 24990,
+    imagen: "img/IMG_0345.jpg",
+    descripcion: "Lote Nudo de Bruja"
+  },
+  {
+    id: 215,
+    nombre: "Pulseras de Protección Plata Italiana",
+    categoria: "pulseras",
+    material: "plata-italiana",
+    precio: 5900,
+    imagen: "img/IMG_3676.jpg",
+    descripcion: "Pulseras de Protección Plata Italiana"
+  },
+  {
+    id: 216,
+    nombre: "Esclavas estilo Cartier",
+    categoria: "pulseras",
+    material: "plata-nacional",
+    precio: 14990,
+    imagen: "img/fe423517-3a73-4edb-be31-787b185a18b2.jpg",
+    descripcion: "Esclavas estilo Cartier"
   }
 
 ];
