@@ -201,10 +201,10 @@ async function reconciliarPendientes() {
   try {
     const { data: { session } } = await db.auth.getSession();
     if (!session) return 0;
-    const res = await fetch('/api/reconciliar-pendientes', {
+    const res = await fetch('/api/admin-delete-pedido', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ adminToken: session.access_token })
+      body: JSON.stringify({ accion: 'reconciliar', adminToken: session.access_token })
     });
     if (!res.ok) return 0;
     const data = await res.json();
