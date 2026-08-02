@@ -68,6 +68,15 @@ async function inicializar() {
     iniciarPresenciaRealtime();
     cargarUsuariosActivos();
 
+    /* Red de seguridad: rescata pagos que el webhook no confirmó. Va sin
+       await para no demorar la carga; si recupera alguno, refresca la lista. */
+    reconciliarPendientes().then(n => {
+      if (n > 0) {
+        cargarPedidos();
+        mostrarToast('Pagos recuperados', `${n} pedido(s) confirmados y movidos a Por Despachar`, 'ok');
+      }
+    });
+
   } catch (e) {
     console.error('[Admin] Error inicial:', e);
     mostrarDenegado('Error al verificar permisos.');
@@ -107,6 +116,7 @@ function configurarEventos() {
   document.getElementById('btn-refrescar').addEventListener('click', async (e) => {
     const btn = e.currentTarget;
     btn.classList.add('cargando');
+    await reconciliarPendientes();   // rescata pagos no confirmados antes de listar
     await cargarPedidos();
     setTimeout(() => btn.classList.remove('cargando'), 400);
   });
@@ -180,6 +190,28 @@ function configurarEventos() {
     document.getElementById('filtro-estado').value = chip.dataset.estado;
     aplicarFiltros();
   });
+}
+
+/* ── Red de seguridad: reconciliar pagos con MercadoPago ──
+   Si el webhook no alcanzó a confirmar un pago, el pedido quedaría
+   "pendiente" e invisible. Esto revisa en MP los pendientes recientes y
+   pasa a "pagado" (→ Por Despachar) solo los que están aprobados. Nunca
+   rompe la carga del panel: ante cualquier error, devuelve 0. */
+async function reconciliarPendientes() {
+  try {
+    const { data: { session } } = await db.auth.getSession();
+    if (!session) return 0;
+    const res = await fetch('/api/reconciliar-pendientes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ adminToken: session.access_token })
+    });
+    if (!res.ok) return 0;
+    const data = await res.json();
+    return data.confirmados || 0;
+  } catch (_) {
+    return 0;
+  }
 }
 
 /* ── Cargar pedidos ──────────────────────── */
