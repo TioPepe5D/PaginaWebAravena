@@ -206,7 +206,8 @@ function renderizarCarrito() {
   activarDeslizarParaEliminar(contenedor);
 
   const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
-  const total = subtotal;   // sin comisión
+  const comision = Math.round(subtotal * 0.03);
+  const total = subtotal + comision;
 
   const desglose = document.getElementById("carrito-desglose");
   if (desglose) {
@@ -214,6 +215,10 @@ function renderizarCarrito() {
       <div class="carrito-desglose-row">
         <span>Subtotal</span>
         <span>$${subtotal.toLocaleString("es-CL")} CLP</span>
+      </div>
+      <div class="carrito-desglose-row">
+        <span style="font-size:0.7rem">Comisión Bancaria</span>
+        <span>$${comision.toLocaleString("es-CL")} CLP</span>
       </div>
     `;
   }
@@ -309,6 +314,10 @@ async function iniciarPago() {
   btn.textContent = "Procesando…";
   if (estado) estado.textContent = "";
 
+  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const comision = Math.round(subtotal * 0.03);
+  const totalFinal = subtotal + comision;
+
   const items = carrito.map(i => ({
     id: String(i.id),
     title: i.nombre,
@@ -316,6 +325,16 @@ async function iniciarPago() {
     unit_price: i.precio,
     currency_id: "CLP"
   }));
+
+  if (comision > 0) {
+    items.push({
+      id: "comision-bancaria",
+      title: "Comisión Bancaria",
+      quantity: 1,
+      unit_price: comision,
+      currency_id: "CLP"
+    });
+  }
 
   /* El pedido lo crea /api/crear-preferencia, no el navegador. Antes se
      insertaba aquí TAMBIÉN y quedaban dos filas por la misma compra: una

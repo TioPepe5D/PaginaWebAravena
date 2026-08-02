@@ -250,6 +250,16 @@ body > .footer { margin-top: auto; }
   color: var(--color-texto);
 }
 
+.carrito-aside-comision span:first-child {
+  font-size: 0.82rem;
+  color: var(--color-texto-suave);
+}
+
+.carrito-aside-comision span:last-child {
+  font-size: 0.82rem;
+  color: var(--color-texto-suave);
+}
+
 .carrito-aside-separador {
   border-top: 1px solid var(--color-borde);
   margin: 10px 0;
