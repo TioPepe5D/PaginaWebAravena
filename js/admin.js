@@ -113,6 +113,8 @@ function configurarEventos() {
     window.location.href = 'index.html';
   });
 
+  document.getElementById('btn-cambiar-pass')?.addEventListener('click', cambiarPasswordAdmin);
+
   document.getElementById('btn-refrescar').addEventListener('click', async (e) => {
     const btn = e.currentTarget;
     btn.classList.add('cargando');
@@ -191,6 +193,33 @@ function configurarEventos() {
     aplicarFiltros();
   });
 }
+
+/* ── Cambiar contraseña del admin ───────────────────────────
+   Como el admin ya tiene sesión iniciada, Supabase permite fijar una nueva
+   contraseña sin pedir la anterior (útil si se filtró o se olvidó estando
+   dentro). No necesita correo de recuperación. */
+async function cambiarPasswordAdmin() {
+  const nueva = prompt('Escribe tu NUEVA contraseña (mínimo 8 caracteres):');
+  if (nueva === null) return;                       // canceló
+  if (nueva.trim().length < 8) {
+    mostrarToast('Contraseña muy corta', 'Debe tener al menos 8 caracteres.', 'error');
+    return;
+  }
+  const confirma = prompt('Repite la nueva contraseña para confirmar:');
+  if (confirma === null) return;
+  if (nueva !== confirma) {
+    mostrarToast('No coinciden', 'Las dos contraseñas no son iguales.', 'error');
+    return;
+  }
+  try {
+    const { error } = await db.auth.updateUser({ password: nueva });
+    if (error) { mostrarToast('No se pudo cambiar', error.message, 'error'); return; }
+    mostrarToast('Contraseña actualizada', 'Tu nueva contraseña ya quedó activa.', 'ok');
+  } catch (e) {
+    mostrarToast('Error', 'No se pudo cambiar la contraseña. Intenta de nuevo.', 'error');
+  }
+}
+window.cambiarPasswordAdmin = cambiarPasswordAdmin;
 
 /* ── Red de seguridad: reconciliar pagos con MercadoPago ──
    Si el webhook no alcanzó a confirmar un pago, el pedido quedaría
