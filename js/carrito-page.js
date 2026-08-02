@@ -146,18 +146,12 @@ function renderizarCarritoPage() {
     </div>`;
   }).join("");
 
-  const subtotal  = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
-  const comision  = Math.round(subtotal * 0.03);
-  const total     = subtotal + comision;
+  const subtotal = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
+  const total    = subtotal;   // sin comisión: el negocio absorbe el costo
 
-  const subtotalEl  = document.getElementById("carrito-aside-subtotal");
-  const comisionEl  = document.getElementById("carrito-aside-comision");
-  const comisionRow = document.getElementById("carrito-aside-comision-row");
-
-  if (subtotalEl)  subtotalEl.textContent  = "$" + subtotal.toLocaleString("es-CL") + " CLP";
-  if (comisionEl)  comisionEl.textContent  = "$" + comision.toLocaleString("es-CL") + " CLP";
-  if (comisionRow) comisionRow.style.display = subtotal > 0 ? "flex" : "none";
-  if (totalEl)     totalEl.textContent = "$" + total.toLocaleString("es-CL") + " CLP";
+  const subtotalEl = document.getElementById("carrito-aside-subtotal");
+  if (subtotalEl) subtotalEl.textContent = "$" + subtotal.toLocaleString("es-CL") + " CLP";
+  if (totalEl)    totalEl.textContent    = "$" + total.toLocaleString("es-CL") + " CLP";
 
   renderizarSugeridos();
   actualizarBarraPago(total);
@@ -285,10 +279,23 @@ function _barajar(arr) {
   return a;
 }
 
+let _reintentoSugeridos = false;
 function renderizarSugeridos() {
   const seccion = document.getElementById("sugeridos");
   const fila = document.getElementById("sugeridos-fila");
-  if (!seccion || !fila || typeof productos === "undefined") return;
+  if (!seccion || !fila) return;
+
+  /* En móvil con conexión lenta products.js puede no haber cargado aún
+     cuando se pinta el carrito. En vez de rendirse en silencio (dejaba la
+     sección vacía), se reintenta al terminar de cargar la página. */
+  if (typeof productos === "undefined") {
+    if (!_reintentoSugeridos) {
+      _reintentoSugeridos = true;
+      window.addEventListener("load", () => renderizarSugeridos(), { once: true });
+      setTimeout(renderizarSugeridos, 1200);
+    }
+    return;
+  }
 
   // El orden se baraja una sola vez por visita: si se rehiciera en cada
   // cambio de cantidad, las tarjetas saltarían de lugar.
@@ -312,7 +319,7 @@ function renderizarSugeridos() {
   const tarjetas = lista.map(p => `
     <article class="sug-card">
       <a class="sug-link" href="producto.html?id=${p.id}">
-        <img src="${p.imagen}" alt="${p.nombre}" loading="lazy" decoding="async">
+        <img src="${p.imagen}" alt="${p.nombre}" decoding="async" width="132" height="132">
         <p class="sug-nombre">${p.nombre}</p>
       </a>
       <div class="sug-pie">
@@ -321,11 +328,23 @@ function renderizarSugeridos() {
       </div>
     </article>`).join("");
 
-  // Se duplica el contenido: al terminar la primera copia la animación
-  // reinicia y el desplazamiento se ve continuo, sin saltos.
-  fila.innerHTML = tarjetas + tarjetas;
+  /* En escritorio la franja se desplaza sola (marquee), y para que el
+     bucle no corte se duplica el contenido. En móvil el marquee está
+     apagado (se desliza a dedo), así que una sola copia: si no, se verían
+     los productos repetidos. */
+  fila.innerHTML = marqueeSugeridosActivo() ? (tarjetas + tarjetas) : tarjetas;
   fila.style.animationDuration = Math.max(24, lista.length * 5) + "s";
 }
+
+/* El marquee anda solo en pantallas anchas y sin "reducir movimiento":
+   igual condición que el CSS (@media max-width:768px lo apaga). */
+const _mqSugeridos = window.matchMedia("(min-width: 769px)");
+function marqueeSugeridosActivo() {
+  return _mqSugeridos.matches &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+// Al cruzar el punto de quiebre se repinta para ajustar 1 vs 2 copias
+_mqSugeridos.addEventListener("change", () => renderizarSugeridos());
 
 function agregarSugerido(id) {
   if (typeof productos === "undefined") return;

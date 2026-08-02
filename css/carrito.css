@@ -250,16 +250,6 @@ body > .footer { margin-top: auto; }
   color: var(--color-texto);
 }
 
-.carrito-aside-comision span:first-child {
-  font-size: 0.82rem;
-  color: var(--color-texto-suave);
-}
-
-.carrito-aside-comision span:last-child {
-  font-size: 0.82rem;
-  color: var(--color-texto-suave);
-}
-
 .carrito-aside-separador {
   border-top: 1px solid var(--color-borde);
   margin: 10px 0;
@@ -839,6 +829,23 @@ body > .footer { margin-top: auto; }
   .sugeridos-fila { animation: none; }
   .sugeridos-marco { overflow-x: auto; }
 }
+/* En móvil el marquee animado + mask + transform hacía que las tarjetas
+   (sobre todo sus imágenes) a veces no se pintaran. Se cambia por un
+   deslizamiento a dedo, sin animación ni máscara: robusto en todo celular. */
+@media (max-width: 768px) {
+  .sugeridos-fila {
+    animation: none;
+    transform: none;
+    width: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+  }
+  .sugeridos-marco {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
 .sug-card {
   flex: 0 0 132px;
   scroll-snap-align: start;
@@ -858,6 +865,8 @@ body > .footer { margin-top: auto; }
 .sug-link { text-decoration: none; color: inherit; display: block; }
 .sug-card img {
   width: 100%;
+  height: auto;          /* deja que aspect-ratio calcule el alto (cuadrado),
+                            aunque la <img> traiga width/height fijos */
   aspect-ratio: 1;
   object-fit: cover;
   display: block;

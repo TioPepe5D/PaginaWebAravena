@@ -126,9 +126,9 @@ module.exports = async (req, res) => {
     regalo:   true
   }));
 
-  // 3%: debe coincidir con lo que se le mostró al cliente en el carrito
-  const comision = Math.round(subtotal * 0.03);
-  const total    = subtotal + comision;
+  // Sin comisión: al cliente se le cobra exactamente el subtotal. El costo
+  // de la pasarela lo absorbe el negocio.
+  const total = subtotal;
 
   // ── Guardar pedido con total verificado ──
   // Los regalos se guardan junto a los productos para que en bodega
@@ -217,16 +217,6 @@ module.exports = async (req, res) => {
     unit_price: i.precio,
     currency_id: "CLP"
   }));
-
-  if (comision > 0) {
-    mpItems.push({
-      id:         "comision-bancaria",
-      title:      "Comisión Bancaria",
-      quantity:   1,
-      unit_price: comision,
-      currency_id: "CLP"
-    });
-  }
 
   // Validar que tengamos las variables de entorno mínimas
   if (!process.env.MP_ACCESS_TOKEN) {
