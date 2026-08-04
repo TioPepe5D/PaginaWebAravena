@@ -552,7 +552,10 @@ function renderizarTabla() {
       const destino = esSucursal
         ? (de.sucursal  ? `<span class="td-envio-domicilio">🏪 ${de.sucursal}</span>` : '')
         : (de.domicilio ? `<span class="td-envio-domicilio">🏠 ${de.domicilio}</span>` : '');
-      envioHtml = `<div class="td-envio">${empresa}${nombre}${tel}${ubic}${destino}</div>`;
+      // Aviso de factura: se debe emitir con el RUT indicado
+      const factura = de.tipoDocumento === 'Factura'
+        ? `<span class="td-envio-factura">📄 Factura · RUT ${de.rut || '—'}</span>` : '';
+      envioHtml = `<div class="td-envio">${empresa}${factura}${nombre}${tel}${ubic}${destino}</div>`;
     } else {
       envioHtml = `<span class="td-envio-vacio">—</span>`;
     }
@@ -592,6 +595,8 @@ function textoEnvioPedido(pedido) {
     [d.ciudad, d.comuna].filter(Boolean).join(', '),
     d.correo,
     esSucursal ? d.sucursal : d.domicilio,
+    // Aviso claro cuando el cliente pidió factura
+    d.tipoDocumento === 'Factura' ? `⚠ FACTURA · RUT a facturar: ${d.rut || '—'}` : '',
   ];
 
   // Se omiten los datos que el cliente no llenó (el RUT es opcional)
@@ -899,13 +904,15 @@ function verDetalle(pedidoId) {
   const itemsHtml = items.map(i => {
     const subtotal = Number(i.precio) * Number(i.cantidad);
     const img = i.imagen || `https://placehold.co/80x80/E8E8E8/A8A8A8?text=${encodeURIComponent(i.nombre || 'Producto')}`;
-    return `
-    <div class="modal-item">
+    // Los productos reales enlazan a su ficha (los regalos no tienen página)
+    const idNum = parseInt(i.id, 10);
+    const enlazable = !i.regalo && Number.isFinite(idNum);
+    const cuerpo = `
       <div class="modal-item-img-wrap">
         <img src="${img}" alt="${i.nombre}" onerror="this.src='https://placehold.co/80x80/E8E8E8/A8A8A8?text=Imagen'">
       </div>
       <div class="modal-item-info">
-        <p class="modal-item-nombre">${i.nombre}</p>
+        <p class="modal-item-nombre">${i.nombre}${enlazable ? ' <span class="modal-item-ir" aria-hidden="true">↗</span>' : ''}</p>
         <p class="modal-item-detalle">${i.categoria ? i.categoria + ' · ' : ''}$${Number(i.precio).toLocaleString('es-CL')} c/u</p>
         <div class="modal-item-cant">
           <span class="modal-cant-badge">×${i.cantidad}</span>
@@ -914,8 +921,10 @@ function verDetalle(pedidoId) {
       <div class="modal-item-subtotal">
         <span>$${subtotal.toLocaleString('es-CL')}</span>
         <small>CLP</small>
-      </div>
-    </div>`;
+      </div>`;
+    return enlazable
+      ? `<a class="modal-item modal-item-link" href="producto?id=${idNum}" target="_blank" rel="noopener" title="Abrir la página del producto">${cuerpo}</a>`
+      : `<div class="modal-item">${cuerpo}</div>`;
   }).join('');
 
   // Datos de envío (si existen)
@@ -932,7 +941,8 @@ function verDetalle(pedidoId) {
         ${de.nombre    ? `<div class="modal-info-bloque"><p class="modal-info-label">Nombre</p><p class="modal-info-valor">${de.nombre}</p></div>` : ''}
         ${de.correo    ? `<div class="modal-info-bloque"><p class="modal-info-label">Correo</p><p class="modal-info-valor">${de.correo}</p></div>` : ''}
         ${de.telefono  ? `<div class="modal-info-bloque"><p class="modal-info-label">Teléfono</p><p class="modal-info-valor">${de.telefono}</p></div>` : ''}
-        ${de.rut       ? `<div class="modal-info-bloque"><p class="modal-info-label">RUT</p><p class="modal-info-valor">${de.rut}</p></div>` : ''}
+        ${de.tipoDocumento ? `<div class="modal-info-bloque"><p class="modal-info-label">Documento</p><p class="modal-info-valor">${de.tipoDocumento === 'Factura' ? '📄 Factura' : '🧾 Boleta'}</p></div>` : ''}
+        ${de.rut       ? `<div class="modal-info-bloque"><p class="modal-info-label">${de.tipoDocumento === 'Factura' ? 'RUT a facturar' : 'RUT'}</p><p class="modal-info-valor">${de.rut}</p></div>` : ''}
         ${de.ciudad    ? `<div class="modal-info-bloque"><p class="modal-info-label">Ciudad</p><p class="modal-info-valor">${de.ciudad}</p></div>` : ''}
         ${de.empresa   ? `<div class="modal-info-bloque"><p class="modal-info-label">Empresa envío</p><p class="modal-info-valor">${de.empresa}</p></div>` : ''}
         ${de.preferencia ? `<div class="modal-info-bloque"><p class="modal-info-label">Preferencia</p><p class="modal-info-valor">${de.preferencia}</p></div>` : ''}

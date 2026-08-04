@@ -648,6 +648,18 @@
   max-width: 195px;
 }
 
+.td-envio-factura {
+  display: inline-block;
+  margin: 2px 0;
+  padding: 1px 7px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
 .td-envio-domicilio {
   font-size: 0.75rem;
   color: var(--color-texto-suave);
@@ -1099,6 +1111,22 @@
 
 .modal-item:hover {
   border-color: var(--admin-dorado);
+}
+
+/* Producto clickeable en el detalle del pedido: abre su ficha en otra pestaña */
+.modal-item-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.modal-item-link:hover {
+  border-color: var(--admin-celeste);
+  background: rgba(143, 227, 255, 0.06);
+}
+.modal-item-ir {
+  color: var(--admin-celeste);
+  font-weight: 700;
+  font-size: 0.82rem;
 }
 
 .modal-item-img-wrap {

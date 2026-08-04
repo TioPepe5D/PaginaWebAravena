@@ -399,9 +399,17 @@
           </div>
 
           <div class="envio-field">
-            <label>RUT o documento</label>
+            <label>Documento *</label>
+            <select id="env-doc-tipo" required>
+              <option value="Boleta">🧾 Boleta</option>
+              <option value="Factura">📄 Factura</option>
+            </select>
+          </div>
+
+          <div class="envio-field">
+            <label id="env-rut-label">RUT o documento</label>
             <input type="text" id="env-rut-pago" placeholder="12.345.678-9 (opcional)" autocomplete="off" maxlength="20" title="RUT chileno o documento extranjero">
-            <small class="envio-hint">Opcional · si es extranjero, escríbelo tal cual</small>
+            <small class="envio-hint" id="env-rut-hint">Opcional · si es extranjero, escríbelo tal cual</small>
           </div>
 
           <div class="envio-field campo-completo">

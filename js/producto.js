@@ -2,7 +2,9 @@ const params = new URLSearchParams(window.location.search);
 const id = parseInt(params.get("id"));
 const producto = productos.find(p => p.id === id);
 
-let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+/* `carrito` ya lo declara cart.js, que se carga ANTES en esta página.
+   Volver a declararlo con `let` lanzaba "Identifier 'carrito' has already
+   been declared" y abortaba TODO producto.js: la ficha nunca renderizaba. */
 let cantidadSeleccionada = 1;
 
 function guardarCarrito() {
