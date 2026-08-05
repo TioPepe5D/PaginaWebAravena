@@ -524,16 +524,15 @@ function _actualizarDocTipo() {
   const hint  = document.getElementById('env-rut-hint');
   const input = document.getElementById('env-rut-pago');
   if (!label || !hint || !input) return;
+  input.required = false;   // el RUT nunca bloquea la venta
   if (tipo === 'Factura') {
-    label.textContent = 'RUT a facturar *';
-    input.placeholder = '12.345.678-9';
-    hint.textContent  = 'Obligatorio para factura · RUT chileno válido';
-    input.required = true;
+    label.textContent = 'RUT a facturar';
+    input.placeholder = '12.345.678-9 (opcional)';
+    hint.textContent  = 'Opcional · si falta o está malo, lo confirmamos contigo';
   } else {
     label.textContent = 'RUT o documento';
     input.placeholder = '12.345.678-9 (opcional)';
     hint.textContent  = 'Opcional · si es extranjero, escríbelo tal cual';
-    input.required = false;
   }
 }
 
@@ -627,14 +626,9 @@ function confirmarEnvioYPagar() {
   /* El RUT es opcional (hay clientes con documento extranjero). Solo se
      valida el dígito verificador cuando parece un RUT chileno; cualquier
      otro documento se acepta tal cual. */
-  if (rut && /^[0-9.]+-?[0-9kK]$/.test(rut) && !_validarRut(rut)) {
-    return fail('El RUT no es válido. Revisa el dígito verificador (ej: 12.345.678-9) o déjalo en blanco.');
-  }
-  // Con factura el RUT es obligatorio y debe ser un RUT chileno válido
-  if (tipoDocumento === 'Factura') {
-    if (!rut) return fail('Para factura, indica el RUT a facturar.');
-    if (!_validarRut(rut)) return fail('El RUT a facturar no es válido. Revisa el dígito verificador (ej: 12.345.678-9).');
-  }
+  /* El RUT (boleta o factura) es siempre opcional y NO bloquea la venta: si
+     viene vacío o con un error, se confirma con el cliente después. Se guarda
+     tal cual lo escribió. */
   if (!_validarCorreo(correo)) {
     return fail('Correo electrónico inválido.');
   }

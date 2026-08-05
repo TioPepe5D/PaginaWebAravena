@@ -179,20 +179,22 @@
 
   <hr class="section-divider">
 
-  <!-- PRODUCTO ESTRELLA: la promoción más grande, arriba de todo -->
+  <!-- PRODUCTO ESTRELLA: la promoción más grande, arriba de todo.
+       El id se resuelve por JS (busca el "Medio Kilo Surtido" en el catálogo)
+       para no romperse cuando se regenera el catálogo y cambian los ids. -->
   <section class="destacado">
     <div class="destacado-inner animar">
-      <a class="destacado-media" href="producto.html?id=174" aria-label="Ver Medio Kilo Surtido de Joyas">
-        <img src="img/60fe5392-196a-4a89-87bc-a05c7c75b78c.jpg" alt="Medio Kilo Surtido de Joyas — 129 productos" decoding="async" width="640" height="640">
+      <a class="destacado-media" id="estrella-link" href="producto?id=165" aria-label="Ver Medio Kilo Surtido de Joyas">
+        <img id="estrella-img" src="img/60fe5392-196a-4a89-87bc-a05c7c75b78c.jpg" alt="Medio Kilo Surtido de Joyas — 129 productos" decoding="async" width="640" height="640">
         <span class="destacado-badge">⭐ Producto estrella</span>
       </a>
       <div class="destacado-info">
         <p class="destacado-kicker">Invierte como un kilero</p>
         <h2 class="destacado-nombre">Medio Kilo Surtido de Joyas</h2>
         <p class="destacado-desc"><strong>129 productos surtidos</strong> en un solo lote para partir o reponer tu negocio de una sola vez.</p>
-        <p class="destacado-precio">$340.000 <span>CLP</span></p>
+        <p class="destacado-precio" id="estrella-precio">$340.000 <span>CLP</span></p>
         <div class="destacado-acciones">
-          <button class="btn-primary" onclick="agregarAlCarrito(174)">Agregar al carrito</button>
+          <button class="btn-primary" id="estrella-btn" type="button">Agregar al carrito</button>
         </div>
       </div>
     </div>
@@ -562,6 +564,26 @@
   <script src="js/ventas-ejemplo.js"></script>
   <script src="js/avisos-compra.js"></script>
   <script src="js/presencia.js"></script>
+
+  <script>
+    /* Producto estrella: busca el "Medio Kilo Surtido" en el catálogo y cablea
+       el botón/enlace/imagen/precio con su id REAL. Así, aunque se regenere el
+       catálogo y cambien los ids, el botón siempre agrega el producto correcto. */
+    (function () {
+      if (typeof productos === 'undefined') return;
+      const est = productos.find(p => /medio kilo surtido/i.test(p.nombre))
+               || productos.find(p => p.imagen && p.imagen.includes('60fe5392'));
+      if (!est) return;
+      const btn  = document.getElementById('estrella-btn');
+      const link = document.getElementById('estrella-link');
+      const img  = document.getElementById('estrella-img');
+      const prec = document.getElementById('estrella-precio');
+      if (btn)  btn.onclick = () => agregarAlCarrito(est.id);
+      if (link) link.href = 'producto?id=' + est.id;
+      if (img && est.imagen) img.src = est.imagen;
+      if (prec && est.precio) prec.innerHTML = '$' + est.precio.toLocaleString('es-CL') + ' <span>CLP</span>';
+    })();
+  </script>
 </body>
 
 </html>
