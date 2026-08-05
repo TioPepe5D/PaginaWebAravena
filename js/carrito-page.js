@@ -613,7 +613,7 @@ function confirmarEnvioYPagar() {
   const errEl = document.getElementById('env-form-error');
   const fail = msg => { errEl.textContent = msg; errEl.style.display = 'block'; };
 
-  if (!nombre || !telNumero || !region || !ciudad || !comuna || !correo || !empresa) {
+  if (!nombre || !telNumero || !region || !ciudad || !comuna || !empresa) {
     return fail('Por favor completa todos los campos obligatorios (*)');
   }
   if (nombre.length < 3 || !/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(nombre)) {
@@ -623,13 +623,11 @@ function confirmarEnvioYPagar() {
   if (!new RegExp(`^[0-9]{${pais.digitos}}$`).test(telNumero)) {
     return fail(`Teléfono inválido. Para ${pais.pais} son exactamente ${pais.digitos} dígitos (ej: ${pais.ejemplo}).`);
   }
-  /* El RUT es opcional (hay clientes con documento extranjero). Solo se
-     valida el dígito verificador cuando parece un RUT chileno; cualquier
-     otro documento se acepta tal cual. */
   /* El RUT (boleta o factura) es siempre opcional y NO bloquea la venta: si
      viene vacío o con un error, se confirma con el cliente después. Se guarda
      tal cual lo escribió. */
-  if (!_validarCorreo(correo)) {
+  // El correo también es opcional: solo se valida el formato si escribieron algo.
+  if (correo && !_validarCorreo(correo)) {
     return fail('Correo electrónico inválido.');
   }
   if (preferencia === 'Domicilio' && (!domicilio || domicilio.length < 5)) {
