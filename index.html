@@ -184,7 +184,7 @@
        para no romperse cuando se regenera el catálogo y cambian los ids. -->
   <section class="destacado">
     <div class="destacado-inner animar">
-      <a class="destacado-media" id="estrella-link" href="producto?id=165" aria-label="Ver Medio Kilo Surtido de Joyas">
+      <a class="destacado-media" id="estrella-link" href="producto.html?id=165" aria-label="Ver Medio Kilo Surtido de Joyas">
         <img id="estrella-img" src="img/60fe5392-196a-4a89-87bc-a05c7c75b78c.jpg" alt="Medio Kilo Surtido de Joyas — 129 productos" decoding="async" width="640" height="640">
         <span class="destacado-badge">⭐ Producto estrella</span>
       </a>
@@ -579,7 +579,7 @@
       const img  = document.getElementById('estrella-img');
       const prec = document.getElementById('estrella-precio');
       if (btn)  btn.onclick = () => agregarAlCarrito(est.id);
-      if (link) link.href = 'producto?id=' + est.id;
+      if (link) link.href = 'producto.html?id=' + est.id;
       if (img && est.imagen) img.src = est.imagen;
       if (prec && est.precio) prec.innerHTML = '$' + est.precio.toLocaleString('es-CL') + ' <span>CLP</span>';
     })();

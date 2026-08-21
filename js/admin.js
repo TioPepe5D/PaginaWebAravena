@@ -923,7 +923,7 @@ function verDetalle(pedidoId) {
         <small>CLP</small>
       </div>`;
     return enlazable
-      ? `<a class="modal-item modal-item-link" href="producto?id=${idNum}" target="_blank" rel="noopener" title="Abrir la página del producto">${cuerpo}</a>`
+      ? `<a class="modal-item modal-item-link" href="producto.html?id=${idNum}" target="_blank" rel="noopener" title="Abrir la página del producto">${cuerpo}</a>`
       : `<div class="modal-item">${cuerpo}</div>`;
   }).join('');
 
