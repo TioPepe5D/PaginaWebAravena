@@ -6,6 +6,8 @@ const producto = productos.find(p => p.id === id);
    Volver a declararlo con `let` lanzaba "Identifier 'carrito' has already
    been declared" y abortaba TODO producto.js: la ficha nunca renderizaba. */
 let cantidadSeleccionada = 1;
+// Opción elegida (índice en producto.opciones) para productos de oferta
+let opcionSeleccionada = (producto && Array.isArray(producto.opciones) && producto.opciones.length) ? 0 : null;
 
 function guardarCarrito() {
   localStorage.setItem("carrito", JSON.stringify(carrito));
@@ -17,12 +19,38 @@ function actualizarContadorHeader() {
   if (el) el.textContent = total;
 }
 
+function _lineKey(item) {
+  return item.lineKey != null ? String(item.lineKey) : String(item.id);
+}
+
+function elegirOpcionProducto(idx) {
+  if (!producto || !Array.isArray(producto.opciones) || !producto.opciones[idx]) return;
+  opcionSeleccionada = idx;
+  document.querySelectorAll(".producto-opcion-btn").forEach(b => {
+    const on = Number(b.dataset.idx) === idx;
+    b.classList.toggle("activa", on);
+    b.setAttribute("aria-checked", on ? "true" : "false");
+  });
+  const val = document.getElementById("producto-precio-val");
+  if (val) val.textContent = "$" + producto.opciones[idx].precio.toLocaleString("es-CL") + " CLP";
+}
+
 function agregarAlCarrito() {
-  const existente = carrito.find(p => p.id === producto.id);
+  // Precio/etiqueta/clave según la opción elegida (si el producto tiene)
+  let precio = producto.precio, opcion = null, opcionIdx = null, lineKey = String(producto.id);
+  if (opcionSeleccionada != null && Array.isArray(producto.opciones) && producto.opciones[opcionSeleccionada]) {
+    const op = producto.opciones[opcionSeleccionada];
+    precio = op.precio; opcion = op.etiqueta; opcionIdx = opcionSeleccionada;
+    lineKey = String(producto.id) + "::" + opcionSeleccionada;
+  }
+
+  const existente = carrito.find(p => _lineKey(p) === lineKey);
   if (existente) {
     existente.cantidad += cantidadSeleccionada;
   } else {
-    carrito.push({ ...producto, cantidad: cantidadSeleccionada });
+    const item = { ...producto, precio, cantidad: cantidadSeleccionada, lineKey, opcion, opcionIdx };
+    delete item.opciones;
+    carrito.push(item);
   }
   guardarCarrito();
   actualizarContadorHeader();
@@ -68,8 +96,20 @@ function renderizarProducto() {
       <div class="producto-info-wrap">
         <p class="producto-categoria-tag">${producto.categoria}</p>
         <h1 class="producto-nombre-detalle">${producto.nombre}</h1>
-        <p class="producto-precio-detalle">$${producto.precio.toLocaleString("es-CL")} CLP</p>
+        <p class="producto-precio-detalle"><span id="producto-precio-val">$${(opcionSeleccionada != null ? producto.opciones[opcionSeleccionada].precio : producto.precio).toLocaleString("es-CL")} CLP</span></p>
         <p class="producto-descripcion">${producto.descripcion}</p>
+
+        ${(opcionSeleccionada != null) ? `
+        <div class="producto-opciones">
+          <p class="producto-opciones-label">Elige tu opción</p>
+          <div class="producto-opciones-btns" role="radiogroup" aria-label="Opciones de compra">
+            ${producto.opciones.map((o, idx) => `
+            <button type="button" class="producto-opcion-btn${idx === 0 ? ' activa' : ''}" data-idx="${idx}" role="radio" aria-checked="${idx === 0 ? 'true' : 'false'}" onclick="elegirOpcionProducto(${idx})">
+              <span class="opcion-etq">${o.etiqueta}</span>
+              <span class="opcion-precio">$${o.precio.toLocaleString("es-CL")}</span>
+            </button>`).join('')}
+          </div>
+        </div>` : ''}
 
         <div>
           <p class="producto-cantidad-label">Cantidad</p>

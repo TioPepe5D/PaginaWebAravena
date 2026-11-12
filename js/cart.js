@@ -56,14 +56,32 @@ function _buscarProducto(id) {
   return fuente.find(p => String(p.id) === String(id));
 }
 
-function agregarAlCarrito(id) {
+/* Clave de línea del carrito. Un producto normal ocupa una sola línea, con
+   clave = su id (igual que siempre, carritos viejos siguen funcionando). Un
+   producto con opciones (foto de oferta) puede estar en varias líneas a la
+   vez — una por opción elegida — y su clave es "id::índiceDeOpción". */
+function _lineKey(item) {
+  return item.lineKey != null ? String(item.lineKey) : String(item.id);
+}
+
+function agregarAlCarrito(id, opcionIdx = null) {
   const producto = _buscarProducto(id);
   if (!producto) {
     console.warn("[Carrito] Producto no encontrado:", id);
     return;
   }
 
-  const existente = carrito.find(p => String(p.id) === String(id));
+  // Resolver precio y etiqueta según la opción elegida (si la hay)
+  let precio = producto.precio, opcion = null, opIdx = null, lineKey = String(id);
+  if (opcionIdx != null && Array.isArray(producto.opciones) && producto.opciones[opcionIdx]) {
+    const op = producto.opciones[opcionIdx];
+    precio  = op.precio;
+    opcion  = op.etiqueta;
+    opIdx   = opcionIdx;
+    lineKey = String(id) + "::" + opcionIdx;
+  }
+
+  const existente = carrito.find(p => _lineKey(p) === lineKey);
 
   if (existente) {
     if (existente.cantidad >= MAX_POR_ITEM) {
@@ -72,7 +90,9 @@ function agregarAlCarrito(id) {
     }
     existente.cantidad++;
   } else {
-    carrito.push({ ...producto, cantidad: 1 });
+    const item = { ...producto, precio, cantidad: 1, lineKey, opcion, opcionIdx: opIdx };
+    delete item.opciones;   // la línea ya guarda la opción elegida; no hace falta la lista
+    carrito.push(item);
   }
 
   guardarCarrito();
@@ -82,8 +102,8 @@ function agregarAlCarrito(id) {
   mostrarToast(producto.nombre);
 }
 
-function cambiarCantidad(id, delta) {
-  const item = carrito.find(p => String(p.id) === String(id));
+function cambiarCantidad(key, delta) {
+  const item = carrito.find(p => _lineKey(p) === String(key));
   if (!item) return;
   if (delta > 0 && item.cantidad >= MAX_POR_ITEM) {
     _avisoLimite(item.nombre);
@@ -92,7 +112,7 @@ function cambiarCantidad(id, delta) {
   item.cantidad += delta;
   if (item.cantidad > MAX_POR_ITEM) item.cantidad = MAX_POR_ITEM;
   if (item.cantidad <= 0) {
-    carrito = carrito.filter(p => String(p.id) !== String(id));
+    carrito = carrito.filter(p => _lineKey(p) !== String(key));
   }
   guardarCarrito();
   actualizarContador();
@@ -100,8 +120,8 @@ function cambiarCantidad(id, delta) {
   if (typeof renderizarProductos === "function") renderizarProductos();
 }
 
-function eliminarDelCarrito(id) {
-  carrito = carrito.filter(p => String(p.id) !== String(id));
+function eliminarDelCarrito(key) {
+  carrito = carrito.filter(p => _lineKey(p) !== String(key));
   guardarCarrito();
   actualizarContador();
   renderizarCarrito();
@@ -166,8 +186,8 @@ function renderizarCarrito() {
         </div>`;
     }
     return `
-    <div class="carrito-fila" data-id="${item.id}">
-      <button class="carrito-fila-borrar" onclick="eliminarDelCarrito(${item.id})" tabindex="-1" aria-label="Eliminar ${item.nombre}">
+    <div class="carrito-fila" data-id="${_lineKey(item)}">
+      <button class="carrito-fila-borrar" onclick="eliminarDelCarrito('${_lineKey(item)}')" tabindex="-1" aria-label="Eliminar ${item.nombre}">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -180,18 +200,18 @@ function renderizarCarrito() {
         <img src="${item.imagen}" alt="${item.nombre}">
         <div class="carrito-item-info">
           <p class="carrito-item-nombre">${item.nombre}</p>
-          <p class="carrito-item-categoria">${item.categoria || ""}</p>
+          <p class="carrito-item-categoria">${item.opcion ? "Opción: " + item.opcion : (item.categoria || "")}</p>
           <!-- Precio y cantidad en la misma línea: caben más productos a la vista -->
           <div class="carrito-item-fila">
             <p class="carrito-item-precio">$${item.precio.toLocaleString("es-CL")}</p>
             <div class="cantidad-selector">
-              <button onclick="cambiarCantidad(${item.id}, -1)">−</button>
+              <button onclick="cambiarCantidad('${_lineKey(item)}', -1)">−</button>
               <span class="cantidad-valor">${item.cantidad}</span>
-              <button onclick="cambiarCantidad(${item.id}, 1)">+</button>
+              <button onclick="cambiarCantidad('${_lineKey(item)}', 1)">+</button>
             </div>
           </div>
         </div>
-        <button class="carrito-item-eliminar" onclick="eliminarDelCarrito(${item.id})" title="Eliminar">
+        <button class="carrito-item-eliminar" onclick="eliminarDelCarrito('${_lineKey(item)}')" title="Eliminar">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="3 6 5 6 21 6"/>
             <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -320,9 +340,10 @@ async function iniciarPago() {
 
   const items = carrito.map(i => ({
     id: String(i.id),
-    title: i.nombre,
+    title: i.opcion ? `${i.nombre} (${i.opcion})` : i.nombre,
     quantity: i.cantidad,
     unit_price: i.precio,
+    opcionIdx: i.opcionIdx != null ? i.opcionIdx : undefined,
     currency_id: "CLP"
   }));
 

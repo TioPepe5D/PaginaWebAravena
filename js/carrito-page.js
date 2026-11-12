@@ -13,6 +13,12 @@ function guardarCarrito() {
   localStorage.setItem("carrito", JSON.stringify(carrito));
 }
 
+/* Clave de línea: id normal, o "id::opción" para productos de oferta con
+   varias opciones. Carritos viejos (sin lineKey) caen al id de siempre. */
+function _lineKey(item) {
+  return item.lineKey != null ? String(item.lineKey) : String(item.id);
+}
+
 function mostrarAvisoLimite(nombre) {
   const t = document.createElement('div');
   t.className = 'toast-limite';
@@ -36,8 +42,8 @@ function actualizarContador() {
   if (badge) badge.textContent = total;
 }
 
-function cambiarCantidad(id, delta) {
-  const item = carrito.find(p => String(p.id) === String(id));
+function cambiarCantidad(key, delta) {
+  const item = carrito.find(p => _lineKey(p) === String(key));
   if (!item) return;
   if (delta > 0 && item.cantidad >= MAX_POR_ITEM) {
     mostrarAvisoLimite(item.nombre);
@@ -46,7 +52,7 @@ function cambiarCantidad(id, delta) {
   item.cantidad += delta;
   if (item.cantidad > MAX_POR_ITEM) item.cantidad = MAX_POR_ITEM;
   if (item.cantidad <= 0) {
-    carrito = carrito.filter(p => String(p.id) !== String(id));
+    carrito = carrito.filter(p => _lineKey(p) !== String(key));
   }
   guardarCarrito();
   actualizarContador();
@@ -56,10 +62,10 @@ function cambiarCantidad(id, delta) {
 
 let _pendienteEliminarId = null;
 
-function pedirConfirmacionEliminar(id) {
-  const item = carrito.find(p => String(p.id) === String(id));
+function pedirConfirmacionEliminar(key) {
+  const item = carrito.find(p => _lineKey(p) === String(key));
   if (!item) return;
-  _pendienteEliminarId = id;
+  _pendienteEliminarId = String(key);
   document.getElementById('confirm-eliminar-nombre').textContent = item.nombre;
   document.getElementById('modal-confirm-overlay').classList.add('activo');
 }
@@ -71,7 +77,7 @@ function cerrarConfirmEliminar() {
 
 function confirmarEliminar() {
   if (_pendienteEliminarId === null) return;
-  carrito = carrito.filter(p => String(p.id) !== String(_pendienteEliminarId));
+  carrito = carrito.filter(p => _lineKey(p) !== String(_pendienteEliminarId));
   guardarCarrito();
   cerrarConfirmEliminar();
   actualizarContador();
@@ -125,17 +131,17 @@ function renderizarCarritoPage() {
       <img src="${item.imagen}" alt="${item.nombre}">
       <div class="carrito-page-item-info">
         <p class="carrito-page-item-nombre">${item.nombre}</p>
-        <p class="carrito-page-item-cat">${categoriaDeItem(item)}</p>
+        <p class="carrito-page-item-cat">${item.opcion ? "Opción: " + item.opcion : categoriaDeItem(item)}</p>
         <div class="cpi-fila">
           <p class="carrito-page-item-precio">$${item.precio.toLocaleString("es-CL")}</p>
           <div class="cantidad-selector">
-            <button onclick="cambiarCantidad(${item.id}, -1)" aria-label="Quitar uno">−</button>
+            <button onclick="cambiarCantidad('${_lineKey(item)}', -1)" aria-label="Quitar uno">−</button>
             <span class="cantidad-valor">${item.cantidad}</span>
-            <button onclick="cambiarCantidad(${item.id}, 1)" aria-label="Agregar uno">+</button>
+            <button onclick="cambiarCantidad('${_lineKey(item)}', 1)" aria-label="Agregar uno">+</button>
           </div>
         </div>
       </div>
-      <button class="carrito-page-item-eliminar" onclick="pedirConfirmacionEliminar(${item.id})" title="Eliminar">
+      <button class="carrito-page-item-eliminar" onclick="pedirConfirmacionEliminar('${_lineKey(item)}')" title="Eliminar">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <polyline points="3 6 5 6 21 6"/>
           <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
@@ -306,9 +312,12 @@ function renderizarSugeridos() {
   // El orden se baraja una sola vez por visita: si se rehiciera en cada
   // cambio de cantidad, las tarjetas saltarían de lugar.
   if (!_ordenSugeridos) {
-    const baratos = _barajar(productos.filter(p =>
+    // Los productos con opciones se agregan eligiendo precio en su detalle,
+    // no con el "+" rápido del sugerido: se dejan fuera de esta franja.
+    const simples = productos.filter(p => !(Array.isArray(p.opciones) && p.opciones.length));
+    const baratos = _barajar(simples.filter(p =>
       p.precio > 0 && (p.categoria === "exhibidores" || p.precio <= SUGERIDOS_TOPE_PRECIO)));
-    const resto = productos
+    const resto = simples
       .filter(p => p.precio > 0 && !baratos.includes(p))
       .sort((a, b) => a.precio - b.precio);
     _ordenSugeridos = [...baratos, ...resto];
@@ -675,10 +684,12 @@ async function _iniciarPagoMP() {
   btn.textContent = "Procesando...";
   if (estado) estado.textContent = "";
 
-  // Solo enviar id y quantity — el servidor calcula los precios reales
+  // Solo enviar id, quantity y la opción elegida — el servidor calcula los
+  // precios reales (incluido el de la opción) para que no se puedan falsear.
   const items = carrito.map(i => ({
-    id:       String(i.id),
-    quantity: i.cantidad
+    id:        String(i.id),
+    quantity:  i.cantidad,
+    opcionIdx: i.opcionIdx != null ? i.opcionIdx : undefined
   }));
 
   // Token de sesión para asociar el pedido al usuario (opcional)

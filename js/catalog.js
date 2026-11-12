@@ -71,6 +71,18 @@ function badgeCarritoHTML(cantidad) {
 }
 
 function btnWrapHTML(producto, cantidad) {
+  // Producto con varias opciones (foto de oferta): no se agrega directo desde
+  // la tarjeta, se abre el detalle para que el cliente elija precio/cantidad.
+  if (Array.isArray(producto.opciones) && producto.opciones.length) {
+    return `
+        <button class="btn-agregar-card btn-opciones-card" onclick="event.stopPropagation(); abrirDetalleProducto(${producto.id})">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          Ver opciones
+        </button>`;
+  }
   if (cantidad === 0) {
     return `
         <button class="btn-agregar-card" onclick="event.stopPropagation(); agregarAlCarrito(${producto.id})">
@@ -97,8 +109,18 @@ function btnWrapHTML(producto, cantidad) {
 }
 
 function tarjetaHTML(producto, opts = {}) {
-  const enCarrito = (typeof carrito !== "undefined") ? carrito.find(p => p.id === producto.id) : null;
-  const cantidad  = enCarrito ? enCarrito.cantidad : 0;
+  const esOpciones = Array.isArray(producto.opciones) && producto.opciones.length;
+  // En productos con opciones el mismo id puede estar en varias líneas del
+  // carrito (una por opción): el badge suma todas.
+  let cantidad;
+  if (esOpciones) {
+    cantidad = (typeof carrito !== "undefined")
+      ? carrito.filter(p => String(p.id) === String(producto.id)).reduce((s, i) => s + i.cantidad, 0)
+      : 0;
+  } else {
+    const enCarrito = (typeof carrito !== "undefined") ? carrito.find(p => p.id === producto.id) : null;
+    cantidad = enCarrito ? enCarrito.cantidad : 0;
+  }
   const imgSrc = (window.imagenesOverride && window.imagenesOverride[producto.id]) || producto.imagen;
   const clases = ['producto-card'];
   if (opts.animar) clases.push('animar');
@@ -116,7 +138,9 @@ function tarjetaHTML(producto, opts = {}) {
       <div class="producto-info">
         <p class="producto-categoria">${etiquetaCategoria(producto.categoria)}</p>
         <h3 class="producto-nombre">${producto.nombre}</h3>
-        <p class="producto-precio">${producto.precio > 0 ? '$' + producto.precio.toLocaleString("es-CL") : '<span class="precio-consultar">Consultar precio</span>'}</p>
+        <p class="producto-precio">${esOpciones
+            ? '<span class="precio-desde">Desde </span>$' + producto.precio.toLocaleString("es-CL")
+            : (producto.precio > 0 ? '$' + producto.precio.toLocaleString("es-CL") : '<span class="precio-consultar">Consultar precio</span>')}</p>
       </div>
       <div class="producto-card-btn-wrap">${btnWrapHTML(producto, cantidad)}</div>
     </div>`;
@@ -383,6 +407,10 @@ function beneficiosProducto() {
   ];
 }
 
+// Opción elegida en el panel de detalle (índice dentro de producto.opciones)
+let _detalleOpcionSel = null;
+let _detalleProdId = null;
+
 function abrirDetalleProducto(id) {
   const producto = productosActivos.find(p => p.id === id);
   if (!producto) return;
@@ -391,13 +419,29 @@ function abrirDetalleProducto(id) {
   const overlay  = document.getElementById("producto-detalle-overlay");
   const contenido = document.getElementById("producto-detalle-contenido");
 
+  const esOpciones = Array.isArray(producto.opciones) && producto.opciones.length;
+  _detalleProdId = id;
+  _detalleOpcionSel = esOpciones ? 0 : null;
+  const precioInicial = esOpciones ? producto.opciones[0].precio : producto.precio;
+
   contenido.innerHTML = `
     <img src="${producto.imagen}" alt="${producto.nombre}" class="detalle-imagen">
     <div class="detalle-info">
       <p class="detalle-categoria">${etiquetaCategoria(producto.categoria)}</p>
       <h2 class="detalle-nombre">${producto.nombre}</h2>
-      <p class="detalle-precio">${producto.precio > 0 ? '$' + producto.precio.toLocaleString("es-CL") + ' CLP' : '<span class="precio-consultar">Consultar precio</span>'}</p>
+      <p class="detalle-precio">${precioInicial > 0 ? '<span id="detalle-precio-val">$' + precioInicial.toLocaleString("es-CL") + ' CLP</span>' : '<span class="precio-consultar">Consultar precio</span>'}</p>
       <p class="detalle-descripcion">${descripcionProducto(producto)}</p>
+      ${esOpciones ? `
+      <div class="detalle-opciones">
+        <span class="detalle-opciones-label">Elige tu opción</span>
+        <div class="detalle-opciones-btns" role="radiogroup" aria-label="Opciones de compra">
+          ${producto.opciones.map((o, idx) => `
+          <button type="button" class="detalle-opcion-btn${idx === 0 ? ' activa' : ''}" data-idx="${idx}" role="radio" aria-checked="${idx === 0 ? 'true' : 'false'}" onclick="detalleElegirOpcion(${idx})">
+            <span class="opcion-etq">${o.etiqueta}</span>
+            <span class="opcion-precio">$${o.precio.toLocaleString("es-CL")}</span>
+          </button>`).join('')}
+        </div>
+      </div>` : ''}
       <div class="detalle-cantidad-wrap">
         <span class="detalle-cantidad-label">Cantidad</span>
         <div class="cantidad-selector">
@@ -451,9 +495,25 @@ function detalleCambiarCantidad(delta) {
   el.textContent = val;
 }
 
+// Cambia la opción elegida en el detalle y refresca el precio mostrado
+function detalleElegirOpcion(idx) {
+  const prod = productosActivos.find(p => p.id === _detalleProdId);
+  if (!prod || !Array.isArray(prod.opciones) || !prod.opciones[idx]) return;
+  _detalleOpcionSel = idx;
+  document.querySelectorAll(".detalle-opcion-btn").forEach(b => {
+    const on = Number(b.dataset.idx) === idx;
+    b.classList.toggle("activa", on);
+    b.setAttribute("aria-checked", on ? "true" : "false");
+  });
+  const val = document.getElementById("detalle-precio-val");
+  if (val) val.textContent = "$" + prod.opciones[idx].precio.toLocaleString("es-CL") + " CLP";
+}
+
 function detalleAgregarAlCarrito(id) {
   const cantidad = parseInt(document.getElementById("detalle-cantidad").textContent) || 1;
-  for (let i = 0; i < cantidad; i++) agregarAlCarrito(id);
+  const prod = productosActivos.find(p => p.id === id);
+  const op = (prod && Array.isArray(prod.opciones) && prod.opciones.length) ? _detalleOpcionSel : null;
+  for (let i = 0; i < cantidad; i++) agregarAlCarrito(id, op);
   const btn = document.getElementById("btn-detalle-agregar");
   btn.textContent = "✓ Agregado";
   btn.style.backgroundColor = "#10b981";

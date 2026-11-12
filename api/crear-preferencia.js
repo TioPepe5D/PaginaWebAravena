@@ -89,24 +89,39 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: `Cantidad inválida para ${p.nombre}` });
     }
 
+    /* Precio según la opción elegida. En productos de oferta con varias
+       opciones, el precio NO es el base del producto sino el de la opción
+       que eligió el cliente; se toma del catálogo del servidor (no del que
+       manda el navegador) para que no se pueda falsear. */
+    let nombre = p.nombre;
+    let precioFuente = p.precio;
+    let opcionIdx = null;
+    if (it.opcionIdx != null && Array.isArray(p.opciones) && p.opciones[it.opcionIdx]) {
+      const op = p.opciones[it.opcionIdx];
+      precioFuente = op.precio;
+      nombre = `${p.nombre} (${op.etiqueta})`;
+      opcionIdx = it.opcionIdx;
+    }
+
     // MercadoPago rechaza montos que no sean enteros positivos (CLP sin
     // decimales). Se corta acá con un mensaje claro en vez de dejar que
     // falle después con "unit_price invalid".
-    const precio = Math.round(Number(p.precio));
+    const precio = Math.round(Number(precioFuente));
     if (!Number.isFinite(precio) || precio <= 0) {
-      console.error("[crear-preferencia] Precio inválido:", p.id, p.nombre, p.precio);
+      console.error("[crear-preferencia] Precio inválido:", p.id, nombre, precioFuente);
       return res.status(400).json({
-        error: `El producto "${p.nombre || p.id}" no tiene precio disponible. Escríbenos por WhatsApp para completar tu compra.`
+        error: `El producto "${nombre || p.id}" no tiene precio disponible. Escríbenos por WhatsApp para completar tu compra.`
       });
     }
 
     itemsValidados.push({
       id:        String(p.id),
-      nombre:    p.nombre,
+      nombre,
       cantidad:  qty,
       precio,                          // ← precio real del servidor
       imagen:    p.imagen || "",
-      categoria: p.categoria || ""     // la usan el panel y los avisos de compra
+      categoria: p.categoria || "",    // la usan el panel y los avisos de compra
+      ...(opcionIdx != null ? { opcionIdx } : {})
     });
   }
 
@@ -177,10 +192,11 @@ module.exports = async (req, res) => {
     : { data: null };
 
   if (previos && previos.length) {
-    const huella = JSON.stringify(payload.items.map(i => [String(i.id), i.cantidad]).sort());
+    const _huella = its => JSON.stringify(its.map(i => [String(i.id), i.opcionIdx != null ? i.opcionIdx : "", i.cantidad]).sort());
+    const huella = _huella(payload.items);
     const igual = previos.find(p => {
       const suyo = Array.isArray(p.items) ? p.items : [];
-      return JSON.stringify(suyo.map(i => [String(i.id), i.cantidad]).sort()) === huella;
+      return _huella(suyo) === huella;
     });
     if (igual) {
       pedido = { id: igual.id };

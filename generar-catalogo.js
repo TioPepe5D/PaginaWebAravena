@@ -35,6 +35,23 @@ const items = lines.map((l, idx) => {
   }
 }).filter(Boolean);
 
+/* Productos con varias opciones de compra (fotos de oferta: "1 x $5.000,
+   3 x $10.000, 7 x $20.000" o varios lotes a distintos precios en la misma
+   foto). El precio base del producto = el más barato, para mostrar "Desde $X".
+   El cliente elige la opción en el detalle y ese precio manda. */
+items.forEach(it => {
+  if (Array.isArray(it.opciones) && it.opciones.length) {
+    it.opciones = it.opciones
+      .map(o => ({ etiqueta: String(o.etiqueta || ""), precio: Number(o.precio) || 0 }))
+      .filter(o => o.precio > 0);
+    if (it.opciones.length) {
+      it.precio = Math.min(...it.opciones.map(o => o.precio));   // "Desde $X"
+    } else {
+      delete it.opciones;
+    }
+  }
+});
+
 // Ordenar por categoría y, dentro de cada una, por precio descendente
 items.sort((a, b) => {
   const d = ORDEN.indexOf(a.categoria) - ORDEN.indexOf(b.categoria);
@@ -52,8 +69,11 @@ items.forEach((it, i) => {
   out += "    material: " + JSON.stringify(it.material || "plata-nacional") + ",\n";
   out += "    precio: " + (it.precio || 0) + ",\n";
   out += "    imagen: " + JSON.stringify(imagen) + ",\n";
-  out += "    descripcion: " + JSON.stringify(it.descripcion || it.nombre) + "\n";
-  out += "  }" + (i < items.length - 1 ? "," : "") + "\n";
+  out += "    descripcion: " + JSON.stringify(it.descripcion || it.nombre);
+  if (Array.isArray(it.opciones) && it.opciones.length) {
+    out += ",\n    opciones: " + JSON.stringify(it.opciones);
+  }
+  out += "\n  }" + (i < items.length - 1 ? "," : "") + "\n";
 });
 out += "\n];\n\n";
 out += "// Exportar para Node.js (APIs de Vercel) sin romper el navegador\n";
